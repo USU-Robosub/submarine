@@ -1,6 +1,6 @@
 matrix:
   include:
     - language: cpp
-      script: ./runUnitTests.sh
+      script: runUnitTests.sh
 
     - language: node_js
