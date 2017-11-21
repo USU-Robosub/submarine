@@ -7,5 +7,5 @@ TEST_CASE( "Factorials are computed", "[factorial]" ) {
 }
 
 TEST_CASE("test1", "test2"){
-  //REQUIRE( false );
+  REQUIRE( false );
 }

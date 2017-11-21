@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Utils
 cd utils/cpp
 mkdir build
