@@ -2,7 +2,10 @@ matrix:
   include:
     - language: cpp
       before_install:
-        - chmod +x runUnitTests.sh
-      script: ./runUnitTests.sh
+        - chmod +x runUnitTests_Cpp.sh
+      script: ./runUnitTests_Cpp.sh
 
     - language: node_js
+      before_install:
+        - chmod +x runUnitTests_Javascript.sh
+      script: ./runUnitTests_Javascript.sh
