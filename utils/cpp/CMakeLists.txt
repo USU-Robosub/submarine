@@ -23,10 +23,10 @@ add_library(${PROJECT_NAME} ${SOURCE_FILES})
 if(${tests})
   include_directories(${SOURCE_DIR}/mocks)
 
-  file(GLOB_RECURSE TEST_FILES "test/*.cpp")
+  file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
 
   include_directories(../../extern/catch2)
 
-  add_executable(${PROJECT_NAME}Tests ${TEST_FILES})
+  add_executable(${PROJECT_NAME}Tests test/main.cpp ${SPEC_FILES})
   target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME})
 endif()

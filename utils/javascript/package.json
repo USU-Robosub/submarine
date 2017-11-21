@@ -1,0 +1,24 @@
+{
+  "name": "Utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/USU-Robosub/submarine"
+  },
+  "bugs": {
+    "url": "https://github.com/USU-Robosub/submarine/issues"
+  },
+  "devDependencies": {
+    "jest": "^21.2.1"
+  }
+}
