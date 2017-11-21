@@ -2,6 +2,7 @@ matrix:
   include:
     - language: cpp
       before_install:
+        - pip install --user pyyaml cpp-coveralls
         - chmod +x runUnitTests_Cpp.sh
       script: ./runUnitTests_Cpp.sh
 
