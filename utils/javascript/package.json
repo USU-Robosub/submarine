@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test_ci": "jest --config config.json --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "author": "",
   "license": "BSD-2-Clause",
@@ -19,6 +20,7 @@
     "url": "https://github.com/USU-Robosub/submarine/issues"
   },
   "devDependencies": {
+    "coveralls": "^3.0.0",
     "jest": "^21.2.1"
   }
 }
