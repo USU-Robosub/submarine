@@ -8,3 +8,4 @@ cmake .. -Dtests=ON
 make
 ./UtilsTests
 cd ../../..
+coveralls -i utils/cpp

@@ -3,8 +3,17 @@ set(PROJECT_NAME Utils)
 project (${PROJECT_NAME})
 
 option(tests "Build tests" OFF)
+option(coverage "Enable coverage output" OFF)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -pthread")
+set(CMAKE_CXX_CUSTOM_FLAGS "-std=gnu++11 -pthread")
+
+if(${coverage})
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_CUSTOM_FLAGS} --coverage")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --coverage")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} --coverage")
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_CUSTOM_FLAGS}")
+endif()
 set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
 include_directories(${SOURCE_DIR}/include)
