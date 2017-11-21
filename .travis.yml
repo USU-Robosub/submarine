@@ -3,6 +3,6 @@ matrix:
     - language: cpp
       before_install:
         - chmod +x runUnitTests.sh
-      script: runUnitTests.sh
+      script: ./runUnitTests.sh
 
     - language: node_js
