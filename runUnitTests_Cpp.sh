@@ -1,4 +1,4 @@
---exclude#!/bin/bash
+#!/bin/bash
 set -e
 # Utils
 cd utils/cpp
