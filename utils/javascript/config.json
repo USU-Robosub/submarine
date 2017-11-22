@@ -1,5 +1,5 @@
 {
   "collectCoverageFrom": [
-    "src/*.js"
+    "utils/javascript/src/*.js"
   ]
 }
