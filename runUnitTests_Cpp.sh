@@ -8,4 +8,4 @@ cmake .. -Dtests=ON -Dcoverage=ON
 make
 ./UtilsTests
 cd ../../..
-coveralls -i utils/cpp -e utils/cpp/build/CMakeFiles/feature_tests.cxx -e utils/cpp/build/CMakeFiles/feature_tests.c
+coveralls -i utils/cpp -E .+\/(feature_tests|.+\.spec|CMake(C|CXX)CompilerId).+
