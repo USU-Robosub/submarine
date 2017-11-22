@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "test_ci": "jest --config config.json --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "test": "jest"
   },
   "author": "",
   "license": "BSD-2-Clause",

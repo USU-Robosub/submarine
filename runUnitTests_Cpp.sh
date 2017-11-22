@@ -4,7 +4,7 @@ set -e
 cd utils/cpp
 mkdir build
 cd build
-cmake .. -Dtests=ON
+cmake .. -Dtests=ON -Dcoverage=ON
 make
 ./UtilsTests
 cd ../../..
