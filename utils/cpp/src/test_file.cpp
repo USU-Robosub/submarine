@@ -1,3 +1,6 @@
-int utilFunction1(){
-  return 100;
+#include "iostream"
+using namespace std;
+
+void utilFunction1(){
+  cout << "hello world" << endl;
 }
