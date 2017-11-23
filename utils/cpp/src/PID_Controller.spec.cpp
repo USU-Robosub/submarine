@@ -39,8 +39,8 @@ TEST_CASE("PID_Controller update function", "[PID_Controller]"){
       controller.p = -0.5;
       controller.setPoint = 1.2;
 
-      REQUIRE(controller.update(6) == 2.4);
-      REQUIRE(controller.update(6) == 2.4);
+      REQUIRE(controller.update(6, 4) == 2.4);
+      REQUIRE(controller.update(6, 0.5) == 2.4);
     }
   }
 
@@ -57,9 +57,9 @@ TEST_CASE("PID_Controller update function", "[PID_Controller]"){
       controller.i = -3;
       controller.setPoint = 0;
 
-      REQUIRE(controller.update(0) == 0);
-      REQUIRE(controller.update(5) == 15);
-      REQUIRE(controller.update(-3) == 6);
+      REQUIRE(controller.update(0, 0.2) == 0);
+      REQUIRE(controller.update(5, 2) == 30);
+      REQUIRE(controller.update(-3, 1.5) == 16.5);
     }
   }
 
@@ -76,9 +76,9 @@ TEST_CASE("PID_Controller update function", "[PID_Controller]"){
       controller.d = -3;
       controller.setPoint = -4.5;
 
-      REQUIRE(controller.update(-4.5) == 0);
-      REQUIRE(controller.update(5) == 28.5);
-      REQUIRE(controller.update(0) == -15);
+      REQUIRE(controller.update(-4.5, 0.5) == 0);
+      REQUIRE(controller.update(5, 2) == 14.25);
+      REQUIRE(controller.update(0, 0.5) == -30);
     }
   }
 }
