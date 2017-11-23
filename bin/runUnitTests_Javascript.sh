@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-cd ..
 # Utils
 cd utils/javascript
 npm install
