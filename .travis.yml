@@ -3,13 +3,13 @@ matrix:
     - language: cpp
       before_install:
         - pip install --user pyyaml cpp-coveralls
-        - chmod +x runUnitTests_Cpp.sh
-      script: ./runUnitTests_Cpp.sh
+        - chmod +x bin/runUnitTests_Cpp.sh
+      script: ./bin/runUnitTests_Cpp.sh
 
     - language: node_js
       node_js:
         - "node"
         - "4"
       before_install:
-        - chmod +x runUnitTests_Javascript.sh
-      script: ./runUnitTests_Javascript.sh
+        - chmod +x bin/runUnitTests_Javascript.sh
+      script: ./bin/runUnitTests_Javascript.sh

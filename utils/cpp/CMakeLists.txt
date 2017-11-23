@@ -36,6 +36,6 @@ if(${tests})
 
   include_directories(../../extern/catch2)
 
-  add_executable(${PROJECT_NAME}Tests test/main.cpp ${SPEC_FILES})
-  target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME})
+  add_executable(${PROJECT_NAME}_Tests test/main.cpp ${SPEC_FILES})
+  target_link_libraries(${PROJECT_NAME}_Tests ${PROJECT_NAME})
 endif()

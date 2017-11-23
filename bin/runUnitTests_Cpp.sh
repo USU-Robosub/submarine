@@ -1,11 +1,12 @@
 #!/bin/bash
 set -e
+cd ..
 # Utils
 cd utils/cpp
-mkdir build
+mkdir -p build
 cd build
 cmake .. -Dtests=ON -Dcoverage=ON
 make
-./UtilsTests
+./Utils_Tests
 cd ../../..
 coveralls -i utils/cpp -E ".+\/(feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main).+"
