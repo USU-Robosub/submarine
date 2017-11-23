@@ -8,8 +8,8 @@
   <a href="https://travis-ci.org/USU-Robosub/submarine">
     <img src="https://travis-ci.org/USU-Robosub/submarine.svg?branch=develop"
       alt="Travis-CI Build Status"></a>
-  <a href="https://coveralls.io/github/USU-Robosub/submarine?branch=coverallsSetup">
-    <img src="https://coveralls.io/repos/github/USU-Robosub/submarine/badge.svg?branch=coverallsSetup"
+  <a href="https://coveralls.io/github/USU-Robosub/submarine?branch=develop">
+    <img src="https://coveralls.io/repos/github/USU-Robosub/submarine/badge.svg?branch=develop"
       alt="Coveralls Coverage"></a>
 </p>
 
