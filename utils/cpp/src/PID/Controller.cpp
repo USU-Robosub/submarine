@@ -1,12 +1,5 @@
 #include "PID/Controller.h"
 
-PID::Controller::Controller(double pGain, double iGain, double dGain, double setPoint){
-  this->pGain = pGain;
-  this->iGain = iGain;
-  this->dGain = dGain;
-  this->setPoint = setPoint;
-}
-
 double PID::Controller::correctFor(double newValue, double deltaTime){
   double error = this->setPoint - newValue;
   this->errorIntegral = Math::DiscreteCalculus::integrate(this->errorIntegral, error, deltaTime);
