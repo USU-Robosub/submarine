@@ -1,3 +1,6 @@
+#ifndef MATH_DISCRETE_CALCULUS
+#define MATH_DISCRETE_CALCULUS
+
 namespace Math{
   class DiscreteCalculus{
   public:
@@ -5,3 +8,5 @@ namespace Math{
     static double differentiate(double previousValue, double newValue, double deltaTime);
   };
 }
+
+#endif

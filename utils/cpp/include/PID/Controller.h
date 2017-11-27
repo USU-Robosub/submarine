@@ -1,3 +1,6 @@
+#ifndef PID_CONTROLLER
+#define PID_CONTROLLER
+
 #include <atomic>
 #include "Math/DiscreteCalculus.h"
 
@@ -11,3 +14,5 @@ namespace PID{
     double errorIntegral = 0, previousError = 0;
   };
 }
+
+#endif

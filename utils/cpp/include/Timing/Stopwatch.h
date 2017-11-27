@@ -1,3 +1,6 @@
+#ifndef TIMING_STOPWATCH
+#define TIMING_STOPWATCH
+
 #include <chrono>
 
 namespace Timing{
@@ -9,3 +12,6 @@ namespace Timing{
     bool firstMessure = true;
   };
 }
+
+
+#endif

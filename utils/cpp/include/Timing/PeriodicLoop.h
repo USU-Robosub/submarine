@@ -1,3 +1,6 @@
+#ifndef TIMING_PERIODIC_LOOP
+#define TIMING_PERIODIC_LOOP
+
 #include <functional>
 #include <thread>
 #include <atomic>
@@ -20,3 +23,5 @@ namespace Timing{
     double minDeltaTime;
   };
 }
+
+#endif
