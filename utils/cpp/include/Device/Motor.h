@@ -4,7 +4,7 @@
 namespace Device{
   class Motor{
   public:
-    virtual void setSpeed(double speed) = 0;
+    virtual void setPower(double speed) = 0;
   };
 }
 

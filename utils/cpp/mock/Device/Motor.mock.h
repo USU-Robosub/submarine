@@ -7,10 +7,10 @@ namespace Device{
   namespace Mock{
     class TestMotor : public Motor {
     public:
-      void setSpeed(double speed){
-        didSetSpeed = true;
+      void setPower(double power){
+        didSetPower = true;
       }
-      bool didSetSpeed = false;
+      bool didSetPower = false;
     };
   }
 }
