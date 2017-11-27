@@ -30,7 +30,7 @@ endforeach()
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
 if(${tests})
-  include_directories(${SOURCE_DIR}/mocks)
+  include_directories(${SOURCE_DIR}/mock)
 
   file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
 
