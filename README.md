@@ -6,10 +6,10 @@
 
 <p align="center">
   <a href="https://travis-ci.org/USU-Robosub/submarine">
-    <img src="https://travis-ci.org/USU-Robosub/submarine.svg?branch=develop"
+    <img src="https://img.shields.io/travis/USU-Robosub/submarine/develop.svg"
       alt="Travis-CI Build Status"></a>
   <a href="https://coveralls.io/github/USU-Robosub/submarine?branch=develop">
-    <img src="https://coveralls.io/repos/github/USU-Robosub/submarine/badge.svg?branch=develop"
+    <img src="https://img.shields.io/coveralls/github/USU-Robosub/submarine/develop.svg"
       alt="Coveralls Coverage"></a>
 </p>
 
