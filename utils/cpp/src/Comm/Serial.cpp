@@ -9,28 +9,66 @@
   #define LOG(X)
 #endif
 
-bool Comm::Serial::connect(){
-  this->fileDescriptor = open(this->portName.c_str(), O_RDWR | O_NOCTTY);
-  if(this->fileDescriptor == -1){
-    LOG("Failed to open");
-    return false;
+void Comm::Serial::connect(){
+  if(this->_status == Comm::Status::Idle || this->_status == Comm::Status::Error){
+
+    this->_status = Comm::Status::Connecting;
+    this->fileDescriptor = open(this->portName.c_str(), O_RDWR | O_NOCTTY);
+    if(this->fileDescriptor == -1){
+      LOG("Failed to open");
+      this->triggerError();
+    }else{
+      this->configure();
+      this->_status = Comm::Status::Ready;
+    }
+
   }
-  return this->configure();
+}
+
+Comm::Status Comm::Serial::status(){
+  return this->_status;
+}
+
+void Comm::Serial::triggerError(){
+  this->_status = Comm::Status::Error;
+  this->disconnect();
 }
 
 void Comm::Serial::disconnect(){
+  if(this->_status != Comm::Status::Error)
+    this->_status = Comm::Status::Idle;
+
   close(this->fileDescriptor);
   this->fileDescriptor = 0;
 }
 
-bool Comm::Serial::configure(){
+void Comm::Serial::send(char* data, unsigned short length){
+  if(this->_status == Comm::Status::Ready){
+    std::lock_guard<std::mutex> guard(this->threadLock);
+    write(this->fileDescriptor, data, length);
+  }
+}
+
+Comm::Data Comm::Serial::read(){
+  if(this->_status == Comm::Status::Ready){
+    std::lock_guard<std::mutex> guard(this->threadLock);
+    this->updateBuffer();
+    // return next in buffer
+  }
+}
+
+void Comm::Serial::updateBuffer(){
+
+}
+
+void Comm::Serial::configure(){
   // get config
   struct termios config;
   int successGettingConfig = tcgetattr(this->fileDescriptor, &config);
   if(successGettingConfig == -1){
     LOG("Failed to get config");
-    this->disconnect();
-    return false;
+    this->triggerError();
+    return;
   }
 
   //set baud rate
@@ -38,8 +76,8 @@ bool Comm::Serial::configure(){
   int outputSpeedSupported = cfsetospeed(&config, this->speed);
   if(inputSpeedSupported == -1 || outputSpeedSupported == -1){
     LOG("Failed to set baud rate");
-    this->disconnect();
-    return false;
+    this->triggerError();
+    return;
   }
 
   // set config bits (flags)
@@ -62,14 +100,14 @@ bool Comm::Serial::configure(){
   int successSettingConfig = tcsetattr(this->fileDescriptor, TCSANOW, &config);
   if(successSettingConfig == -1){
     LOG("Failed to set config");
-    this->disconnect();
-    return false;
+    this->triggerError();
+    return;
   }
 
   int successFlushing = tcflush(this->fileDescriptor, TCIFLUSH);
   if(successFlushing == -1){
     LOG("Failed to flush");
-    this->disconnect();
-    return false;
+    this->triggerError();
+    return;
   }
 }

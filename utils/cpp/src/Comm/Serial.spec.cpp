@@ -12,7 +12,8 @@
 
 TEST_CASE("can connect to port", "[Serial][hide]"){
   Comm::Serial serial(TEST_PORT, B9600);
-  REQUIRE( serial.connect() );
+  serial.connect();
+  REQUIRE( serial.status() == Comm::Status::Ready );
   serial.disconnect();
 }
 
@@ -22,14 +23,33 @@ TEST_CASE("serial can send and receive a message", "[Serial][hide]"){
   sendingSerial.connect();
   receivingSerial.connect();
 
-char* data
-unsigned int length
+  char data[] = { 1, 0, 0, 1, 1, 0 };
+  unsigned short length = 6;
 
   sendingSerial.send(data, length);
-  Comm::Serial::Data readData = sendingSerial.read();
-  REQUIRE( readData.length == data.length );
-  REQUIRE( readData.data == data.data );
+  REQUIRE( receivingSerial.hasPending() );
 
+  receivingSerial.disconnect();
+  sendingSerial.disconnect();
+}
+
+TEST_CASE("serial can send and receive a message", "[Serial][hide]"){
+  Comm::Serial sendingSerial(TEST_PORT, B9600);
+  Comm::Serial receivingSerial(OTHER_TEST_PORT, B9600);
+  sendingSerial.connect();
+  receivingSerial.connect();
+
+  char data[] = { 1, 0, 0, 1, 1, 0 };
+  unsigned short length = 6;
+
+  sendingSerial.send(data, length);
+  Comm::Data readData = receivingSerial.read();
+  REQUIRE( readData.length == length );
+  for(unsigned int i = 0; i < length; ++i){
+    REQUIRE( readData.data[i] == data[i] );
+  }
+
+  delete[] readData.data;
   receivingSerial.disconnect();
   sendingSerial.disconnect();
 }
