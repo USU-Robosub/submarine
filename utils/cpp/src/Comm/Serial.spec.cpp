@@ -17,7 +17,7 @@
 #define TEST_PORT_2 "/dev/ttyS11"
 #define ERROR_TEST_PORT "/dev/ttyS20"
 
-TEST_CASE("returns status ready after calling connect", "[Serial][hide]"){
+TEST_CASE("returns status ready after calling connect", "[Serial][!hide]"){
   Comm::Serial serial(TEST_PORT_1, B9600);
   REQUIRE( serial.status() == Comm::Status::Disconnected );
   serial.connect();
@@ -26,7 +26,7 @@ TEST_CASE("returns status ready after calling connect", "[Serial][hide]"){
   REQUIRE( serial.status() == Comm::Status::Disconnected );
 }
 
-TEST_CASE("returns status error after connecting to non-existent port", "[Serial][hide]"){
+TEST_CASE("returns status error after connecting to non-existent port", "[Serial][!hide]"){
   Comm::Serial serial(ERROR_TEST_PORT, B9600);
   REQUIRE( serial.status() == Comm::Status::Disconnected );
   serial.connect();
@@ -35,7 +35,7 @@ TEST_CASE("returns status error after connecting to non-existent port", "[Serial
   REQUIRE( serial.status() == Comm::Status::Error );
 }
 
-TEST_CASE("data is available after sending data", "[Serial][hide]"){
+TEST_CASE("data is available after sending data", "[Serial][!hide]"){
   Comm::Serial sendingSerial(TEST_PORT_1, B9600);
   Comm::Serial readingSerial(TEST_PORT_2, B9600);
   sendingSerial.connect();
@@ -52,7 +52,7 @@ TEST_CASE("data is available after sending data", "[Serial][hide]"){
   readingSerial.disconnect();
 }
 
-TEST_CASE("data can be read after it is sent", "[Serial][hide]"){
+TEST_CASE("data can be read after it is sent", "[Serial][!hide]"){
   Comm::Serial sendingSerial(TEST_PORT_1, B9600);
   Comm::Serial readingSerial(TEST_PORT_2, B9600);
   sendingSerial.connect();
