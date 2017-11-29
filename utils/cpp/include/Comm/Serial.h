@@ -6,16 +6,14 @@
 #include <termios.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/select.h>
 /* --- */
 #include <string>
 #include <mutex>
 #include <queue>
+#include "Comm/Status.h"
 
 namespace Comm{
-  enum Status{
-    Idle, Connecting, Ready, Error
-  };
-
   struct Data{
     char* data;
     unsigned short length;
@@ -27,20 +25,16 @@ namespace Comm{
     void connect();
     Status status();
     void disconnect();
-    void send(char* data, unsigned short length);
-    Data read();
+    bool canRead();
+    void send(char* data, unsigned int length);
+    void receive(char* data, unsigned int length);
   private:
-    void updateBuffer();
-    void triggerError();
     void configure();
-    std::queue<Comm::Data> dataBuffer;
-    char* rawBuffer;
-    unsigned int rawBufferLength = 0;
-    Status _status = Status::Idle;
-    std::mutex threadLock;
-    unsigned int speed;
-    std::string portName;
+    void triggerError();
+    Status _status = Status::Disconnected;
     int fileDescriptor = 0;
+    std::string portName;
+    unsigned int speed;
   };
 }
 

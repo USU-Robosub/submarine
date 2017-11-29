@@ -1,6 +1,6 @@
 #include "Comm/Serial.h"
 
-//#define SHOW_LOG // use for debugging connection problems
+// #define SHOW_LOG // use for debugging connection problems
 
 #ifdef SHOW_LOG
   #include <iostream>
@@ -9,19 +9,38 @@
   #define LOG(X)
 #endif
 
-void Comm::Serial::connect(){
-  if(this->_status == Comm::Status::Idle || this->_status == Comm::Status::Error){
+bool Comm::Serial::canRead(){
+  struct timeval timeout;
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 0;
+  fd_set readset;
+  FD_ZERO(&readset);
+  FD_SET(this->fileDescriptor, &readset);
+  int result = select(this->fileDescriptor + 1, &readset, NULL, NULL, &timeout);
+  LOG(result);
+  return ( result > 0 );
+}
 
+void Comm::Serial::send(char* data, unsigned int length){
+  write(this->fileDescriptor, data, length);
+}
+
+void Comm::Serial::receive(char* data, unsigned int length){
+  read(this->fileDescriptor, data, (size_t)length);
+}
+
+void Comm::Serial::connect(){
+  if(this->_status == Comm::Status::Disconnected){
     this->_status = Comm::Status::Connecting;
     this->fileDescriptor = open(this->portName.c_str(), O_RDWR | O_NOCTTY);
     if(this->fileDescriptor == -1){
       LOG("Failed to open");
       this->triggerError();
     }else{
+
       this->configure();
       this->_status = Comm::Status::Ready;
     }
-
   }
 }
 
@@ -29,36 +48,18 @@ Comm::Status Comm::Serial::status(){
   return this->_status;
 }
 
+void Comm::Serial::disconnect(){
+  if(this->_status != Comm::Status::Disconnected){
+    if(this->_status != Comm::Status::Error)
+      this->_status = Comm::Status::Disconnected;
+    close(this->fileDescriptor);
+    this->fileDescriptor = 0;
+  }
+}
+
 void Comm::Serial::triggerError(){
   this->_status = Comm::Status::Error;
   this->disconnect();
-}
-
-void Comm::Serial::disconnect(){
-  if(this->_status != Comm::Status::Error)
-    this->_status = Comm::Status::Idle;
-
-  close(this->fileDescriptor);
-  this->fileDescriptor = 0;
-}
-
-void Comm::Serial::send(char* data, unsigned short length){
-  if(this->_status == Comm::Status::Ready){
-    std::lock_guard<std::mutex> guard(this->threadLock);
-    write(this->fileDescriptor, data, length);
-  }
-}
-
-Comm::Data Comm::Serial::read(){
-  if(this->_status == Comm::Status::Ready){
-    std::lock_guard<std::mutex> guard(this->threadLock);
-    this->updateBuffer();
-    // return next in buffer
-  }
-}
-
-void Comm::Serial::updateBuffer(){
-
 }
 
 void Comm::Serial::configure(){
