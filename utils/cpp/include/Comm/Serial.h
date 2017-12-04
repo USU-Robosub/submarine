@@ -12,6 +12,7 @@
 #include <mutex>
 #include <queue>
 #include "Comm/Status.h"
+#include "Comm/Stream.h"
 
 namespace Comm{
   struct Data{
@@ -19,7 +20,7 @@ namespace Comm{
     unsigned short length;
   };
 
-  class Serial {
+  class Serial : public Stream{
   public:
     Serial(std::string portName, unsigned int speed) : portName(portName), speed(speed) {}
     void connect();
