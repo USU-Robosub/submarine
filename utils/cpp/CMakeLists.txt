@@ -17,6 +17,7 @@ endif()
 set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
 include_directories(${SOURCE_DIR}/include)
+include_directories(${SOURCE_DIR}/../../extern/gsi)
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
@@ -34,7 +35,7 @@ if(${tests})
 
   file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
 
-  include_directories(../../extern/catch2)
+  include_directories(${SOURCE_DIR}/../../extern/catch2)
 
   add_executable(${PROJECT_NAME}_Tests test/main.cpp ${SPEC_FILES})
   target_link_libraries(${PROJECT_NAME}_Tests ${PROJECT_NAME})
