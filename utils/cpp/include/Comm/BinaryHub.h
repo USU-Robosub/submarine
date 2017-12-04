@@ -4,17 +4,18 @@
 #include <cstring>
 #include <mutex>
 #include "Comm/Stream.h"
+#include "Comm/Hub.h"
 
 #define COMM_INT_SIZE 4
 
 namespace Comm{
-  class BinaryHub{
+  class BinaryHub : public Hub{
   public:
     BinaryHub(Stream* stream) : stream(stream) {}
-    int readInt();
-    void writeInt(int value);
     void lock();
     void unlock();
+    int readInt();
+    void writeInt(int value);
   private:
     Stream* stream;
     std::mutex threadLock;
