@@ -8,10 +8,11 @@
 namespace Device{
   class Thruster : public Motor{
   public:
-    Thruster(Comm::Hub* hub) : hub(hub) {}
+    Thruster(Comm::Hub* hub, unsigned int id) : hub(hub), id(id) {}
     void setPower(double power);
   private:
     Comm::Hub* hub;
+    unsigned int id;
   };
 }
 

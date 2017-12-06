@@ -1,6 +1,7 @@
 #ifndef COMM_HUB_MOCK
 #define COMM_HUB_MOCK
 
+#include <stack>
 #include "Comm/Hub.h"
 
 namespace Comm{
@@ -13,7 +14,7 @@ namespace Comm{
     }
 
     void writeInt(int value) {
-      lastIntWrite = value;
+      writeQueue.push(value);
     }
 
     void lock() {
@@ -25,7 +26,7 @@ namespace Comm{
     }
 
     int intToRead = 0;
-    int lastIntWrite = 0;
+    std::stack<int> writeQueue;
     bool didLock = false;
     bool didUnlock = false;
   };
