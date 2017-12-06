@@ -1,7 +1,7 @@
 #ifndef COMM_HUB_MOCK
 #define COMM_HUB_MOCK
 
-#include <stack>
+#include <vector>
 #include "Comm/Hub.h"
 
 namespace Comm{
@@ -14,7 +14,7 @@ namespace Comm{
     }
 
     void writeInt(int value) {
-      writeQueue.push(value);
+      writeQueue.push_back(value);
     }
 
     void lock() {
@@ -26,7 +26,7 @@ namespace Comm{
     }
 
     int intToRead = 0;
-    std::stack<int> writeQueue;
+    std::vector<int> writeQueue;
     bool didLock = false;
     bool didUnlock = false;
   };

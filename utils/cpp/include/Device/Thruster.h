@@ -10,7 +10,10 @@ namespace Device{
   public:
     Thruster(Comm::Hub* hub, unsigned int id) : hub(hub), id(id) {}
     void setPower(double power);
+    void enable();
+    void disable();
   private:
+    bool isEnabled = false;
     Comm::Hub* hub;
     unsigned int id;
   };
