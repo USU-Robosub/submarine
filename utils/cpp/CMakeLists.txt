@@ -18,6 +18,7 @@ set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
 include_directories(${SOURCE_DIR}/include)
 include_directories(${SOURCE_DIR}/../../extern/gsi)
+include_directories(${SOURCE_DIR}/../../extern/rxcpp)
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
