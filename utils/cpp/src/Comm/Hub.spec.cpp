@@ -2,7 +2,6 @@
 #include <Comm/Hub.hpp>
 #include <Comm/Bridge.mock.hpp>
 #include <string>
-#include <vector>
 
 typedef std::vector<std::string> vectString;
 
@@ -23,18 +22,41 @@ TEST_CASE("can emit messages", "[Hub]"){
   }
 }
 
-//TEST_CASE("ca")
+TEST_CASE("can receive messages"){
+  Comm::Mock::StringBridge bridge;
+  Comm::Hub<std::string> hub(&bridge);
 
-// TEST_CASE("can emit simple message int", "[Hub]"){
-//   Comm::Mock::IntBridge bridge;
-//   Comm::Hub<int> hub(&bridge);
-//   hub.emit(0, std::vector<int>{1, 2, 3});
-//   hub.on(0, [](std::vector<int> message){
-//     REQUIRE( message.size() == 3 );
-//     REQUIRE( message[0] == 1 );
-//     REQUIRE( message[1] == 2 );
-//     REQUIRE( message[2] == 3 );
-//   });
-//   REQUIRE( bridge.sent.size() == 1 );
-//   REQUIRE( bridge.sent[0] == std::vector<int>{0, 1, 2, 3} );
-// }
+  SECTION("simple message"){
+    bridge.received.push(vectString{"message", "test"});
+    vectString receivedMessage;
+    hub.on("test", [&receivedMessage](vectString message){
+      receivedMessage = message;
+    });
+    hub.poll();
+    REQUIRE( receivedMessage == vectString{"message"} );
+  }
+
+  SECTION("complex message"){
+    bridge.received.push(vectString{"data3", "data2", "data1", "event"});
+    vectString receivedMessage;
+    hub.on("event", [&receivedMessage](vectString message){
+      receivedMessage = message;
+    });
+    hub.poll();
+    REQUIRE( receivedMessage == vectString{"data3", "data2", "data1"} );
+  }
+
+  SECTION("multiple handlers"){
+    bridge.received.push(vectString{"data3", "data2", "data1", "event"});
+    vectString receivedMessage_1, receivedMessage_2;
+    hub.on("event", [&receivedMessage_1](vectString message){
+      receivedMessage_1 = message;
+    });
+    hub.on("event", [&receivedMessage_2](vectString message){
+      receivedMessage_2 = message;
+    });
+    hub.poll();
+    REQUIRE( receivedMessage_1 == vectString{"data3", "data2", "data1"} );
+    REQUIRE( receivedMessage_2 == vectString{"data3", "data2", "data1"} );
+  }
+}
