@@ -1,0 +1,14 @@
+#ifndef COMM_BRIDGE
+#define COMM_BRIDGE
+
+#include <vector>
+
+namespace Comm{
+  template<class T>
+  class Bridge{
+  public:
+    virtual void send(std::vector<T> data) = 0;
+  };
+}
+
+#endif

@@ -4,12 +4,12 @@
 #include <cstring>
 #include <mutex>
 #include "Comm/Stream.h"
-#include "Comm/Hub.h"
+#include "Comm/Hub.hpp"
 
 #define COMM_INT_SIZE 4
 
 namespace Comm{
-  class BinaryHub : public Hub{
+  class BinaryHub{
   public:
     BinaryHub(Stream* stream) : stream(stream) {}
     void lock();
