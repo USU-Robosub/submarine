@@ -1,5 +1,5 @@
-#ifndef COMM_BINARY_HUB
-#define COMM_BINARY_HUB
+#ifndef COMM_SERIAL_INT_STREAM_WRAPPER
+#define COMM_SERIAL_INT_STREAM_WRAPPER
 
 #include <cstring>
 #include <mutex>
@@ -9,13 +9,14 @@
 #define COMM_INT_SIZE 4
 
 namespace Comm{
-  class BinaryHub{
+  class IntStreamWrapper{
   public:
-    BinaryHub(Stream* stream) : stream(stream) {}
+    IntStreamWrapper(Stream* stream) : stream(stream) {}
     void lock();
     void unlock();
-    int readInt();
-    void writeInt(int value);
+    virtual int readInt();
+    virtual void writeInt(int value);
+    virtual bool hasData();
   private:
     Stream* stream;
     std::mutex threadLock;

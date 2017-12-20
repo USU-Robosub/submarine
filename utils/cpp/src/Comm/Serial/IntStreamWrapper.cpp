@@ -1,4 +1,4 @@
-#include "Comm/BinaryHub.h"
+#include <Comm/Serial/IntStreamWrapper.hpp>
 
 /*
 
@@ -6,7 +6,7 @@ Notice: This code is effected by the system's memory layout (little endian or bi
 
 */
 
-int Comm::BinaryHub::readInt(){
+int Comm::IntStreamWrapper::readInt(){
   if(this->isLocked == false)
     return 0;
   int result;
@@ -16,7 +16,7 @@ int Comm::BinaryHub::readInt(){
   return result;
 }
 
-void Comm::BinaryHub::writeInt(int value){
+void Comm::IntStreamWrapper::writeInt(int value){
   if(this->isLocked == false)
     return;
   char binary[COMM_INT_SIZE];
@@ -24,12 +24,16 @@ void Comm::BinaryHub::writeInt(int value){
   this->stream->send(binary, COMM_INT_SIZE);
 }
 
-void Comm::BinaryHub::lock(){
+void Comm::IntStreamWrapper::lock(){
   this->threadLock.lock();
   this->isLocked = true;
 }
 
-void Comm::BinaryHub::unlock(){
+void Comm::IntStreamWrapper::unlock(){
   this->threadLock.unlock();
   this->isLocked = false;
+}
+
+bool Comm::IntStreamWrapper::hasData(){
+  return true;
 }

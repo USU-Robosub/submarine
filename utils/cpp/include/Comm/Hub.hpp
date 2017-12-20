@@ -18,7 +18,6 @@ namespace Comm{
 template<class T>
 class Comm::Hub{
 public:
-  Hub() {}
   Hub(Comm::Bridge<T>* bridge);
   void emit(T name, std::vector<T> message);
   void on(T name, handlerFunction<T> handler);

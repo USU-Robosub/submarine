@@ -22,7 +22,7 @@ TEST_CASE("can emit messages", "[Hub]"){
   }
 }
 
-TEST_CASE("can receive messages"){
+TEST_CASE("can receive messages", "[Hub]"){
   Comm::Mock::StringBridge bridge;
   Comm::Hub<std::string> hub(&bridge);
 

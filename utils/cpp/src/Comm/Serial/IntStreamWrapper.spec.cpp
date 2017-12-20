@@ -1,12 +1,12 @@
-#include "catch.hpp"
-#include "Comm/BinaryHub.h"
-#include "Comm/Stream.mock.h"
+#include <catch.hpp>
+#include <Comm/Serial/IntStreamWrapper.hpp>
+#include <Comm/Stream.mock.h>
 #include <thread>
 #include <chrono>
 
-TEST_CASE("can read int", "[BinaryHub]"){
+TEST_CASE("can read int", "[IntStreamWrapper]"){
   Comm::Mock::TestStream stream;
-  Comm::BinaryHub hub(&stream);
+  Comm::IntStreamWrapper hub(&stream);
   char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
   stream.data = data;
   hub.lock();
@@ -14,11 +14,11 @@ TEST_CASE("can read int", "[BinaryHub]"){
   REQUIRE( hub.readInt() == 16909060 );
 }
 
-TEST_CASE("can write int", "[BinaryHub]"){
+TEST_CASE("can write int", "[IntStreamWrapper]"){
   char streamData[8] = { 0 };
   Comm::Mock::TestStream stream;
   stream.data = streamData;
-  Comm::BinaryHub hub(&stream);
+  Comm::IntStreamWrapper hub(&stream);
   char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
   hub.lock();
   hub.writeInt(67305985);
@@ -28,9 +28,9 @@ TEST_CASE("can write int", "[BinaryHub]"){
   }
 }
 
-TEST_CASE("does not read int when unlocked", "[BinaryHub]"){
+TEST_CASE("does not read int when unlocked", "[IntStreamWrapper]"){
   Comm::Mock::TestStream stream;
-  Comm::BinaryHub hub(&stream);
+  Comm::IntStreamWrapper hub(&stream);
   char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
   stream.data = data;
   REQUIRE( hub.readInt() == 0 );
@@ -39,11 +39,11 @@ TEST_CASE("does not read int when unlocked", "[BinaryHub]"){
   REQUIRE( hub.readInt() == 0 );
 }
 
-TEST_CASE("does not write int when unlocked", "[BinaryHub]"){
+TEST_CASE("does not write int when unlocked", "[IntStreamWrapper]"){
   char streamData[8] = { 0 };
   Comm::Mock::TestStream stream;
   stream.data = streamData;
-  Comm::BinaryHub hub(&stream);
+  Comm::IntStreamWrapper hub(&stream);
   char data[] = { 00, 00, 00, 00, 00, 00, 00, 00 };
   hub.writeInt(67305985);
   hub.lock();
@@ -54,18 +54,18 @@ TEST_CASE("does not write int when unlocked", "[BinaryHub]"){
   }
 }
 
-void delayLockHub(Comm::BinaryHub* hub){
+void delayLockHub(Comm::IntStreamWrapper* hub){
   hub->lock();
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
   hub->writeInt(67305985);
   hub->unlock();
 }
 
-TEST_CASE("binary hub can be locked for thread safety", "[BinaryHub]"){
+TEST_CASE("binary hub can be locked for thread safety", "[IntStreamWrapper]"){
   char streamData[8] = { 0 };
   Comm::Mock::TestStream stream;
   stream.data = streamData;
-  Comm::BinaryHub hub(&stream);
+  Comm::IntStreamWrapper hub(&stream);
   char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
   std::thread otherThread(delayLockHub, &hub);
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
