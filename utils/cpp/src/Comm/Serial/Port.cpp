@@ -1,6 +1,7 @@
 #include <Comm/Serial/Port.hpp>
 
-// #define SHOW_LOG // use for debugging connection problems
+//#define SHOW_LOG // use for debugging connection problems
+//#define SHOW_BUFFER_LOG
 
 #ifdef SHOW_LOG
   #include <iostream>
@@ -9,12 +10,17 @@
   #define LOG(X)
 #endif
 
-Comm::Serial::Port::Port(std::string portName, unsigned int speed, unsigned short bufferLength)
+#ifdef SHOW_BUFFER_LOG
+  #include <iomanip>
+  #define LOG_BUFFER(Z, X, Y) std::cout << "[Serial " << this->portName << "] - " << Z << ": "; for(unsigned int i = 0; i < Y; ++i) { std::cout << std::hex << std::setw(2) << std::setfill('0') << (unsigned int) (X[i]) << ' '; } std::cout << std::endl;
+#else
+  #define LOG_BUFFER(Z, X, Y)
+#endif
+
+Comm::Serial::Port::Port(std::string portName, unsigned int speed)
   : portName(portName),
     speed(speed),
     connected(false),
-    buffer(new unsigned char[bufferLength]),
-    bufferLength(bufferLength),
     isLocked(false) {
     this->lock();
   }
@@ -48,18 +54,19 @@ bool Comm::Serial::Port::hasData(){
   FD_ZERO(&readset);
   FD_SET(this->fileDescriptor, &readset);
   int result = select(this->fileDescriptor + 1, &readset, NULL, NULL, &timeout);
-  LOG(result);
   return ( result > 0 );
 }
 
 void Comm::Serial::Port::push(unsigned char* buffer, unsigned int length){
   if(this->isLocked)
     write(this->fileDescriptor, buffer, (size_t)length);
+  LOG_BUFFER("sending", buffer, length);
 }
 
 void Comm::Serial::Port::poll(unsigned char* buffer, unsigned int length){
   if(this->isLocked)
     read(this->fileDescriptor, buffer, (size_t)length);
+  LOG_BUFFER("reading", buffer, length);
 }
 
 void Comm::Serial::Port::lock(){

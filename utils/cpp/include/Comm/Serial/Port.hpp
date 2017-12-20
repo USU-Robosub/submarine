@@ -21,7 +21,7 @@ namespace Comm{
 
 class Comm::Serial::Port : public Comm::BinaryPort{
 public:
-  Port(std::string portName, unsigned int speed, unsigned short bufferLength);
+  Port(std::string portName, unsigned int speed);
   void connect();
   void disconnect();
   bool isConnected();
@@ -38,8 +38,6 @@ private:
   std::string portName;
   unsigned int speed;
   bool connected;
-  unsigned char* buffer;
-  unsigned short bufferLength;
   std::mutex threadLock;
   bool isLocked;
 };

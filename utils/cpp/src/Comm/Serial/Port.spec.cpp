@@ -18,14 +18,14 @@
 #define ERROR_TEST_PORT "/dev/ttyS20"
 
 TEST_CASE("can connect to port", "[Serial][.]"){
-  Comm::Serial::Port serial(TEST_PORT_1, B9600, 1);
+  Comm::Serial::Port serial(TEST_PORT_1, B9600);
   serial.connect();
   REQUIRE( serial.isConnected() );
   serial.disconnect();
 }
 
 TEST_CASE("can't connect to non-existent port", "[Serial][.]"){
-  Comm::Serial::Port serial(ERROR_TEST_PORT, B9600, 1);
+  Comm::Serial::Port serial(ERROR_TEST_PORT, B9600);
   serial.connect();
   REQUIRE( serial.isConnected() == false );
   serial.disconnect();
@@ -34,8 +34,8 @@ TEST_CASE("can't connect to non-existent port", "[Serial][.]"){
 TEST_CASE("data is available after pushing data", "[Serial][.]"){
   unsigned char data[] = { 1, 0, 0, 1, 1, 0 };
   unsigned short length = 6;
-  Comm::Serial::Port sender(TEST_PORT_1, B9600, 6);
-  Comm::Serial::Port receiver(TEST_PORT_2, B9600, 6);
+  Comm::Serial::Port sender(TEST_PORT_1, B9600);
+  Comm::Serial::Port receiver(TEST_PORT_2, B9600);
   sender.connect();
   receiver.connect();
 
@@ -51,8 +51,8 @@ TEST_CASE("data is available after pushing data", "[Serial][.]"){
 TEST_CASE("data can be poll after being pushed", "[Serial][.]"){
   unsigned char data[] = { 1, 0, 0, 1, 1, 0 };
   unsigned short length = 6;
-  Comm::Serial::Port sender(TEST_PORT_1, B9600, 6);
-  Comm::Serial::Port receiver(TEST_PORT_2, B9600, 6);
+  Comm::Serial::Port sender(TEST_PORT_1, B9600);
+  Comm::Serial::Port receiver(TEST_PORT_2, B9600);
   sender.connect();
   receiver.connect();
 
@@ -70,8 +70,8 @@ TEST_CASE("data can be poll after being pushed", "[Serial][.]"){
 TEST_CASE("does not push when unlocked", "[Serial][.]"){
   unsigned char data[] = { 1, 0, 0, 1, 1, 0 };
   unsigned short length = 6;
-  Comm::Serial::Port sender(TEST_PORT_1, B9600, 6);
-  Comm::Serial::Port receiver(TEST_PORT_2, B9600, 6);
+  Comm::Serial::Port sender(TEST_PORT_1, B9600);
+  Comm::Serial::Port receiver(TEST_PORT_2, B9600);
   sender.connect();
   receiver.connect();
 
@@ -92,8 +92,8 @@ TEST_CASE("does not poll when unlocked", "[Serial][.]"){
   unsigned char data[] = { 1, 0, 0, 1, 1, 0 };
   unsigned char buffer[6] = { 0 };
   unsigned short length = 6;
-  Comm::Serial::Port sender(TEST_PORT_1, B9600, 6);
-  Comm::Serial::Port receiver(TEST_PORT_2, B9600, 6);
+  Comm::Serial::Port sender(TEST_PORT_1, B9600);
+  Comm::Serial::Port receiver(TEST_PORT_2, B9600);
   sender.connect();
   receiver.connect();
 

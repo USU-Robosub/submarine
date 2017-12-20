@@ -3,3 +3,4 @@
 #include "Hub.cpp"
 
 template class Comm::Hub<std::string>;
+template class Comm::Hub<int>;

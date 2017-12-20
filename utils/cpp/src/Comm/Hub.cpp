@@ -21,7 +21,7 @@ void Comm::Hub<T>::poll(){
   while(!messages.empty()){
     std::vector<T> message = messages.front();
     std::vector<handlerFunction<T>> handlers = this->handlers[message.back()];
-    message.erase(message.end());
+    message.erase(message.end() - 1);
     for(unsigned int i = 0; i < handlers.size(); ++i){
       handlers[i](message);
     }
