@@ -11,6 +11,7 @@ public:
   virtual void poll(unsigned char* buffer, unsigned int length) = 0;
   virtual void lock() = 0;
   virtual void unlock() = 0;
+  virtual bool hasData() = 0;
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef COMM_SERIAL_INT_STREAM_WRAPPER
-#define COMM_SERIAL_INT_STREAM_WRAPPER
+#ifndef COMM_SERIAL_STREAM
+#define COMM_SERIAL_STREAM
 
 #include <cstring>
 #include <mutex>
@@ -11,13 +11,13 @@
 
 namespace Comm{
   namespace Serial{
-    class IntStreamWrapper;
+    class Stream;
   }
 }
 
-class Comm::Serial::IntStreamWrapper : public Comm::Stream<int>{
+class Comm::Serial::Stream : public Comm::Stream<int>{
 public:
-  IntStreamWrapper(Comm::BinaryPort* port);
+  Stream(Comm::BinaryPort* port);
   void lock();
   void unlock();
   int poll();
