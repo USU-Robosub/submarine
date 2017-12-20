@@ -1,79 +1,73 @@
 #include <catch.hpp>
 #include <Comm/Serial/IntStreamWrapper.hpp>
-#include <Comm/Stream.mock.h>
+#include <Comm/BinaryPort.mock.hpp>
 #include <thread>
 #include <chrono>
 
 TEST_CASE("can read int", "[IntStreamWrapper]"){
-  Comm::Mock::TestStream stream;
-  Comm::IntStreamWrapper hub(&stream);
-  char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
-  stream.data = data;
-  hub.lock();
-  REQUIRE( hub.readInt() == 67305985 );
-  REQUIRE( hub.readInt() == 16909060 );
+  Comm::Mock::BinaryPort port;
+  Comm::Serial::IntStreamWrapper hub(&port);
+  unsigned char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
+  port.buffer = data;
+  REQUIRE( hub.poll() == 67305985 );
+  REQUIRE( hub.poll() == 16909060 );
 }
 
 TEST_CASE("can write int", "[IntStreamWrapper]"){
-  char streamData[8] = { 0 };
-  Comm::Mock::TestStream stream;
-  stream.data = streamData;
-  Comm::IntStreamWrapper hub(&stream);
-  char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
-  hub.lock();
-  hub.writeInt(67305985);
-  hub.writeInt(16909060);
-  for(unsigned int i = 0; i < 8; i++){
-    REQUIRE( data[i] == stream.data[i] );
+  Comm::Mock::BinaryPort port;
+  Comm::Serial::IntStreamWrapper hub(&port);
+  unsigned char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
+  unsigned char buffer[8] = { 0 };
+  port.buffer = buffer;
+  hub.push(67305985);
+  hub.push(16909060);
+  for(unsigned int i = 0; i < 8; i++)
+    REQUIRE( data[i] == buffer[i] );
+}
+
+TEST_CASE("uses port to lock/unlock stream", "[IntStreamWrapper]"){
+  Comm::Mock::BinaryPort port;
+  Comm::Serial::IntStreamWrapper hub(&port);
+
+  SECTION("lock"){
+    REQUIRE( port.locked );
+    port.locked = false;
+    hub.lock();
+    REQUIRE( port.locked );
+  }
+
+  SECTION("unlock"){
+    port.unlocked = false;
+    hub.unlock();
+    REQUIRE( port.unlocked );
   }
 }
 
 TEST_CASE("does not read int when unlocked", "[IntStreamWrapper]"){
-  Comm::Mock::TestStream stream;
-  Comm::IntStreamWrapper hub(&stream);
-  char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
-  stream.data = data;
-  REQUIRE( hub.readInt() == 0 );
+  Comm::Mock::BinaryPort port;
+  Comm::Serial::IntStreamWrapper hub(&port);
+  unsigned char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
+  port.buffer = data;
+
+  hub.unlock();
+  REQUIRE( hub.poll() == 0 );
   hub.lock();
   hub.unlock();
-  REQUIRE( hub.readInt() == 0 );
+  REQUIRE( hub.poll() == 0 );
 }
 
 TEST_CASE("does not write int when unlocked", "[IntStreamWrapper]"){
-  char streamData[8] = { 0 };
-  Comm::Mock::TestStream stream;
-  stream.data = streamData;
-  Comm::IntStreamWrapper hub(&stream);
-  char data[] = { 00, 00, 00, 00, 00, 00, 00, 00 };
-  hub.writeInt(67305985);
+  Comm::Mock::BinaryPort port;
+  Comm::Serial::IntStreamWrapper hub(&port);
+  unsigned char data[8] = { 0 };
+  unsigned char buffer[8] = { 0 };
+  port.buffer = data;
+
+  hub.unlock();
+  hub.push(67305985);
   hub.lock();
   hub.unlock();
-  hub.writeInt(16909060);
-  for(unsigned int i = 0; i < 8; i++){
-    REQUIRE( data[i] == stream.data[i] );
-  }
-}
-
-void delayLockHub(Comm::IntStreamWrapper* hub){
-  hub->lock();
-  std::this_thread::sleep_for(std::chrono::milliseconds(50));
-  hub->writeInt(67305985);
-  hub->unlock();
-}
-
-TEST_CASE("binary hub can be locked for thread safety", "[IntStreamWrapper]"){
-  char streamData[8] = { 0 };
-  Comm::Mock::TestStream stream;
-  stream.data = streamData;
-  Comm::IntStreamWrapper hub(&stream);
-  char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
-  std::thread otherThread(delayLockHub, &hub);
-  std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  hub.lock();
-  hub.writeInt(16909060);
-  hub.unlock();
-  for(unsigned int i = 0; i < 8; i++){
-    REQUIRE( data[i] == stream.data[i] );
-  }
-  otherThread.join();
+  hub.push(16909060);
+  for(unsigned int i = 0; i < 8; i++)
+    REQUIRE( data[i] == buffer[i] );
 }

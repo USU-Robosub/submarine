@@ -1,4 +1,4 @@
-#include "Comm/Serial.h"
+#include <Comm/Serial/Serial.hpp>
 
 // #define SHOW_LOG // use for debugging connection problems
 
@@ -9,7 +9,38 @@
   #define LOG(X)
 #endif
 
-bool Comm::Serial::canRead(){
+Comm::Serial::Port::Port(std::string portName, unsigned int speed, unsigned short bufferLength)
+  : portName(portName),
+    speed(speed),
+    connected(false),
+    buffer(new unsigned char[bufferLength]),
+    bufferLength(bufferLength),
+    isLocked(false) {
+    this->lock();
+  }
+
+bool Comm::Serial::Port::isConnected(){
+  return this->connected;
+}
+
+void Comm::Serial::Port::connect(){
+  if(!this->connected){
+    this->fileDescriptor = open(this->portName.c_str(), O_RDWR | O_NOCTTY);
+    if(this->fileDescriptor == -1){
+      LOG("Failed to allocate file descriptor");
+      this->connected = false;
+    }else{
+      this->connected = this->configure();
+    }
+  }
+}
+
+void Comm::Serial::Port::disconnect(){
+  if(this->connected)
+    close(this->fileDescriptor);
+}
+
+bool Comm::Serial::Port::hasData(){
   struct timeval timeout;
   timeout.tv_sec = 0;
   timeout.tv_usec = 0;
@@ -21,55 +52,33 @@ bool Comm::Serial::canRead(){
   return ( result > 0 );
 }
 
-void Comm::Serial::send(char* data, unsigned int length){
-  write(this->fileDescriptor, data, length);
+void Comm::Serial::Port::push(unsigned char* buffer, unsigned int length){
+  if(this->isLocked)
+    write(this->fileDescriptor, buffer, (size_t)length);
 }
 
-void Comm::Serial::receive(char* data, unsigned int length){
-  read(this->fileDescriptor, data, (size_t)length);
+void Comm::Serial::Port::poll(unsigned char* buffer, unsigned int length){
+  if(this->isLocked)
+    read(this->fileDescriptor, buffer, (size_t)length);
 }
 
-void Comm::Serial::connect(){
-  if(this->_status == Comm::Status::Disconnected){
-    this->_status = Comm::Status::Connecting;
-    this->fileDescriptor = open(this->portName.c_str(), O_RDWR | O_NOCTTY);
-    if(this->fileDescriptor == -1){
-      LOG("Failed to open");
-      this->triggerError();
-    }else{
-
-      this->configure();
-      this->_status = Comm::Status::Ready;
-    }
-  }
+void Comm::Serial::Port::lock(){
+  this->threadLock.lock();
+  this->isLocked = true;
 }
 
-Comm::Status Comm::Serial::status(){
-  return this->_status;
+void Comm::Serial::Port::unlock(){
+  this->isLocked = false;
+  this->threadLock.unlock();
 }
 
-void Comm::Serial::disconnect(){
-  if(this->_status != Comm::Status::Disconnected){
-    if(this->_status != Comm::Status::Error)
-      this->_status = Comm::Status::Disconnected;
-    close(this->fileDescriptor);
-    this->fileDescriptor = 0;
-  }
-}
-
-void Comm::Serial::triggerError(){
-  this->_status = Comm::Status::Error;
-  this->disconnect();
-}
-
-void Comm::Serial::configure(){
+bool Comm::Serial::Port::configure(){
   // get config
   struct termios config;
   int successGettingConfig = tcgetattr(this->fileDescriptor, &config);
   if(successGettingConfig == -1){
     LOG("Failed to get config");
-    this->triggerError();
-    return;
+    return false;
   }
 
   //set baud rate
@@ -77,8 +86,7 @@ void Comm::Serial::configure(){
   int outputSpeedSupported = cfsetospeed(&config, this->speed);
   if(inputSpeedSupported == -1 || outputSpeedSupported == -1){
     LOG("Failed to set baud rate");
-    this->triggerError();
-    return;
+    return false;
   }
 
   // set config bits (flags)
@@ -100,15 +108,14 @@ void Comm::Serial::configure(){
   // apply config
   int successSettingConfig = tcsetattr(this->fileDescriptor, TCSANOW, &config);
   if(successSettingConfig == -1){
-    LOG("Failed to set config");
-    this->triggerError();
-    return;
+    LOG("Failed to apply config");
+    return false;
   }
 
   int successFlushing = tcflush(this->fileDescriptor, TCIFLUSH);
   if(successFlushing == -1){
     LOG("Failed to flush");
-    this->triggerError();
-    return;
+    return false;
   }
+  return true;
 }

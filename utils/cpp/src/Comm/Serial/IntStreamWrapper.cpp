@@ -6,34 +6,40 @@ Notice: This code is effected by the system's memory layout (little endian or bi
 
 */
 
-int Comm::IntStreamWrapper::readInt(){
+Comm::Serial::IntStreamWrapper::IntStreamWrapper(Comm::BinaryPort* port)
+  : port(port),
+    isLocked(false) {
+    this->lock();
+  }
+
+int Comm::Serial::IntStreamWrapper::poll(){
   if(this->isLocked == false)
     return 0;
   int result;
-  char binary[COMM_INT_SIZE];
-  this->stream->receive(binary, COMM_INT_SIZE);
-  memcpy(&result, binary, COMM_INT_SIZE);
+  unsigned char buffer[COMM_INT_SIZE];
+  this->port->poll(buffer, COMM_INT_SIZE);
+  memcpy(&result, buffer, COMM_INT_SIZE);
   return result;
 }
 
-void Comm::IntStreamWrapper::writeInt(int value){
+void Comm::Serial::IntStreamWrapper::push(int value){
   if(this->isLocked == false)
     return;
-  char binary[COMM_INT_SIZE];
+  unsigned char binary[COMM_INT_SIZE];
   memcpy(binary, &value, COMM_INT_SIZE);
-  this->stream->send(binary, COMM_INT_SIZE);
+  this->port->push(binary, COMM_INT_SIZE);
 }
 
-void Comm::IntStreamWrapper::lock(){
-  this->threadLock.lock();
+void Comm::Serial::IntStreamWrapper::lock(){
+  this->port->lock();
   this->isLocked = true;
 }
 
-void Comm::IntStreamWrapper::unlock(){
-  this->threadLock.unlock();
+void Comm::Serial::IntStreamWrapper::unlock(){
   this->isLocked = false;
+  this->port->unlock();
 }
 
-bool Comm::IntStreamWrapper::hasData(){
-  return true;
+bool Comm::Serial::IntStreamWrapper::hasData(){
+  //return true;
 }

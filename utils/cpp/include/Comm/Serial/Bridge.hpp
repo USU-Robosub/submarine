@@ -2,7 +2,7 @@
 #define COMM_SERIAL_BRIDGE
 
 #include <Comm/Bridge.h>
-#include <Comm/Serial/IntStreamWrapper.hpp>
+#include <Comm/Stream.hpp>
 
 namespace Comm{
   namespace Serial{
@@ -12,12 +12,12 @@ namespace Comm{
 
 class Comm::Serial::Bridge : public Comm::Bridge<int>{
 public:
-  Bridge(Comm::IntStreamWrapper* stream);
+  Bridge(Comm::Stream<int>* stream);
   void send(std::vector<int> data);
   std::queue<std::vector<int>> receive();
 
 private:
-  Comm::IntStreamWrapper* stream;
+  Comm::Stream<int>* stream;
 };
 
 #endif

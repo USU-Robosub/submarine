@@ -1,10 +1,9 @@
 #include <catch.hpp>
 #include <Comm/Serial/Bridge.hpp>
-#include <Comm/Serial/Stream.mock.hpp>
-#include <Comm/Serial/IntStreamWrapper.mock.hpp>
+#include <Comm/Stream.mock.hpp>
 
 TEST_CASE("serial bridge can write a message", "[SerialBridge]"){
-  Comm::Serial::Mock::IntStreamWrapper stream;
+  Comm::Mock::Stream<int> stream;
   Comm::Serial::Bridge bridge(&stream);
 
   SECTION("single message"){
@@ -28,7 +27,7 @@ TEST_CASE("serial bridge can write a message", "[SerialBridge]"){
 }
 
 TEST_CASE("serial bridge can read a message", "[SerialBridge]"){
-  Comm::Serial::Mock::IntStreamWrapper stream;
+  Comm::Mock::Stream<int> stream;
   Comm::Serial::Bridge bridge(&stream);
 
   SECTION("single message"){
