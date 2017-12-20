@@ -1,5 +1,5 @@
-#ifndef COMM_SERIAL
-#define COMM_SERIAL
+#ifndef COMM_SERIAL_PORT
+#define COMM_SERIAL_PORT
 
 /* Linux serial port headers */
 #include <fcntl.h>
@@ -16,7 +16,6 @@
 namespace Comm{
   namespace Serial{
     class Port;
-    struct RawData;
   }
 }
 

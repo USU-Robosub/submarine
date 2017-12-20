@@ -2,10 +2,8 @@
 #define COMM_SERIAL_STREAM
 
 #include <cstring>
-#include <mutex>
 #include <Comm/Stream.hpp>
-#include <Comm/Serial/Serial.hpp>
-#include <Comm/Hub.hpp>
+#include <Comm/BinaryPort.hpp>
 
 #define COMM_INT_SIZE 4
 
@@ -23,9 +21,9 @@ public:
   int poll();
   void push(int value);
   bool hasData();
+  
 private:
   Comm::BinaryPort* port;
-  std::mutex threadLock;
   bool isLocked;
 };
 

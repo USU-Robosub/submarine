@@ -1,4 +1,4 @@
-#include <Comm/Serial/Serial.hpp>
+#include <Comm/Serial/Port.hpp>
 
 // #define SHOW_LOG // use for debugging connection problems
 

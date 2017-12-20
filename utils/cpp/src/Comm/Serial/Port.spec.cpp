@@ -1,7 +1,7 @@
 #include <thread>
 #include <chrono>
 #include <catch.hpp>
-#include <Comm/Serial/Serial.hpp>
+#include <Comm/Serial/Port.hpp>
 
 #include <iostream>
 

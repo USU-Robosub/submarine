@@ -6,7 +6,7 @@
 typedef std::vector<std::string> vectString;
 
 TEST_CASE("can emit messages", "[Hub]"){
-  Comm::Mock::StringBridge bridge;
+  Comm::Mock::Bridge<std::string> bridge;
   Comm::Hub<std::string> hub(&bridge);
 
   SECTION("simple message"){
@@ -23,7 +23,7 @@ TEST_CASE("can emit messages", "[Hub]"){
 }
 
 TEST_CASE("can receive messages", "[Hub]"){
-  Comm::Mock::StringBridge bridge;
+  Comm::Mock::Bridge<std::string> bridge;
   Comm::Hub<std::string> hub(&bridge);
 
   SECTION("simple message"){
