@@ -8,14 +8,14 @@
 /*
   NOTICE: This set of test casses are disabled
   by default because they require a virtual serial
-  port and root permissions to run correctly.
+  port to run correctly.
 
-  sudo socat PTY,link=/dev/ttyS10 PTY,link=/dev/ttyS11
+  socat PTY,link=/tmp/virtualcom0 PTY,link=/tmp/virtualcom1
 */
 
-#define TEST_PORT_1 "/dev/ttyS10"
-#define TEST_PORT_2 "/dev/ttyS11"
-#define ERROR_TEST_PORT "/dev/ttyS20"
+#define TEST_PORT_1 "/tmp/virtualcom0"
+#define TEST_PORT_2 "/tmp/virtualcom1"
+#define ERROR_TEST_PORT "/tmp/virtualcom2"
 
 TEST_CASE("can connect to port", "[Serial][.]"){
   Comm::Serial::Port serial(TEST_PORT_1, B9600);
