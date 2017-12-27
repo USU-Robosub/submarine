@@ -22,14 +22,14 @@ template<class T>
 class Comm::Hub{
 public:
   Hub(Comm::Bridge<T>* bridge);
-  void emit(T name, std::vector<T> message);
-  Comm::HubBinding<T> on(T name, HandlerFunction<T> handler);
-  void poll();
-  void remove(Comm::HubBinding<T> binding);
+  virtual void emit(T name, std::vector<T> message);
+  virtual Comm::HubBinding<T> on(T name, Comm::HandlerFunction<T> handler);
+  virtual void poll();
+  virtual void remove(Comm::HubBinding<T> binding);
 
-private:
+protected:
   Bridge<T>* bridge;
-  std::map<T, std::map<unsigned int, HandlerFunction<T>>> handlers;
+  std::map<T, std::map<unsigned int, Comm::HandlerFunction<T>>> handlers;
   std::map<T, unsigned int> nextIDs;
 };
 
