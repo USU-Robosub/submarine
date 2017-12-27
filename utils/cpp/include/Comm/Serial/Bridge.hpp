@@ -1,7 +1,7 @@
 #ifndef COMM_SERIAL_BRIDGE
 #define COMM_SERIAL_BRIDGE
 
-#include <Comm/Bridge.h>
+#include <Comm/Bridge.hpp>
 #include <Comm/Stream.hpp>
 
 namespace Comm{

@@ -1,7 +1,7 @@
 #ifndef COMM_BRIDGE_MOCK
 #define COMM_BRIDGE_MOCK
 
-#include <Comm/Bridge.h>
+#include <Comm/Bridge.hpp>
 #include <vector>
 
 namespace Comm{

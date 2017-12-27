@@ -8,4 +8,4 @@ cmake .. -Dtests=ON -Dcoverage=ON
 make
 ./Utils_Tests
 cd ../../..
-coveralls -i utils/cpp -E ".+\/(feature_tests|.+\CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
+coveralls --gcov-options '\-lp' -i utils/cpp -E ".+\/(feature_tests|.+\CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"

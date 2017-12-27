@@ -5,7 +5,7 @@
 #include <functional>
 #include <map>
 #include <queue>
-#include <Comm/Bridge.h>
+#include <Comm/Bridge.hpp>
 
 namespace Comm{
   template<class T>
