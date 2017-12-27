@@ -39,6 +39,6 @@ struct Comm::HubBinding{
   unsigned int id;
 };
 
-#include "../../src/Comm/Hub.tpp"
+#include "../../src/Comm/Hub.ipp"
 
 #endif
