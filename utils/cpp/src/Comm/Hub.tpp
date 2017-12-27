@@ -11,8 +11,10 @@ void Comm::Hub<T>::emit(T name, std::vector<T> message){
 }
 
 template <class T>
-void Comm::Hub<T>::on(T name, handlerFunction<T> handler){
-  this->handlers[name].push_back(handler);
+Comm::HubBinding<T> Comm::Hub<T>::on(T name, HandlerFunction<T> handler){
+  unsigned int id = this->nextIDs[name]++;
+  this->handlers[name][id] = handler;
+  return Comm::HubBinding<T>{.name=name, .id=id};
 }
 
 template <class T>
@@ -20,11 +22,16 @@ void Comm::Hub<T>::poll(){
   std::queue<std::vector<T>> messages = this->bridge->receive();
   while(!messages.empty()){
     std::vector<T> message = messages.front();
-    std::vector<handlerFunction<T>> handlers = this->handlers[message.back()];
+    auto handlers = this->handlers[message.back()];
     message.erase(message.end() - 1);
-    for(unsigned int i = 0; i < handlers.size(); ++i){
-      handlers[i](message);
+    for(const auto& handler : handlers){
+      handler.second(message);
     }
     messages.pop();
   }
+}
+
+template <class T>
+void Comm::Hub<T>::remove(Comm::HubBinding<T> binding){
+  this->handlers[binding.name].erase(binding.id);
 }

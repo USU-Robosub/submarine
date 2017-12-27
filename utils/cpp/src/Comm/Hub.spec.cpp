@@ -60,3 +60,31 @@ TEST_CASE("can receive messages", "[Hub]"){
     REQUIRE( receivedMessage_2 == vectString{"data3", "data2", "data1"} );
   }
 }
+
+TEST_CASE("can remove a handler", "[Hub]"){
+  Comm::Mock::Bridge<std::string> bridge;
+  Comm::Hub<std::string> hub(&bridge);
+
+  SECTION("basic"){
+    vectString receivedMessage;
+    Comm::HubBinding<std::string> handler = hub.on("test", [&receivedMessage](vectString message){
+      receivedMessage = message;
+    });
+    hub.remove(handler);
+    bridge.received.push(vectString{"message", "test"});
+    hub.poll();
+    REQUIRE( receivedMessage == vectString{} );
+  }
+
+  SECTION("only removes the single handler"){
+    vectString receivedMessage;
+    hub.on("test", [&receivedMessage](vectString message){
+      receivedMessage = message;
+    });
+    Comm::HubBinding<std::string> handler = hub.on("test", [&receivedMessage](vectString message){ });
+    hub.remove(handler);
+    bridge.received.push(vectString{"message", "test"});
+    hub.poll();
+    REQUIRE( receivedMessage == vectString{"message"} );
+  }
+}

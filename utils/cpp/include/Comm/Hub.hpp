@@ -9,7 +9,10 @@
 
 namespace Comm{
   template<class T>
-  using handlerFunction = std::function<void(std::vector<T>)>;
+  struct HubBinding;
+
+  template<class T>
+  using HandlerFunction = std::function<void(std::vector<T>)>;
 
   template<class T>
   class Hub;
@@ -20,12 +23,22 @@ class Comm::Hub{
 public:
   Hub(Comm::Bridge<T>* bridge);
   void emit(T name, std::vector<T> message);
-  void on(T name, handlerFunction<T> handler);
+  Comm::HubBinding<T> on(T name, HandlerFunction<T> handler);
   void poll();
+  void remove(Comm::HubBinding<T> binding);
 
 private:
   Bridge<T>* bridge;
-  std::map<T, std::vector<handlerFunction<T>>> handlers;
+  std::map<T, std::map<unsigned int, HandlerFunction<T>>> handlers;
+  std::map<T, unsigned int> nextIDs;
 };
+
+template<class T>
+struct Comm::HubBinding{
+  T name;
+  unsigned int id;
+};
+
+#include "../../src/Comm/Hub.tpp"
 
 #endif
