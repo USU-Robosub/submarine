@@ -7,8 +7,8 @@
 #include <thread>
 #include <chrono>
 
-#define TEST_PORT_1 "/dev/ttyS10"
-#define TEST_PORT_2 "/dev/ttyS11"
+#define TEST_PORT_1 "/tmp/virtualcom0"
+#define TEST_PORT_2 "/tmp/virtualcom1"
 
 TEST_CASE("Full stack test", "[SerialIntegration][.]"){
   Comm::Serial::Port sendingPort(TEST_PORT_1, B9600); sendingPort.unlock();
