@@ -9,18 +9,16 @@ namespace Comm{
 
 class Comm::Remote{
 public:
-  Remote(Comm::Hub<std::string>* hub, std::string name) : hub(hub), name(name) {}
+  Remote(Comm::Hub<std::string>* hub, std::string name);
   template<typename U>
-  void attach(std::string method, void (U::*handler) (std::vector<std::string>), U* _this){
-    this->hub->on(this->name + '/' + method, std::bind(handler, _this, std::placeholders::_1));
-  }
-  void back(std::string method, std::vector<std::string> message){
-    this->hub->emit(this->name + '/' + method + "/r", message);
-  }
+  void attach(std::string method, void (U::*handler) (std::vector<std::string>), U* _this);
+  void back(std::string method, std::vector<std::string> message);
 
 protected:
   Comm::Hub<std::string>* hub;
   std::string name;
 };
+
+#include "../../src/Comm/Remote.ipp"
 
 #endif
