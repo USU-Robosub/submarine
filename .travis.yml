@@ -1,6 +1,12 @@
 matrix:
   include:
     - language: cpp
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          packages:
+          - socat
       before_install:
         - pip install --user pyyaml cpp-coveralls
         - chmod +x bin/runUnitTests_Cpp.sh
