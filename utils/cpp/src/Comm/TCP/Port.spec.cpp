@@ -7,46 +7,50 @@
 #define TEST_PORT 3001
 #define PAUSE std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-#include <iostream>
-// TEST_CASE("Travis TCP", "[Travis]"){
-//   tacopie::tcp_server s;
-//   s.start(TEST_ADDRESS, TEST_PORT, [] (const std::shared_ptr<tacopie::tcp_client>& client) -> bool {
-//     std::cout << "New client" << std::endl;
-//     return true;
-//   });
-//
-//   PAUSE
-//
-//   tacopie::tcp_client client;
-//   client.connect(TEST_ADDRESS, TEST_PORT);
-//   client.async_read({ 1024, [&] (tacopie::tcp_client::read_result& res) {
-//     client.async_write({ res.buffer, nullptr });
-//   } });
-//
-//   PAUSE
-//   client.disconnect();
-//   s.stop();
-// }
-
-TEST_CASE("can host server", "[TCP_Port]"){
-  tacopie::tcp_client client;
-  Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
-  CHECK( port.host() );
-  PAUSE
-
-  SECTION("server is hosting"){
-    client.connect(TEST_ADDRESS, TEST_PORT, 10);
-    REQUIRE( client.is_connected() );
-    client.disconnect();
-    port.disconnect();
+TEST_CASE("tcp port throws ConnectionFailure", "[TCP_Port]"){
+  SECTION("when unable to host"){
+    Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
+    Comm::TCP::Port port2(TEST_ADDRESS, TEST_PORT);
+    port.host();
+    PAUSE
+    REQUIRE_THROWS_AS( port2.host(), Comm::TCP::ConnectionFailure );
   }
 
-  SECTION("server has stopped hosting"){
-    port.disconnect();
-    REQUIRE_THROWS( client.connect(TEST_ADDRESS, TEST_PORT, 10) );
-    REQUIRE_FALSE( client.is_connected() );
+  SECTION("when unable to connect"){
+    Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
+    REQUIRE_THROWS_AS( port.connect(), Comm::TCP::ConnectionFailure );
   }
 }
+
+TEST_CASE("tcp port disconnects when it goes out of scope", "[TCP_Port]"){
+  {
+    Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
+    port.host();
+    PAUSE
+  }
+  Comm::TCP::Port port3(TEST_ADDRESS, TEST_PORT);
+  REQUIRE_NOTHROW( port3.host() );
+}
+
+// TEST_CASE("can host server", "[TCP_Port]"){
+//   tacopie::tcp_client client;
+//   Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
+//   CHECK( port.host() );
+//   PAUSE
+//
+//   SECTION("server is hosting"){
+//     client.connect(TEST_ADDRESS, TEST_PORT, 10);
+//     REQUIRE( client.is_connected() );
+//     client.disconnect();
+//     port.disconnect();
+//   }
+//
+//   SECTION("server has stopped hosting"){
+//     port.disconnect();
+//     REQUIRE_THROWS( client.connect(TEST_ADDRESS, TEST_PORT, 10) );
+//     REQUIRE_FALSE( client.is_connected() );
+//   }
+// }
 //
 // TEST_CASE("can't host server on serving port", "[TCP_Port]"){
 //   tacopie::tcp_server server;

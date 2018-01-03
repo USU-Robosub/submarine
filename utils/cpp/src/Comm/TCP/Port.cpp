@@ -4,39 +4,34 @@ Comm::TCP::Port::Port(std::string address, unsigned int port)
   : isServer(false),
     address(address),
     port(port),
-    isRunning(false),
-    timeout(10) {}
+    isRunning(false) {}
 
 Comm::TCP::Port::~Port(){
-  this->disconnect();
+  //this->disconnect();
 }
 
-bool Comm::TCP::Port::connect(){
+void Comm::TCP::Port::connect(unsigned int timeout){
   this->isServer = false;
+  this->client = std::make_shared<tacopie::tcp_client>();
   try{
-    this->client = std::make_shared<tacopie::tcp_client>();
-    this->client->connect(this->address, this->port, this->timeout);
-  }catch(...){
-    return false;
+    this->client->connect(this->address, this->port, timeout);
+  }catch(tacopie::tacopie_error e){
+    throw Comm::TCP::ConnectionFailure(e.what());
   }
-  return true;
 }
 
-#include <iostream>
-bool Comm::TCP::Port::host(){
+void Comm::TCP::Port::host(){
   this->isServer = true;
-  // try{
-    this->server = std::make_shared<tacopie::tcp_server>();
-    std::cout << this->address << ", " << this->port << std::endl;
+  this->server = std::make_shared<tacopie::tcp_server>();
+  try{
     this->server->start(this->address, this->port,
       [this] (const std::shared_ptr<tacopie::tcp_client>& client) -> bool {
         this->client = client;
       return true;
     });
-  // }catch(...){
-  //   return false;
-  // }
-  return true;
+  }catch(tacopie::tacopie_error e){
+    throw Comm::TCP::ConnectionFailure(e.what());
+  }
 }
 
 void Comm::TCP::Port::disconnect(){
