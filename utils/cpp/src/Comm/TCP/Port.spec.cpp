@@ -29,7 +29,7 @@ TEST_CASE("Travis TCP", "[Travis]"){
 TEST_CASE("can host server", "[TCP_Port]"){
   tacopie::tcp_client client;
   Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
-  port.host();
+  CHECK( port.host() );
   PAUSE
 
   SECTION("server is hosting"){

@@ -17,8 +17,8 @@ namespace Comm{
 class Comm::TCP::Port : public Comm::Port<char>{
 public:
   Port(std::string address, unsigned int port);
-  void connect();
-  void host();
+  bool connect();
+  bool host();
   void disconnect();
   void lock();
   void unlock();

@@ -7,15 +7,18 @@ Comm::TCP::Port::Port(std::string address, unsigned int port)
     isRunning(false),
     timeout(10) {}
 
-void Comm::TCP::Port::connect(){
+bool Comm::TCP::Port::connect(){
   this->isServer = false;
   try{
     this->client = std::make_shared<tacopie::tcp_client>();
     this->client->connect(this->address, this->port, this->timeout);
-  }catch(...){ }
+  }catch(...){
+    return false;
+  }
+  return true;
 }
 
-void Comm::TCP::Port::host(){
+bool Comm::TCP::Port::host(){
   this->isServer = true;
   try{
     this->server = std::make_shared<tacopie::tcp_server>();
@@ -24,7 +27,10 @@ void Comm::TCP::Port::host(){
         this->client = client;
       return true;
     });
-  }catch(...){ }
+  }catch(...){
+    return false;
+  }
+  return true;
 }
 
 void Comm::TCP::Port::disconnect(){
