@@ -3,9 +3,8 @@
 #include <thread>
 #include <chrono>
 
-#define TEST_ADDRESS "127.0.0.1"
+#define TEST_ADDRESS "localhost"
 #define TEST_PORT 3001
-#define IMPOSSIBLE_PORT 80
 
 TEST_CASE("can host server", "[TCP_Port]"){
   tacopie::tcp_client client;
@@ -27,9 +26,13 @@ TEST_CASE("can host server", "[TCP_Port]"){
   }
 }
 
-TEST_CASE("can't host impossible server", "[TCP_Port]"){
-  tacopie::tcp_client client;
-  Comm::TCP::Port port(TEST_ADDRESS, IMPOSSIBLE_PORT);
+TEST_CASE("can't host server on serving port", "[TCP_Port]"){
+  tacopie::tcp_server server;
+  Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
+  server.start(TEST_ADDRESS, TEST_PORT,
+    [] (const std::shared_ptr<tacopie::tcp_client>& client) -> bool {
+    return true;
+  });
   REQUIRE_NOTHROW( port.host() );
 }
 
