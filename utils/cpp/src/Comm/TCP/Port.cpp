@@ -22,10 +22,12 @@ bool Comm::TCP::Port::connect(){
   return true;
 }
 
+#include <iostream>
 bool Comm::TCP::Port::host(){
   this->isServer = true;
   // try{
     this->server = std::make_shared<tacopie::tcp_server>();
+    std::cout << this->address << ", " << this->port << std::endl;
     this->server->start(this->address, this->port,
       [this] (const std::shared_ptr<tacopie::tcp_client>& client) -> bool {
         this->client = client;

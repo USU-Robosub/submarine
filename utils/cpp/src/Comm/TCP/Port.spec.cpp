@@ -8,25 +8,25 @@
 #define PAUSE std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 #include <iostream>
-TEST_CASE("Travis TCP", "[Travis]"){
-  tacopie::tcp_server s;
-  s.start(TEST_ADDRESS, TEST_PORT, [] (const std::shared_ptr<tacopie::tcp_client>& client) -> bool {
-    std::cout << "New client" << std::endl;
-    return true;
-  });
-
-  PAUSE
-
-  tacopie::tcp_client client;
-  client.connect(TEST_ADDRESS, TEST_PORT);
-  client.async_read({ 1024, [&] (tacopie::tcp_client::read_result& res) {
-    client.async_write({ res.buffer, nullptr });
-  } });
-
-  PAUSE
-  client.disconnect();
-  s.stop();
-}
+// TEST_CASE("Travis TCP", "[Travis]"){
+//   tacopie::tcp_server s;
+//   s.start(TEST_ADDRESS, TEST_PORT, [] (const std::shared_ptr<tacopie::tcp_client>& client) -> bool {
+//     std::cout << "New client" << std::endl;
+//     return true;
+//   });
+//
+//   PAUSE
+//
+//   tacopie::tcp_client client;
+//   client.connect(TEST_ADDRESS, TEST_PORT);
+//   client.async_read({ 1024, [&] (tacopie::tcp_client::read_result& res) {
+//     client.async_write({ res.buffer, nullptr });
+//   } });
+//
+//   PAUSE
+//   client.disconnect();
+//   s.stop();
+// }
 
 TEST_CASE("can host server", "[TCP_Port]"){
   tacopie::tcp_client client;
