@@ -31,6 +31,7 @@ TEST_CASE("tcp port disconnects when it goes out of scope", "[TCP_Port]"){
     port.host();
     PAUSE
   }
+  PAUSE
   Comm::TCP::Port port2(TEST_ADDRESS, TEST_PORT);
   REQUIRE_NOTHROW( port2.host() );
 }
