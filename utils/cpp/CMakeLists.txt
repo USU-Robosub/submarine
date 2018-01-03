@@ -16,6 +16,9 @@ else()
 endif()
 set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
+add_subdirectory(${SOURCE_DIR}/../../extern/tacopie ${CMAKE_CURRENT_BINARY_DIR}/extern/tacopie)
+include_directories(${TACOPIE_INCLUDES})
+
 include_directories(${SOURCE_DIR}/include)
 include_directories(${SOURCE_DIR}/../../extern/gsi)
 include_directories(${SOURCE_DIR}/../../extern/rxcpp)
@@ -31,6 +34,7 @@ foreach(SOURCE_FILE ${SOURCE_FILES})
 endforeach()
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} tacopie)
 
 if(${tests})
   include_directories(${SOURCE_DIR}/mock)
