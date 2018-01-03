@@ -24,6 +24,8 @@ TEST_CASE("Travis TCP", "[Travis]"){
   } });
 
   PAUSE
+  client.disconnect();
+  s.stop();
 }
 
 TEST_CASE("can host server", "[TCP_Port]"){
