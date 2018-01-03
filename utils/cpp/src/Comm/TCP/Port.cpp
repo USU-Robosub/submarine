@@ -41,10 +41,10 @@ bool Comm::TCP::Port::host(){
 
 void Comm::TCP::Port::disconnect(){
   if(this->client != nullptr)
-    this->client->disconnect();
+    this->client->disconnect(true);
 
   if(this->isServer && this->server != nullptr)
-    this->server->stop();
+    this->server->stop(true);
 }
 
 void Comm::TCP::Port::lock(){
