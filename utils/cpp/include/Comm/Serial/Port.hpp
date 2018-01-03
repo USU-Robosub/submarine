@@ -11,7 +11,7 @@
 #include <string>
 #include <mutex>
 #include <functional>
-#include <Comm/BinaryPort.hpp>
+#include <Comm/Port.hpp>
 
 namespace Comm{
   namespace Serial{
@@ -19,14 +19,14 @@ namespace Comm{
   }
 }
 
-class Comm::Serial::Port : public Comm::BinaryPort{
+class Comm::Serial::Port : public Comm::Port<unsigned char>{
 public:
   Port(std::string portName, unsigned int speed);
   void connect();
   void disconnect();
   bool isConnected();
   bool hasData();
-  void push(unsigned char* buffer, unsigned int length);
+  void push(const unsigned char* buffer, unsigned int length);
   void poll(unsigned char* buffer, unsigned int length);
   void lock();
   void unlock();

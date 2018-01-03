@@ -1,11 +1,10 @@
 #include <Comm/TCP/Port.hpp>
 
-Comm::TCP::Port::Port(std::string address, unsigned int port, unsigned int bufferSize)
+Comm::TCP::Port::Port(std::string address, unsigned int port)
   : isServer(false),
     address(address),
     port(port),
     isRunning(false),
-    bufferSize(bufferSize),
     timeout(10) {}
 
 void Comm::TCP::Port::connect(){
@@ -44,14 +43,23 @@ void Comm::TCP::Port::unlock(){
 
 }
 
-std::string Comm::TCP::Port::poll(){
-  std::vector<char> data = this->getSocket().recv(this->bufferSize);
-  return std::string(data.begin(), data.end());
+void Comm::TCP::Port::poll(char* buffer, unsigned int length){
+  unsigned int bufferIndex = 0;
+  while(bufferIndex < length){
+    std::vector<char> data = this->getSocket().recv(length);
+    for(unsigned int i = 0; i < data.size(); ++i, ++bufferIndex){
+      buffer[bufferIndex] = data[i];
+    }
+  }
 }
 
-void Comm::TCP::Port::push(std::string value){
-  std::vector<char> data(value.begin(), value.end());
-  this->getSocket().send(data, value.size());
+void Comm::TCP::Port::push(const char* buffer, unsigned int length){
+  unsigned int bufferStart = 0;
+  while(bufferStart < length){
+    std::vector<char> data(buffer + bufferStart, buffer + length);
+    std::size_t sentLength = this->getSocket().send(data, length);
+    bufferStart += sentLength;
+  }
 }
 
 bool Comm::TCP::Port::hasData(){

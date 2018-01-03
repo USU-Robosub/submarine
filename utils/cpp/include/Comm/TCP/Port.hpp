@@ -1,7 +1,7 @@
 #ifndef COMM_TCP_PORT
 #define COMM_TCP_PORT
 
-#include <Comm/Stream.hpp>
+#include <Comm/Port.hpp>
 #include <string>
 #include <map>
 #include <tacopie/tacopie>
@@ -14,16 +14,16 @@ namespace Comm{
   }
 }
 
-class Comm::TCP::Port : public Comm::Stream<std::string>{
+class Comm::TCP::Port : public Comm::Port<char>{
 public:
-  Port(std::string address, unsigned int port, unsigned int bufferSize = 1024);
+  Port(std::string address, unsigned int port);
   void connect();
   void host();
   void disconnect();
   void lock();
   void unlock();
-  std::string poll();
-  void push(std::string value);
+  void poll(char* buffer, unsigned int length);
+  void push(const char* buffer, unsigned int length);
   bool hasData();
 
 private:
@@ -33,7 +33,6 @@ private:
   std::string address;
   unsigned int port;
   bool isRunning;
-  unsigned int bufferSize;
   unsigned int timeout;
   std::shared_ptr<tacopie::tcp_server> server;
   std::shared_ptr<tacopie::tcp_client> client;

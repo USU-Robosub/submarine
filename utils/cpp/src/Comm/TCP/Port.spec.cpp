@@ -72,52 +72,12 @@ TEST_CASE("can send data", "[TCP_Port_1]"){
   }
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-  sender.push("test");
-  REQUIRE( receiver.poll() == "test" );
-  sender.push("Hello, world!");
-  REQUIRE( receiver.poll() == "Hello, world!" );
-
-  sender.disconnect();
-  receiver.disconnect();
-}
-
-TEST_CASE("buffer size reconstruction", "[TCP_Port_1]"){
-  Comm::TCP::Port sender(TEST_ADDRESS, TEST_PORT);
-  Comm::TCP::Port receiver(TEST_ADDRESS, TEST_PORT);
-  SECTION("server -> client"){
-    sender.host();
-    receiver.connect();
-  }
-  SECTION("client -> server"){
-    receiver.host();
-    sender.connect();
-  }
+  sender.push(std::string("test").c_str(), 4);
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-  sender.push("test");
-  REQUIRE( receiver.poll() == "test" );
-  sender.push("Hello, world!");
-  REQUIRE( receiver.poll() == "Hello, world!" );
+  char received[4];
+  receiver.poll(received, 4);
+  REQUIRE( std::string(received, 4) == std::string("test") );
 
   sender.disconnect();
   receiver.disconnect();
 }
-
-// TEST_CASE("test 4", "[TCP_Port]"){
-//   tacopie::tcp_server s;
-//   s.start("127.0.0.1", 3001, [] (const std::shared_ptr<tacopie::tcp_client>& client) -> bool {
-//     // /std::cout << "New client" << std::endl;
-//     return true;
-//   });
-//
-//   // tacopie::tcp_client client;
-//   // client.connect("127.0.0.1", 3001);
-//   // client.async_read({ 1024, [&] (tacopie::tcp_client::read_result& res) {
-//   //   client.async_write({ res.buffer, nullptr });
-//   // } });
-//
-//   // 0 5 6 0 3 5 6
-//   // <?><length><tag><string 1><string 2><string 3>
-//
-//   //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-// }

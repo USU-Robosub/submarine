@@ -6,7 +6,7 @@ Notice: This code is effected by the system's memory layout (little endian or bi
 
 */
 
-Comm::Serial::Stream::Stream(Comm::BinaryPort* port)
+Comm::Serial::Stream::Stream(Comm::Port<unsigned char>* port)
   : port(port),
     isLocked(false) {
     this->lock();
