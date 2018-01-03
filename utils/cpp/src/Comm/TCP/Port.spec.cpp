@@ -5,6 +5,7 @@
 
 #define TEST_ADDRESS "localhost"
 #define TEST_PORT 3001
+#define PAUSE std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 #include <iostream>
 TEST_CASE("Travis TCP", "[Travis]"){
@@ -14,7 +15,7 @@ TEST_CASE("Travis TCP", "[Travis]"){
     return true;
   });
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  PAUSE
 
   tacopie::tcp_client client;
   client.connect(TEST_ADDRESS, TEST_PORT);
@@ -22,28 +23,27 @@ TEST_CASE("Travis TCP", "[Travis]"){
     client.async_write({ res.buffer, nullptr });
   } });
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  PAUSE
 }
 
-// TEST_CASE("can host server", "[TCP_Port]"){
-//   tacopie::tcp_client client;
-//   Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
-//   port.host();
-//
-//   SECTION("server is hosting"){
-//     client.connect(TEST_ADDRESS, TEST_PORT, 10);
-//     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-//     REQUIRE( client.is_connected() );
-//     client.disconnect();
-//     port.disconnect();
-//   }
-//
-//   SECTION("server has stopped hosting"){
-//     port.disconnect();
-//     REQUIRE_THROWS( client.connect(TEST_ADDRESS, TEST_PORT, 10) );
-//     REQUIRE_FALSE( client.is_connected() );
-//   }
-// }
+TEST_CASE("can host server", "[TCP_Port]"){
+  tacopie::tcp_client client;
+  Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
+  port.host();
+
+  SECTION("server is hosting"){
+    client.connect(TEST_ADDRESS, TEST_PORT, 10);
+    REQUIRE( client.is_connected() );
+    client.disconnect();
+    port.disconnect();
+  }
+
+  SECTION("server has stopped hosting"){
+    port.disconnect();
+    REQUIRE_THROWS( client.connect(TEST_ADDRESS, TEST_PORT, 10) );
+    REQUIRE_FALSE( client.is_connected() );
+  }
+}
 //
 // TEST_CASE("can't host server on serving port", "[TCP_Port]"){
 //   tacopie::tcp_server server;
