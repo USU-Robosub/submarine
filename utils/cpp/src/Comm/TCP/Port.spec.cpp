@@ -22,14 +22,17 @@ TEST_CASE("tcp port throws ConnectionFailure", "[TCP_Port]"){
   }
 }
 
+/*
+  Travic-CI is very sensitive to this.
+*/
 TEST_CASE("tcp port disconnects when it goes out of scope", "[TCP_Port]"){
   {
     Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
     port.host();
     PAUSE
   }
-  Comm::TCP::Port port3(TEST_ADDRESS, TEST_PORT);
-  REQUIRE_NOTHROW( port3.host() );
+  Comm::TCP::Port port2(TEST_ADDRESS, TEST_PORT);
+  REQUIRE_NOTHROW( port2.host() );
 }
 
 // TEST_CASE("can host server", "[TCP_Port]"){

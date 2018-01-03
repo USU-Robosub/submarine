@@ -7,7 +7,7 @@ Comm::TCP::Port::Port(std::string address, unsigned int port)
     isRunning(false) {}
 
 Comm::TCP::Port::~Port(){
-  //this->disconnect();
+  this->disconnect();
 }
 
 void Comm::TCP::Port::connect(unsigned int timeout){
