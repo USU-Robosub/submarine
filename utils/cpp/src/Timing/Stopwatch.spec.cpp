@@ -3,12 +3,12 @@
 #include "catch.hpp"
 #include "Timing/Stopwatch.h"
 
-TEST_CASE("a stopwatch starts with 0s deltaTime", "[Stopwatch]"){
+TEST_CASE("a stopwatch starts with 0s deltaTime", "[Stopwatch][.timing]"){
   Timing::Stopwatch stopwatch;
   REQUIRE( stopwatch.messure() == 0 );
 }
 
-TEST_CASE("a stopwatch messures a delay correctly", "[Stopwatch]"){
+TEST_CASE("a stopwatch messures a delay correctly", "[Stopwatch][.timing]"){
   Timing::Stopwatch stopwatch;
   stopwatch.messure();
   stopwatch.messure();

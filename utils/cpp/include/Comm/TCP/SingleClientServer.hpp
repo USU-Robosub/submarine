@@ -30,6 +30,10 @@ public:
   Comm::TCP::Port waitForConnection();
 
 private:
+  addrinfo* getAddress(const char* port);
+  void createSocket(addrinfo* servinfo);
+  void* get_in_addr(sockaddr* sa);
+
   int socketFD;
 };
 
