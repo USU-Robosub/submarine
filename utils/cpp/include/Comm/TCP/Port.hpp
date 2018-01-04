@@ -1,10 +1,21 @@
 #ifndef COMM_TCP_PORT
 #define COMM_TCP_PORT
 
+// === Linux ====
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <netdb.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+// ====
 #include <Comm/Port.hpp>
 #include <string>
-#include <map>
-#include <tacopie/tacopie>
+#include <stdexcept>
 
 namespace Comm{
   namespace TCP{
@@ -16,10 +27,9 @@ namespace Comm{
 class Comm::TCP::Port : public Comm::Port<char>{
 public:
   Port(std::string address, unsigned int port);
+  Port(int socketFD);
+  Port(Port&& other);
   ~Port();
-  void connect(unsigned int timeout = 10);
-  void host();
-  void disconnect();
   void lock();
   void unlock();
   void poll(char* buffer, unsigned int length);
@@ -27,14 +37,11 @@ public:
   bool hasData();
 
 private:
-  tacopie::tcp_socket& getSocket();
+  addrinfo* getAddress(const char* address, const char* port);
+  void createSocket(addrinfo* servinfo);
+  void* get_in_addr(sockaddr* sa);
 
-  bool isServer;
-  std::string address;
-  unsigned int port;
-  bool isRunning;
-  std::shared_ptr<tacopie::tcp_server> server;
-  std::shared_ptr<tacopie::tcp_client> client;
+  int socketFD;
 };
 
 class Comm::TCP::ConnectionFailure : public std::runtime_error{
