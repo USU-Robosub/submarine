@@ -7,18 +7,6 @@
 #define TEST_PORT 3001
 #define PAUSE std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-/*
-  Travic-CI is very sensitive to this.
-*/
-TEST_CASE("tcp port disconnects when it goes out of scope", "[TCP_Port]"){
-  {
-    Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
-    port.host();
-  }
-  Comm::TCP::Port port2(TEST_ADDRESS, TEST_PORT);
-  REQUIRE_NOTHROW( port2.host() );
-}
-
 TEST_CASE("tcp port throws ConnectionFailure", "[TCP_Port]"){
   SECTION("when unable to host"){
     Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
@@ -31,6 +19,20 @@ TEST_CASE("tcp port throws ConnectionFailure", "[TCP_Port]"){
     Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
     REQUIRE_THROWS_AS( port.connect(), Comm::TCP::ConnectionFailure );
   }
+}
+
+/*
+  Travic-CI is very sensitive to this.
+*/
+TEST_CASE("tcp port disconnects when it goes out of scope", "[TCP_Port]"){
+  {
+    Comm::TCP::Port port(TEST_ADDRESS, TEST_PORT);
+    port.host();
+    Comm::TCP::Port port2(TEST_ADDRESS, TEST_PORT);
+    REQUIRE_THROWS_AS( port2.host(), Comm::TCP::ConnectionFailure );
+  }
+  Comm::TCP::Port port2(TEST_ADDRESS, TEST_PORT);
+  REQUIRE_NOTHROW( port2.host() );
 }
 
 // TEST_CASE("can host server", "[TCP_Port]"){
