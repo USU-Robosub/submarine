@@ -61,12 +61,3 @@ void Comm::TCP::SingleClientServer::createSocket(addrinfo* servinfo){
   if (listen(this->socketFD, BACKLOG) == -1)
     throw Comm::TCP::ConnectionFailure("failed to listen");
 }
-
-// get sockaddr, IPv4 or IPv6:
-void* Comm::TCP::SingleClientServer::get_in_addr(sockaddr* sa)
-{
-  if (sa->sa_family == AF_INET)
-    return &(((struct sockaddr_in*)sa)->sin_addr);
-  else
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}

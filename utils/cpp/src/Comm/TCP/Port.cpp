@@ -28,11 +28,11 @@ void Comm::TCP::Port::unlock(){
 }
 
 void Comm::TCP::Port::poll(char* buffer, unsigned int length){
-  recv(this->socketFD, buffer, length, 0); // may not fill buffer
+  recv(this->socketFD, buffer, length, 0); // may not fill buffer | should check if errored
 }
 
 void Comm::TCP::Port::push(const char* buffer, unsigned int length){
-  send(this->socketFD, buffer, length, 0); // may not send all data
+  send(this->socketFD, buffer, length, 0); // may not send all data | should check if errored
 }
 
 bool Comm::TCP::Port::hasData(){
@@ -74,13 +74,4 @@ void Comm::TCP::Port::createSocket(addrinfo* servinfo){
   freeaddrinfo(servinfo);
   if (p == NULL)
     throw Comm::TCP::ConnectionFailure("failed to connect");
-}
-
-// get sockaddr, IPv4 or IPv6:
-void* Comm::TCP::Port::get_in_addr(sockaddr* sa)
-{
-  if (sa->sa_family == AF_INET)
-    return &(((struct sockaddr_in*)sa)->sin_addr);
-  else
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
