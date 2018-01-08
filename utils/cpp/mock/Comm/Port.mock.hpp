@@ -14,8 +14,8 @@ template<class T>
 class Comm::Mock::Port : public Comm::Port<T>{
 public:
   Port();
-  void poll(T* buffer, unsigned int length);
-  void push(const T* buffer, unsigned int length);
+  std::size_t poll(T* buffer, std::size_t length);
+  void push(const T* buffer, std::size_t length);
   bool hasData();
   void lock();
   void unlock();
@@ -24,6 +24,7 @@ public:
   bool dataAvailable;
   bool isLocked;
   unsigned int bufferIndex;
+  unsigned int bufferLength;
 };
 
 template<class T>
@@ -31,17 +32,20 @@ Comm::Mock::Port<T>::Port()
   : buffer(nullptr),
     dataAvailable(true),
     isLocked(false),
-    bufferIndex(0) {}
+    bufferIndex(0),
+    bufferLength(0) {}
 
 template<class T>
-void Comm::Mock::Port<T>::poll(T* buffer, unsigned int length) {
-  for(unsigned int i = 0; i < length; ++i)
+std::size_t Comm::Mock::Port<T>::poll(T* buffer, std::size_t length) {
+  unsigned int i = 0;
+  for(; i < length && this->bufferIndex < this->bufferLength; ++i)
     buffer[i] = this->buffer[this->bufferIndex++];
+  return i;
 }
 
 template<class T>
-void Comm::Mock::Port<T>::push(const T* buffer, unsigned int length){
-  for(unsigned int i = 0; i < length; ++i)
+void Comm::Mock::Port<T>::push(const T* buffer, std::size_t length){
+  for(unsigned int i = 0; i < length && this->bufferIndex < this->bufferLength; ++i)
     this->buffer[this->bufferIndex++] = buffer[i];
 }
 

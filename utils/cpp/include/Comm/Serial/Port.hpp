@@ -26,8 +26,8 @@ public:
   void disconnect();
   bool isConnected();
   bool hasData();
-  void push(const unsigned char* buffer, unsigned int length);
-  void poll(unsigned char* buffer, unsigned int length);
+  void push(const unsigned char* buffer, std::size_t length);
+  std::size_t poll(unsigned char* buffer, std::size_t length);
   void lock();
   void unlock();
 

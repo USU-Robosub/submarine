@@ -1,6 +1,7 @@
 #ifndef COMM_PORT
 #define COMM_PORT
 
+#include <cstddef>
 #include <Threading/Lockable.hpp>
 
 namespace Comm{
@@ -14,8 +15,8 @@ public:
   Port & operator=(const Port&) = delete;
   Port(const Port&) = delete;
   Port() = default;
-  virtual void push(const T* buffer, unsigned int length) = 0;
-  virtual void poll(T* buffer, unsigned int length) = 0;
+  virtual void push(const T* buffer, std::size_t length) = 0;
+  virtual std::size_t poll(T* buffer, std::size_t length) = 0;
   virtual bool hasData() = 0;
 };
 

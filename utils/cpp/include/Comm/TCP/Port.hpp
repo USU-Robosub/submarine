@@ -32,8 +32,8 @@ public:
   ~Port();
   void lock();
   void unlock();
-  void poll(char* buffer, unsigned int length);
-  void push(const char* buffer, unsigned int length);
+  std::size_t poll(char* buffer, std::size_t length);
+  void push(const char* buffer, std::size_t length);
   bool hasData();
 
 private:

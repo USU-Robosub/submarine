@@ -9,6 +9,7 @@ TEST_CASE("can read int", "[SerialStream]"){
   Comm::Serial::Stream stream(&port);
   unsigned char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
   port.buffer = data;
+  port.bufferLength = 8;
   REQUIRE( stream.poll() == 67305985 );
   REQUIRE( stream.poll() == 16909060 );
 }
@@ -19,6 +20,7 @@ TEST_CASE("can write int", "[SerialStream]"){
   unsigned char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
   unsigned char buffer[8] = { 0 };
   port.buffer = buffer;
+  port.bufferLength = 8;
   stream.push(67305985);
   stream.push(16909060);
   for(unsigned int i = 0; i < 8; i++)
@@ -58,6 +60,7 @@ TEST_CASE("does not read int when unlocked", "[SerialStream]"){
   Comm::Serial::Stream stream(&port);
   unsigned char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
   port.buffer = data;
+  port.bufferLength = 8;
 
   stream.unlock();
   REQUIRE( stream.poll() == 0 );
@@ -72,6 +75,7 @@ TEST_CASE("does not write int when unlocked", "[SerialStream]"){
   unsigned char data[8] = { 0 };
   unsigned char buffer[8] = { 0 };
   port.buffer = data;
+  port.bufferLength = 8;
 
   stream.unlock();
   stream.push(67305985);

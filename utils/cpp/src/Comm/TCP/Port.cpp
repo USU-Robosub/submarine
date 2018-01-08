@@ -27,11 +27,11 @@ void Comm::TCP::Port::unlock(){
  // ?
 }
 
-void Comm::TCP::Port::poll(char* buffer, unsigned int length){
-  recv(this->socketFD, buffer, length, 0); // may not fill buffer | should check if errored
+std::size_t Comm::TCP::Port::poll(char* buffer, std::size_t length){
+  return recv(this->socketFD, buffer, length, 0); // should check if errored
 }
 
-void Comm::TCP::Port::push(const char* buffer, unsigned int length){
+void Comm::TCP::Port::push(const char* buffer, std::size_t length){
   send(this->socketFD, buffer, length, 0); // may not send all data | should check if errored
 }
 
