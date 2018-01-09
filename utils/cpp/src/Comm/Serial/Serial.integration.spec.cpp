@@ -10,7 +10,7 @@
 #define TEST_PORT_1 "/tmp/virtualcom0"
 #define TEST_PORT_2 "/tmp/virtualcom1"
 
-TEST_CASE("Full stack test", "[SerialIntegration][.]"){
+TEST_CASE("Full stack test", "[SerialIntegration][.integration]"){
   Comm::Serial::Port sendingPort(TEST_PORT_1, B9600); sendingPort.unlock();
   sendingPort.connect();
   REQUIRE( sendingPort.isConnected() );

@@ -9,7 +9,7 @@ Comm::TCP::Stream::Stream(Comm::Port<char>* port, char separator)
     separator(separator){}
 
 bool Comm::TCP::Stream::hasData(){
-  return this->port->hasData();
+  return ((this->strings.size() > 0) || this->port->hasData());
 }
 
 void Comm::TCP::Stream::push(std::string data){

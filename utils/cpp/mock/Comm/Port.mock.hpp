@@ -21,7 +21,6 @@ public:
   void unlock();
 
   T* buffer;
-  bool dataAvailable;
   bool isLocked;
   unsigned int bufferIndex;
   unsigned int bufferLength;
@@ -30,7 +29,6 @@ public:
 template<class T>
 Comm::Mock::Port<T>::Port()
   : buffer(nullptr),
-    dataAvailable(true),
     isLocked(false),
     bufferIndex(0),
     bufferLength(0) {}
@@ -51,7 +49,7 @@ void Comm::Mock::Port<T>::push(const T* buffer, std::size_t length){
 
 template<class T>
 bool Comm::Mock::Port<T>::hasData(){
-  return this->dataAvailable;
+  return this->bufferIndex < this->bufferLength;
 }
 
 template<class T>

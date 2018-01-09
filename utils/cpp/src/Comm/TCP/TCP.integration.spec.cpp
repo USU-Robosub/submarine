@@ -1,0 +1,52 @@
+#include <catch.hpp>
+#include <Comm/Hub.hpp>
+#include <Comm/TCP/Bridge.hpp>
+#include <Comm/TCP/Stream.hpp>
+#include <Comm/TCP/Port.hpp>
+#include <Comm/TCP/SingleClientServer.hpp>
+#include <iostream>
+#include <thread>
+#include <chrono>
+
+#define TEST_ADDRESS "localhost"
+#define TEST_PORT 3001
+
+TEST_CASE("TCP full stack test", "[TCP_Integration][.integration]"){
+  Comm::TCP::SingleClientServer server(TEST_PORT);
+
+  Comm::TCP::Port receivingPort(TEST_ADDRESS, TEST_PORT);
+  Comm::TCP::Stream receivingStream(&receivingPort, '|');
+  Comm::TCP::Bridge receivingBridge(&receivingStream);
+  Comm::Hub<std::string> receivingHub(&receivingBridge);
+
+  Comm::TCP::Port sendingPort = server.waitForConnection();
+  Comm::TCP::Stream sendingStream(&sendingPort, '|');
+  Comm::TCP::Bridge sendingBridge(&sendingStream);
+  Comm::Hub<std::string> sendingHub(&sendingBridge);
+
+  receivingHub.on("test", [](std::vector<std::string> message){
+    std::cout << "message on test: ";
+    for(unsigned int i = 0; i < message.size(); ++i)
+      std::cout << std::dec << message[i] << '_';
+    std::cout << std::endl;
+  });
+  sendingHub.on("event", [](std::vector<std::string> message){
+    std::cout << "message on event: ";
+    for(unsigned int i = 0; i < message.size(); ++i)
+      std::cout << std::dec << message[i] << '_';
+    std::cout << std::endl;
+  });
+
+  std::cout << "sending data..." << std::endl;
+
+  sendingHub.emit("test", std::vector<std::string>{"a", "b", "c", "d"});
+  receivingHub.emit("event", std::vector<std::string>{"0", "0", "400", "2", "5"});
+  sendingHub.emit("test", std::vector<std::string>{"hello", ",", "world", "!"});
+  receivingHub.emit("event", std::vector<std::string>{"this", "is", "a", "test"});
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(20));
+  receivingHub.poll();
+  sendingHub.poll();
+
+  std::cout << "data read..." << std::endl;
+}

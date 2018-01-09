@@ -30,11 +30,15 @@ TEST_CASE("can write int", "[SerialStream]"){
 TEST_CASE("uses port to check if data is available", "[SerialStream]"){
   Comm::Mock::Port<unsigned char> port;
   Comm::Serial::Stream stream(&port);
-
-  port.dataAvailable = false;
-  REQUIRE( stream.hasData() == false );
-  port.dataAvailable = true;
-  REQUIRE( stream.hasData() == true );
+  unsigned char data[] = { 01, 02, 03, 04, 04, 03, 02, 01 };
+  port.buffer = data;
+  REQUIRE_FALSE( stream.hasData() );
+  port.bufferLength = 8;
+  REQUIRE( stream.hasData() );
+  stream.poll();
+  REQUIRE( stream.hasData() );
+  stream.poll();
+  REQUIRE_FALSE( stream.hasData() );
 }
 
 TEST_CASE("uses port to lock/unlock stream", "[SerialStream]"){

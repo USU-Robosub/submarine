@@ -23,14 +23,18 @@ TEST_CASE("tcp stream can write int", "[TCP_Stream]"){
   REQUIRE( buffer == std::string("a|abc|") );
 }
 
-TEST_CASE("tcp stream uses port to check if data is available", "[TCP_Stream]"){
+TEST_CASE("tcp stream has data when queue is not empty", "[TCP_Stream]"){
   Comm::Mock::Port<char> port;
   Comm::TCP::Stream stream(&port, '|');
-
-  port.dataAvailable = false;
-  REQUIRE( stream.hasData() == false );
-  port.dataAvailable = true;
-  REQUIRE( stream.hasData() == true );
+  char data[] = "test|message|";
+  port.buffer = data;
+  REQUIRE_FALSE( stream.hasData() );
+  port.bufferLength = 13;
+  REQUIRE( stream.hasData() );
+  stream.poll();
+  REQUIRE( stream.hasData() );
+  stream.poll();
+  REQUIRE_FALSE( stream.hasData() );
 }
 
 TEST_CASE("tcp stream can use different separators", "[TCP_Stream]"){
