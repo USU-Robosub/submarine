@@ -20,7 +20,7 @@ TEST_CASE("tcp stream can write int", "[TCP_Stream]"){
   port.bufferLength = 6;
   stream.push("a");
   stream.push("abc");
-  REQUIRE( buffer == std::string("a|abc|") );
+  REQUIRE( std::string(buffer, 6) == std::string("a|abc|") );
 }
 
 TEST_CASE("tcp stream has data when queue is not empty", "[TCP_Stream]"){
@@ -55,6 +55,6 @@ TEST_CASE("tcp stream can use different separators", "[TCP_Stream]"){
     port.bufferLength = 6;
     stream.push("a");
     stream.push("abc");
-    REQUIRE( buffer == std::string("a,abc,") );
+    REQUIRE( std::string(buffer, 6) == std::string("a,abc,") );
   }
 }
