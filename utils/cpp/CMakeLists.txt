@@ -18,6 +18,8 @@ set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
 include_directories(${SOURCE_DIR}/include)
 include_directories(${SOURCE_DIR}/../../extern/gsi)
+include_directories(${SOURCE_DIR}/../../extern/rxcpp)
+include_directories(${SOURCE_DIR}/../../extern/optional)
 
 set(${PROJECT_NAME}_Includes ${SOURCE_DIR}/include PARENT_SCOPE)
 set(${PROJECT_NAME}_Mocks ${SOURCE_DIR}/mock PARENT_SCOPE)

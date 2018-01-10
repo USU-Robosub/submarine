@@ -5,7 +5,7 @@
 
 namespace Device{
   namespace Mock{
-    class TestMotor : public Motor {
+    class TestMotor{
     public:
       void setPower(double power){
         didSetPower = true;
