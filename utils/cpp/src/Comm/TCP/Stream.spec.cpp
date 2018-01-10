@@ -65,7 +65,7 @@ TEST_CASE("tcp stream can handle large buffers", "[TCP_Stream]"){
 
   char data[24] = "0|1|2|3|4444|5|6|7|8|9|";
   port.buffer = data;
-  port.bufferLength = 20;
+  port.bufferLength = 24;
   REQUIRE( stream.poll() == std::string("0") );
   REQUIRE( stream.poll() == std::string("1") );
   REQUIRE( stream.poll() == std::string("2") );

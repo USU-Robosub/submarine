@@ -19,7 +19,8 @@ std::string Comm::TCP::Stream::poll(){
   if(this->strings.size() == 0){
     char buffer[this->bufferLength];
     unsigned int length = this->port->poll(buffer, this->bufferLength);
-    std::stringstream ss(this->partial);
+    std::stringstream ss;
+    ss << this->partial;
     for(unsigned int i = 0; i < length; ++i){
       if(buffer[i] == this->separator){
         this->strings.push(ss.str());
