@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8.12)
-set(PROJECT_NAME world)
+set(PROJECT_NAME system)
 project (${PROJECT_NAME})
 
 option(tests "Build tests" OFF)
@@ -21,8 +21,8 @@ set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 include_directories(${SOURCE_DIR}/include)
 include_directories(${SOURCE_DIR}/../../../extern)
 
-set(tests OFF CACHE BOOL FORCE)
-set(coverage OFF CACHE BOOL FORCE)
+set(tests OFF CACHE BOOL "" FORCE)
+set(coverage OFF CACHE BOOL "" FORCE)
 add_subdirectory(${SOURCE_DIR}/../../../utils/cpp ${CMAKE_CURRENT_BINARY_DIR}/utils/cpp)
 include_directories(${Utils_Includes})
 
@@ -37,6 +37,7 @@ endforeach()
 
 
 add_executable(${PROJECT_NAME} main.cpp ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} Utils)
 
 if(${Run_Tests})
   include_directories(${SOURCE_DIR}/mock)

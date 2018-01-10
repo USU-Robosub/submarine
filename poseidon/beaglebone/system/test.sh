@@ -5,4 +5,4 @@ mkdir -p build
 cd build
 cmake .. -Dtests=ON
 make
-./world_tests
+./system_tests
