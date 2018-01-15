@@ -44,6 +44,6 @@ cd ../../..
 
 echo Gathering coverage info.
 {
-coveralls --gcov-options '\-lp' -i ./ -E ".+(extern|\/(feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock)).+" --dump="dump.json"
-} # &> /dev/null
+coveralls --gcov-options '\-lp' -i ./ -E ".*\/(extern|feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+" --dump="dump.json"
+} &> /dev/null
 echo Coverage info uploaded.
