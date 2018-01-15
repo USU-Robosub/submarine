@@ -26,7 +26,7 @@ cd ../../..
 cd poseidon/beaglebone/system
 mkdir -p build
 cd build
-cmake .. -Dtests=ON -Dcoverage=ON
+cmake .. -Dtests=ON -Dcoverage=ON -DutilsLib=ON -DutilsLibPath="../../../utils/cpp"
 make
 ./system_tests
 cd ../../../..
@@ -39,11 +39,11 @@ mkdir -p build
 cd build
 cmake .. -Dtests=ON -Dcoverage=ON
 make
-./raspberryPI_tests
+./raspberryPI_tests -DutilsLib=ON -DutilsLibPath="../../utils/cpp"
 cd ../../..
 
 echo Gathering coverage info.
 {
-coveralls --gcov-options '\-lp' -i ./ -E ".+\/(feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
+coveralls --gcov-options '\-lp' -i ./ -E "(extern|.+\/(feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock)).+"
 } &> /dev/null
 echo Coverage info uploaded.

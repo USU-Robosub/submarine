@@ -2,14 +2,15 @@ cmake_minimum_required (VERSION 2.8.12)
 set(PROJECT_NAME raspberryPI)
 project (${PROJECT_NAME})
 
-# --- build options ---
 option(tests "Build tests" OFF)
 option(coverage "Enable coverage output" OFF)
+option(utilsLib "Use prebuilt utils library" OFF)
+option(utilsLibPath "Prebuilt utils library path" "")
 set(Run_Tests ${tests})
 set(Enable_Coverage ${coverage})
 
-# --- g++ flags ---
 set(CMAKE_CXX_CUSTOM_FLAGS "-std=gnu++11 -pthread")
+
 if(${Enable_Coverage})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_CUSTOM_FLAGS} -coverage")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -coverage")
@@ -19,18 +20,22 @@ else()
 endif()
 set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
-# -- includes ---
 include_directories(${SOURCE_DIR}/include)
 include_directories(${SOURCE_DIR}/../../extern)
 
-# --- add utils to project ---
-set(tests OFF CACHE BOOL "" FORCE)
-set(coverage OFF CACHE BOOL "" FORCE)
-add_subdirectory(${SOURCE_DIR}/../../utils/cpp ${CMAKE_CURRENT_BINARY_DIR}/utils/cpp)
-include_directories(${Utils_Includes})
+if(${utilsLib})
+  include_directories(${utilsLibPath}/include)
+  find_library (Utils Utils ${utilsLibPath}/build)
+  message(${Utils})
+else()
+  set(tests OFF CACHE BOOL "" FORCE)
+  set(coverage OFF CACHE BOOL "" FORCE)
+  add_subdirectory(${SOURCE_DIR}/../../utils/cpp ${CMAKE_CURRENT_BINARY_DIR}/utils/cpp)
+  include_directories(${Utils_Includes})
+endif()
 
-# --- Get source files ---
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
+
 # remove CMakeCXXCompilerId.cpp and test files
 foreach(SOURCE_FILE ${SOURCE_FILES})
   if(SOURCE_FILE MATCHES "CMakeCXXCompilerId|spec.cpp")
@@ -38,11 +43,10 @@ foreach(SOURCE_FILE ${SOURCE_FILES})
   endif()
 endforeach()
 
-# --- main program ---
-add_executable(${PROJECT_NAME} main.cpp ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} Utils)
 
-# --- test program ---
+add_executable(${PROJECT_NAME} main.cpp ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} ${Utils})
+
 if(${Run_Tests})
   include_directories(${SOURCE_DIR}/mock)
 
@@ -51,5 +55,5 @@ if(${Run_Tests})
   include_directories(${Utils_Mocks})
 
   add_executable(${PROJECT_NAME}_tests test/main.cpp ${SPEC_FILES} ${SOURCE_FILES})
-  target_link_libraries(${PROJECT_NAME}_tests Utils)
+  target_link_libraries(${PROJECT_NAME}_tests ${Utils})
 endif()
