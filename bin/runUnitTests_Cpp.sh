@@ -37,9 +37,9 @@ cd ../../../..
 cd poseidon/raspberryPI
 mkdir -p build
 cd build
-cmake .. -Dtests=ON -Dcoverage=ON
+cmake .. -Dtests=ON -Dcoverage=ON -DutilsLib=ON -DutilsLibPath="../../utils/cpp"
 make
-./raspberryPI_tests -DutilsLib=ON -DutilsLibPath="../../utils/cpp"
+./raspberryPI_tests
 cd ../../..
 
 echo Gathering coverage info.
