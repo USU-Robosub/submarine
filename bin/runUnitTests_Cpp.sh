@@ -15,7 +15,6 @@ wait $tests
 kill $serial_port
 ./Utils_Tests
 cd ../../..
-coveralls --gcov-options '\-lp' -i utils/cpp -E ".+\/(feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
 
 # ==================================================
 # =                    poseidon                    =
@@ -31,7 +30,6 @@ cmake .. -Dtests=ON -Dcoverage=ON
 make
 ./system_tests
 cd ../../../..
-coveralls --gcov-options '\-lp' -i poseidon/beaglebone/system -E ".+\/(feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
 
 # ===================================
 # =          raspberryPI            =
@@ -43,4 +41,9 @@ cmake .. -Dtests=ON -Dcoverage=ON
 make
 ./raspberryPI_tests
 cd ../../..
-coveralls --gcov-options '\-lp' -i poseidon/raspberryPI -E ".+\/(feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
+
+echo Gathering coverage info.
+{
+coveralls --gcov-options '\-lp' -i ./ -E ".+\/(feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
+} &> /dev/null
+echo Coverage info uploaded.
