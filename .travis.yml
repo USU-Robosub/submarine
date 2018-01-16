@@ -1,21 +1,29 @@
 matrix:
   include:
     - language: cpp
+      env:
+        - title=utils/cpp
       before_install:
         - pip install --user cpp-coveralls
-      script: bash /bin/utils/cpp/test.sh
+      script: bash bin/utils/cpp/test.sh
 
     - language: cpp
+      env:
+        - title=poseidon/beaglebone/system
       before_install:
         - pip install --user cpp-coveralls
-      script: bash /bin/poseidon/beaglebone/system/test.sh
+      script: bash bin/poseidon/beaglebone/system/test.sh
 
     - language: cpp
+      env:
+        - title=poseidon/raspberryPI
       before_install:
         - pip install --user cpp-coveralls
-      script: bash /bin/poseidon/raspberryPI/test.sh
+      script: bash bin/poseidon/raspberryPI/test.sh
 
     - language: node_js
+      env:
+        - title=utils/javascript
       node_js:
         - "node"
-      script: bash /bin/utils/javascript/test.sh
+      script: bash bin/utils/javascript/test.sh
