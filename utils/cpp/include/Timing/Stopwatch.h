@@ -6,7 +6,7 @@
 namespace Timing{
   class Stopwatch{
   public:
-    double messure();
+    double measure();
   private:
     std::chrono::high_resolution_clock::time_point lastMessureTime;
     bool firstMessure = true;
