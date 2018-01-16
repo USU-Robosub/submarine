@@ -35,7 +35,7 @@ TEST_CASE("calling start/stop enables/disables the loop", "[PeriodicLoop][.timin
   REQUIRE(runCount == 0);
 }
 
-TEST_CASE("loop is no ran at a shorter deltaTime", "[PeriodicLoop][.timing]"){
+TEST_CASE("loop is not run with a shorter deltaTime", "[PeriodicLoop][.timing]"){
   unsigned int runCount = 0;
   std::chrono::high_resolution_clock::time_point t1, t2;
   double reportedDeltaTime = 0;

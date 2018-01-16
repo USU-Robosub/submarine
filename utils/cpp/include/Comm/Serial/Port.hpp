@@ -22,6 +22,7 @@ namespace Comm{
 class Comm::Serial::Port : public Comm::Port<unsigned char>{
 public:
   Port(std::string portName, unsigned int speed);
+  ~Port();
   void connect();
   void disconnect();
   bool isConnected();

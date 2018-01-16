@@ -1,6 +1,6 @@
 #include "Timing/Stopwatch.h"
 
-double Timing::Stopwatch::messure(){
+double Timing::Stopwatch::measure(){
   if (this->firstMessure){
     this->firstMessure = false;
     this->lastMessureTime = std::chrono::high_resolution_clock::now();

@@ -8,10 +8,10 @@ void Timing::PeriodicLoop::start(){
 
 void Timing::PeriodicLoop::threadFunction(){
   while(this->isEnabled){
-    double deltaTime = this->loopStopwatch.messure();
-    this->codeStopwatch.messure();
+    double deltaTime = this->loopStopwatch.measure();
+    this->codeStopwatch.measure();
     this->callback(deltaTime);
-    double timeLeft = this->minDeltaTime - this->codeStopwatch.messure();
+    double timeLeft = this->minDeltaTime - this->codeStopwatch.measure();
     std::this_thread::sleep_for(std::chrono::milliseconds((unsigned long)(timeLeft * 1000)));
   }
 }
