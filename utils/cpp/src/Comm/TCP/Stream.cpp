@@ -15,12 +15,11 @@ void Comm::TCP::Stream::push(std::string data){
   this->port->push((data + this->separator).c_str(), data.length() + 1);
 }
 
-#include <iostream>
 #include <stdexcept>
 std::string Comm::TCP::Stream::poll(){
   if(this->strings.size() == 0){
-    char buffer[BUFFER_LENGTH];
-    unsigned int length = this->port->poll(buffer, BUFFER_LENGTH);
+    char buffer[this->bufferLength];
+    unsigned int length = this->port->poll(buffer, this->bufferLength);
     if(length == 0){
       throw std::runtime_error("attempted read after connection closed by remote");
     }
