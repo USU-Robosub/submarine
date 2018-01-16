@@ -15,7 +15,7 @@ namespace Comm{
 
 class Comm::TCP::Stream : public Comm::Stream<std::string>{
 public:
-  Stream(Comm::Port<char>* port, char separator);
+  Stream(Comm::Port<char>* port, char separator, unsigned int bufferLength = 1024);
   bool hasData();
   void push(std::string data);
   std::string poll();
@@ -27,6 +27,7 @@ private:
   std::string partial;
   std::queue<std::string> strings;
   char separator;
+  unsigned int bufferLength;
 };
 
 #endif

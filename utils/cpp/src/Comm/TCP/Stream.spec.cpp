@@ -5,7 +5,7 @@
 TEST_CASE("tcp stream can read string", "[TCP_Stream]"){
   Comm::Mock::Port<char> port;
   Comm::TCP::Stream stream(&port, '|');
-  char data[] = "a|abc|";
+  char data[7] = "a|abc|";
   port.buffer = data;
   port.bufferLength = 6;
   REQUIRE( stream.poll() == std::string("a") );
@@ -57,4 +57,23 @@ TEST_CASE("tcp stream can use different separators", "[TCP_Stream]"){
     stream.push("abc");
     REQUIRE( std::string(buffer, 6) == std::string("a,abc,") );
   }
+}
+
+TEST_CASE("tcp stream can handle large buffers", "[TCP_Stream]"){
+  Comm::Mock::Port<char> port;
+  Comm::TCP::Stream stream(&port, '|', 10);
+
+  char data[24] = "0|1|2|3|4444|5|6|7|8|9|";
+  port.buffer = data;
+  port.bufferLength = 24;
+  REQUIRE( stream.poll() == std::string("0") );
+  REQUIRE( stream.poll() == std::string("1") );
+  REQUIRE( stream.poll() == std::string("2") );
+  REQUIRE( stream.poll() == std::string("3") );
+  REQUIRE( stream.poll() == std::string("4444") );
+  REQUIRE( stream.poll() == std::string("5") );
+  REQUIRE( stream.poll() == std::string("6") );
+  REQUIRE( stream.poll() == std::string("7") );
+  REQUIRE( stream.poll() == std::string("8") );
+  REQUIRE( stream.poll() == std::string("9") );
 }
