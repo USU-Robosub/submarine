@@ -7,12 +7,12 @@ void pauseFor(double seconds){
   std::this_thread::sleep_for(std::chrono::milliseconds((unsigned int)(seconds * 1000)));
 }
 
-TEST_CASE("a periodic loop can be created", "[PeriodicLoop]"){
+TEST_CASE("a periodic loop can be created", "[PeriodicLoop][.timing]"){
   double minDeltaTime = 10.5;
   Timing::PeriodicLoop loop([](double deltaTime){ }, minDeltaTime);
 }
 
-TEST_CASE("calling start/stop enables/disables the loop", "[PeriodicLoop]"){
+TEST_CASE("calling start/stop enables/disables the loop", "[PeriodicLoop][.timing]"){
   unsigned int runCount = 0;
   Timing::PeriodicLoop loop([&runCount](double deltaTime){
     runCount++;
@@ -35,7 +35,7 @@ TEST_CASE("calling start/stop enables/disables the loop", "[PeriodicLoop]"){
   REQUIRE(runCount == 0);
 }
 
-TEST_CASE("loop is no ran at a shorter deltaTime", "[PeriodicLoop]"){
+TEST_CASE("loop is not run with a shorter deltaTime", "[PeriodicLoop][.timing]"){
   unsigned int runCount = 0;
   std::chrono::high_resolution_clock::time_point t1, t2;
   double reportedDeltaTime = 0;

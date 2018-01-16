@@ -61,16 +61,17 @@ bool Comm::Serial::Port::hasData(){
   return ( result > 0 );
 }
 
-void Comm::Serial::Port::push(unsigned char* buffer, unsigned int length){
+void Comm::Serial::Port::push(const unsigned char* buffer, std::size_t length){
   if(this->isLocked)
     write(this->fileDescriptor, buffer, (size_t)length);
   LOG_BUFFER("sending", buffer, length);
 }
 
-void Comm::Serial::Port::poll(unsigned char* buffer, unsigned int length){
-  if(this->isLocked)
-    read(this->fileDescriptor, buffer, (size_t)length);
-  LOG_BUFFER("reading", buffer, length);
+std::size_t Comm::Serial::Port::poll(unsigned char* buffer, std::size_t length){
+  if(this->isLocked){
+    LOG_BUFFER("reading", buffer, length);
+    return read(this->fileDescriptor, buffer, (size_t)length);
+  }
 }
 
 void Comm::Serial::Port::lock(){

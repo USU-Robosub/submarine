@@ -54,7 +54,7 @@ TEST_CASE("can't connect to non-existent port", "[Serial][.]"){
   serial.disconnect();
 }
 
-TEST_CASE("data is available after pushing data", "[Serial][.]"){
+TEST_CASE("data is available after pushing data", "[Serial][.timing]"){
   unsigned char data[] = { 1, 0, 0, 1, 1, 0 };
   unsigned short length = 6;
   Comm::Serial::Port sender(TEST_PORT_1, B9600);
@@ -71,7 +71,7 @@ TEST_CASE("data is available after pushing data", "[Serial][.]"){
   receiver.disconnect();
 }
 
-TEST_CASE("data can be poll after being pushed", "[Serial][.]"){
+TEST_CASE("data can be poll after being pushed", "[Serial][.timing]"){
   unsigned char data[] = { 1, 0, 0, 1, 1, 0 };
   unsigned short length = 6;
   Comm::Serial::Port sender(TEST_PORT_1, B9600);
@@ -90,7 +90,7 @@ TEST_CASE("data can be poll after being pushed", "[Serial][.]"){
   receiver.disconnect();
 }
 
-TEST_CASE("does not push when unlocked", "[Serial][.]"){
+TEST_CASE("does not push when unlocked", "[Serial][.timing]"){
   unsigned char data[] = { 1, 0, 0, 1, 1, 0 };
   unsigned short length = 6;
   Comm::Serial::Port sender(TEST_PORT_1, B9600);
@@ -111,7 +111,7 @@ TEST_CASE("does not push when unlocked", "[Serial][.]"){
   receiver.disconnect();
 }
 
-TEST_CASE("does not poll when unlocked", "[Serial][.]"){
+TEST_CASE("does not poll when unlocked", "[Serial][.timing]"){
   unsigned char data[] = { 1, 0, 0, 1, 1, 0 };
   unsigned char buffer[6] = { 0 };
   unsigned short length = 6;
