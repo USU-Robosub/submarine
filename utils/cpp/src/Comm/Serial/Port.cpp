@@ -86,7 +86,7 @@ void Comm::Serial::Port::push(const unsigned char* buffer, std::size_t length){
 std::size_t Comm::Serial::Port::poll(unsigned char* buffer, std::size_t length){
   if(this->isLocked){
     LOG_BUFFER("reading", buffer, length);
-    if(this->hasData)
+    if(this->hasData())
     {
       int result = read(this->fileDescriptor, buffer, (size_t)length);
       if(result>0)
