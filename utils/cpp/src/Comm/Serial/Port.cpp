@@ -71,11 +71,11 @@ void Comm::Serial::Port::push(const unsigned char* buffer, std::size_t length){
       result = write(this->fileDescriptor, total+buffer, (size_t)length-total);
       if(result==0)
       {
-        throw Conn::ConnectionFailure("This shouldn't happen");
+        throw Comm::ConnectionFailure("This shouldn't happen");
       }
       if(result<0)
       {
-        throw Conn::ConnectionFailure("Error writing data");
+        throw Comm::ConnectionFailure("Error writing data");
       }
       total+=result;
     }
@@ -86,7 +86,7 @@ void Comm::Serial::Port::push(const unsigned char* buffer, std::size_t length){
 std::size_t Comm::Serial::Port::poll(unsigned char* buffer, std::size_t length){
   if(this->isLocked){
     LOG_BUFFER("reading", buffer, length);
-    if(hasData)
+    if(this->hasData)
     {
       int result = read(this->fileDescriptor, buffer, (size_t)length);
       if(result>0)
