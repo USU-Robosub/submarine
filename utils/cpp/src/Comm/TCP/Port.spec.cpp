@@ -12,7 +12,7 @@
   Default timeout takes a long time to throw the exeption slowing down the tests.
 */
 TEST_CASE("tcp port throws ConnectionFailure", "[TCP_Port][.timing]"){
-  REQUIRE_THROWS_AS( Comm::TCP::Port(TEST_ADDRESS, TEST_PORT), Comm::TCP::ConnectionFailure );
+  REQUIRE_THROWS_AS( Comm::TCP::Port(TEST_ADDRESS, TEST_PORT), Comm::ConnectionFailure );
 }
 
 TEST_CASE("tcp port connects to server", "[TCP_Port][.timing]"){

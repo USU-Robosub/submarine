@@ -55,7 +55,7 @@ addrinfo* Comm::TCP::Port::getAddress(const char* address, const char* port){
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   if ((rv = getaddrinfo(address, port, &hints, &servinfo)) != 0)
-    throw Comm::TCP::ConnectionFailure(gai_strerror(rv));
+    throw Comm::ConnectionFailure(gai_strerror(rv));
   else
     return servinfo;
 }
@@ -73,5 +73,5 @@ void Comm::TCP::Port::createSocket(addrinfo* servinfo){
   }
   freeaddrinfo(servinfo);
   if (p == NULL)
-    throw Comm::TCP::ConnectionFailure("failed to connect");
+    throw Comm::ConnectionFailure("failed to connect");
 }
