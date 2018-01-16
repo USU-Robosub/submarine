@@ -1,13 +1,17 @@
 cmake_minimum_required (VERSION 2.8.12)
-set(PROJECT_NAME Utils)
+set(PROJECT_NAME system)
 project (${PROJECT_NAME})
 
 option(tests "Build tests" OFF)
 option(coverage "Enable coverage output" OFF)
+option(utilsLib "Use prebuilt utils library" OFF)
+option(utilsLibPath "Prebuilt utils library path" "")
+set(Run_Tests ${tests})
+set(Enable_Coverage ${coverage})
 
 set(CMAKE_CXX_CUSTOM_FLAGS "-std=gnu++11 -pthread")
 
-if(${coverage})
+if(${Enable_Coverage})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_CUSTOM_FLAGS} -coverage")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -coverage")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -coverage")
@@ -17,12 +21,18 @@ endif()
 set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
 include_directories(${SOURCE_DIR}/include)
-include_directories(${SOURCE_DIR}/../../extern/gsi)
-include_directories(${SOURCE_DIR}/../../extern/rxcpp)
-include_directories(${SOURCE_DIR}/../../extern/optional)
+include_directories(${SOURCE_DIR}/../../../extern)
 
-set(${PROJECT_NAME}_Includes ${SOURCE_DIR}/include PARENT_SCOPE)
-set(${PROJECT_NAME}_Mocks ${SOURCE_DIR}/mock PARENT_SCOPE)
+if(${utilsLib})
+  include_directories(${utilsLibPath}/include)
+  find_library (Utils Utils ${utilsLibPath}/build)
+  message(${Utils})
+else()
+  set(tests OFF CACHE BOOL "" FORCE)
+  set(coverage OFF CACHE BOOL "" FORCE)
+  add_subdirectory(${SOURCE_DIR}/../../../utils/cpp ${CMAKE_CURRENT_BINARY_DIR}/utils/cpp)
+  include_directories(${Utils_Includes})
+endif()
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
@@ -33,15 +43,17 @@ foreach(SOURCE_FILE ${SOURCE_FILES})
   endif()
 endforeach()
 
-add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
-if(${tests})
+add_executable(${PROJECT_NAME} main.cpp ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} ${Utils})
+
+if(${Run_Tests})
   include_directories(${SOURCE_DIR}/mock)
 
   file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
 
-  include_directories(${SOURCE_DIR}/../../extern/catch2)
+  include_directories(${Utils_Mocks})
 
-  add_executable(${PROJECT_NAME}_Tests test/main.cpp ${SPEC_FILES})
-  target_link_libraries(${PROJECT_NAME}_Tests ${PROJECT_NAME})
+  add_executable(${PROJECT_NAME}_tests test/main.cpp ${SPEC_FILES} ${SOURCE_FILES})
+  target_link_libraries(${PROJECT_NAME}_tests ${Utils})
 endif()
