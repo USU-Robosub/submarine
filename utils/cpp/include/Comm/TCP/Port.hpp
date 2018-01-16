@@ -15,7 +15,6 @@
 // ====
 #include <Comm/Port.hpp>
 #include <string>
-#include <stdexcept>
 
 namespace Comm{
   namespace TCP{

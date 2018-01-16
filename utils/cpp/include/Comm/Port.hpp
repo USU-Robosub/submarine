@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <Threading/Lockable.hpp>
+#include <stdexcept>
 
 namespace Comm{
   template<class T>
