@@ -25,6 +25,10 @@ Comm::Serial::Port::Port(std::string portName, unsigned int speed)
     this->lock();
   }
 
+Comm::Serial::Port::~Port(){
+  this->disconnect();
+}
+
 bool Comm::Serial::Port::isConnected(){
   return this->connected;
 }

@@ -24,6 +24,29 @@ TEST_CASE("can connect to port", "[Serial][.]"){
   serial.disconnect();
 }
 
+TEST_CASE("can disconnect and reconnect to port", "[Serial][.]"){
+  Comm::Serial::Port serial(TEST_PORT_1, B9600);
+  serial.connect();
+  REQUIRE( serial.isConnected() );
+  serial.disconnect();
+  Comm::Serial::Port serial2(TEST_PORT_1, B9600);
+  serial2.connect();
+  REQUIRE( serial2.isConnected() );
+  serial2.disconnect();
+}
+
+TEST_CASE("disconnects when leaving scope", "[Serial][.]"){
+  {
+    Comm::Serial::Port serial(TEST_PORT_1, B9600);
+    serial.connect();
+    REQUIRE( serial.isConnected() );
+  }
+  Comm::Serial::Port serial2(TEST_PORT_1, B9600);
+  serial2.connect();
+  REQUIRE( serial2.isConnected() );
+  serial2.disconnect();
+}
+
 TEST_CASE("can't connect to non-existent port", "[Serial][.]"){
   Comm::Serial::Port serial(ERROR_TEST_PORT, B9600);
   serial.connect();
