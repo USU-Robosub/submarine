@@ -38,7 +38,7 @@ endforeach()
 
 
 add_executable(${PROJECT_NAME} main.cpp ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} ${Utils})
+target_link_libraries(${PROJECT_NAME} Utils)
 
 if(${Run_Tests})
   include_directories(${SOURCE_DIR}/mock)
@@ -48,5 +48,5 @@ if(${Run_Tests})
   include_directories(${Utils_Mocks})
 
   add_executable(${PROJECT_NAME}_tests test/main.cpp ${SPEC_FILES} ${SOURCE_FILES})
-  target_link_libraries(${PROJECT_NAME}_tests ${Utils})
+  target_link_libraries(${PROJECT_NAME}_tests Utils)
 endif()
