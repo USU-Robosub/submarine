@@ -34,7 +34,7 @@ addrinfo* Comm::TCP::SingleClientServer::getAddress(const char* port){
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE; // use my IP
   if ((rv = getaddrinfo(NULL, port, &hints, &servinfo)) != 0)
-    throw Comm::TCP::ConnectionFailure(gai_strerror(rv));
+    throw Comm::ConnectionFailure(gai_strerror(rv));
   else
     return servinfo;
 }
@@ -47,7 +47,7 @@ void Comm::TCP::SingleClientServer::createSocket(addrinfo* servinfo){
       continue; // can't create socket
     if (setsockopt(this->socketFD, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
       freeaddrinfo(servinfo);
-      throw Comm::TCP::ConnectionFailure("failed to set socket options");
+      throw Comm::ConnectionFailure("failed to set socket options");
     }
     if (bind(this->socketFD, p->ai_addr, p->ai_addrlen) == -1) {
       close(this->socketFD);
@@ -57,7 +57,7 @@ void Comm::TCP::SingleClientServer::createSocket(addrinfo* servinfo){
   }
   freeaddrinfo(servinfo);
   if (p == NULL)
-    throw Comm::TCP::ConnectionFailure("failed to bind");
+    throw Comm::ConnectionFailure("failed to bind");
   if (listen(this->socketFD, BACKLOG) == -1)
-    throw Comm::TCP::ConnectionFailure("failed to listen");
+    throw Comm::ConnectionFailure("failed to listen");
 }
