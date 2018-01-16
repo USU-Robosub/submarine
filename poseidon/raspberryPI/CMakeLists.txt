@@ -4,8 +4,6 @@ project (${PROJECT_NAME})
 
 option(tests "Build tests" OFF)
 option(coverage "Enable coverage output" OFF)
-option(utilsLib "Use prebuilt utils library" OFF)
-option(utilsLibPath "Prebuilt utils library path" "")
 set(Run_Tests ${tests})
 set(Enable_Coverage ${coverage})
 
@@ -23,16 +21,10 @@ set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 include_directories(${SOURCE_DIR}/include)
 include_directories(${SOURCE_DIR}/../../extern)
 
-if(${utilsLib})
-  include_directories(${utilsLibPath}/include)
-  find_library (Utils Utils ${utilsLibPath}/build)
-  message(${Utils})
-else()
-  set(tests OFF CACHE BOOL "" FORCE)
-  set(coverage OFF CACHE BOOL "" FORCE)
-  add_subdirectory(${SOURCE_DIR}/../../utils/cpp ${CMAKE_CURRENT_BINARY_DIR}/utils/cpp)
-  include_directories(${Utils_Includes})
-endif()
+set(tests OFF CACHE BOOL "" FORCE)
+set(coverage OFF CACHE BOOL "" FORCE)
+add_subdirectory(${SOURCE_DIR}/../../utils/cpp ${CMAKE_CURRENT_BINARY_DIR}/utils/cpp)
+include_directories(${Utils_Includes})
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
@@ -45,7 +37,7 @@ endforeach()
 
 
 add_executable(${PROJECT_NAME} main.cpp ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} ${Utils})
+target_link_libraries(${PROJECT_NAME} Utils)
 
 if(${Run_Tests})
   include_directories(${SOURCE_DIR}/mock)
@@ -55,5 +47,5 @@ if(${Run_Tests})
   include_directories(${Utils_Mocks})
 
   add_executable(${PROJECT_NAME}_tests test/main.cpp ${SPEC_FILES} ${SOURCE_FILES})
-  target_link_libraries(${PROJECT_NAME}_tests ${Utils})
+  target_link_libraries(${PROJECT_NAME}_tests Utils)
 endif()
