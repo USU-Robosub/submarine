@@ -63,14 +63,37 @@ bool Comm::Serial::Port::hasData(){
 
 void Comm::Serial::Port::push(const unsigned char* buffer, std::size_t length){
   if(this->isLocked)
-    write(this->fileDescriptor, buffer, (size_t)length);
+  {
+    int total = 0;
+    int result;
+    while(total < length)
+    {
+      result = write(this->fileDescriptor, total+buffer, (size_t)length-total);
+      if(result==0)
+      {
+        throw Comm::ConnectionFailure("This shouldn't happen");
+      }
+      if(result<0)
+      {
+        throw Comm::ConnectionFailure("Error writing data");
+      }
+      total+=result;
+    }
+  }
   LOG_BUFFER("sending", buffer, length);
 }
 
 std::size_t Comm::Serial::Port::poll(unsigned char* buffer, std::size_t length){
   if(this->isLocked){
     LOG_BUFFER("reading", buffer, length);
-    return read(this->fileDescriptor, buffer, (size_t)length);
+    if(this->hasData())
+    {
+      int result = read(this->fileDescriptor, buffer, (size_t)length);
+      if(result>0)
+        return result;
+      throw Comm::ConnectionFailure("Disconnected from remote");
+    }
+    return 0;
   }
 }
 

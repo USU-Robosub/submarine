@@ -15,12 +15,10 @@
 // ====
 #include <Comm/Port.hpp>
 #include <string>
-#include <stdexcept>
 
 namespace Comm{
   namespace TCP{
     class Port;
-    class ConnectionFailure;
   }
 }
 
@@ -41,11 +39,6 @@ private:
   void createSocket(addrinfo* servinfo);
 
   int socketFD;
-};
-
-class Comm::TCP::ConnectionFailure : public std::runtime_error{
-public:
-  ConnectionFailure(const char* what) : std::runtime_error(what) {};
 };
 
 #endif
