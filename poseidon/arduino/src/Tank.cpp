@@ -1,25 +1,25 @@
 #include <Tank.hpp>
 
-TankLinear::TankLinear(*Tank tank)
+TankLinear::TankLinear(Tank* tank)
   : tank(tank){}
 
-virtual void TankLinear::execute(){
+void TankLinear::execute(){
 
 }
 
-virtual void TankLinear::kill(){
+void TankLinear::kill(){
   tank->kill();
 }
 
 
 
-TankTurn::TankTurn(*Tank tank)
+TankTurn::TankTurn(Tank* tank)
   :tank(tank){}
 
-virtual void TankTurn::execute(){
+void TankTurn::execute(){
 
 }
 
-virtual void TankTurn::kill(){
+void TankTurn::kill(){
   tank->kill();
 }
