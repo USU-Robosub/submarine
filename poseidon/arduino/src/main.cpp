@@ -1,31 +1,51 @@
 #include <Arduino.h>
 
-#define ENA 5
-#define ENB 6
-#define MOTOR_INPUT1 8
-#define MOTOR_INPUT2 7
-#define MOTOR_INPUT3 12
-#define MOTOR_INPUT4 13
-#define MOTOR_STOP    {\
-    digitalWrite(MOTOR_INPUT1,LOW ); digitalWrite(MOTOR_INPUT2,LOW );\
-    digitalWrite(MOTOR_INPUT3,LOW ); digitalWrite(MOTOR_INPUT4,LOW );\
+long readSerial(){
+  long n = Serial.read();
+  n += Serial.read() << 1;
+  n += Serial.read() << 2;
+  n += Serial.read() << 3;
+  return n;
 }
 
-void setup()
-{
-  pinMode(ENA,OUTPUT); // power level pin for left side
-  pinMode(ENB,OUTPUT); // power level pin for the right side
-  pinMode(MOTOR_INPUT1,OUTPUT); // direction control for right side
-  pinMode(MOTOR_INPUT2,OUTPUT); // <-/
-  pinMode(MOTOR_INPUT3,OUTPUT); // direction control for left side
-  pinMode(MOTOR_INPUT4,OUTPUT); // <-/
+void writeCommand(long name, long* data, long length){
+  long null = 0;
+  Serial.write((char*)&null, 4);
+  Serial.write((char*)&name, 4);
+  Serial.write((char*)&length, 4);
+  for(long i = 0; i < length; ++i){
+    Serial.write((char*)&data[i], 4);
+  }
 }
 
-void loop()
-{
-  MOTOR_STOP;
-  analogWrite(ENB,90); // PWM to ENB pin
-  analogWrite(ENA,90); // PWM to ENA pin
-  digitalWrite(MOTOR_INPUT3,LOW ); digitalWrite(MOTOR_INPUT4,HIGH);
-  delay(100);
+class Motors: public Controller{
+public:
+  void execute(long* data, long length){
+    // do something
+    writeCommand(6, [1, 2, 3], 3);
+  }
+};
+
+void runCommand(Controller* controllers){
+  long null = readSerial();
+  if(null != 0){
+    // Error, message misaligned
+  }
+  long command = readSerial();
+  long length = readSerial();
+  long* data = new long[length];
+  for(unsigned long i = 0; i < length; ++i){
+    data[i] = readSerial();
+  }
+  controllers[command]->execute(data, length);
+  delete data;
+}
+
+void setup() {
+  Serial.begin(9600);
+  while(!Serial){}
+}
+
+void loop() {
+  runCommand(controllers);
 }
