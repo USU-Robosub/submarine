@@ -14,7 +14,7 @@ platformio run
 cd ../../..
 
 echo Gathering coverage info.
-{
+# {
 coveralls --gcov-options '\-lp' -i ./poseidon/arduino -E ".*\/(extern|feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
-} &> /dev/null
+# } &> /dev/null
 echo Coverage info uploaded.
