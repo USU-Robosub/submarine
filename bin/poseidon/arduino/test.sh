@@ -6,10 +6,12 @@ cd build
 cmake .. -Dcoverage=ON
 make
 ./poseidon_arduino_Tests
-cd ../../../..
+cd ../
 
 echo ===== Building with PlatformIO =====
 platformio run
+
+cd ../../..
 
 echo Gathering coverage info.
 {
