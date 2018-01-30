@@ -20,6 +20,8 @@ else()
 endif()
 set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
+add_definitions(-DUNIT_TESTS)
+
 include_directories(${SOURCE_DIR}/include)
 include_directories(${SOURCE_DIR}/../../extern)
 
@@ -32,8 +34,19 @@ foreach(SOURCE_FILE ${SOURCE_FILES})
   endif()
 endforeach()
 
+# force no standard libraries in arduino code
+message("C/C++ standard libraries have been disabled for the following files:")
+foreach(SOURCE_FILE ${SOURCE_FILES})
+  if(SOURCE_FILE MATCHES "src")
+    message(" - " + ${SOURCE_FILE})
+    set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")
+  endif()
+endforeach()
+message(" - ${${PROJECT_NAME}_SOURCE_DIR}/main.cpp")
+set_source_files_properties(main.cpp PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")
+
 include_directories(${SOURCE_DIR}/mock)
 
 file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
 
-add_executable(${PROJECT_NAME}_Tests test/main.cpp ${SPEC_FILES} ${SOURCE_FILES})
+add_executable(${PROJECT_NAME}_Tests test/main.cpp main.cpp ${SPEC_FILES} ${SOURCE_FILES})

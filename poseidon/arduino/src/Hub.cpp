@@ -1,6 +1,6 @@
-#include "Hub.h"
+#include <Hub.hpp>
 
-Hub::Hub(Controller* controllers, int numControllers)
+Hub::Hub(Controller** controllers, int numControllers)
 : _controllers(controllers)
 , _numControllers(numControllers)
 {
@@ -8,32 +8,31 @@ Hub::Hub(Controller* controllers, int numControllers)
   while(!Serial){}
 }
 
-void poll()
+void Hub::poll()
 {
   long null = readOneLong();
   if(null != 0){
-    controllers[0]->execute(hub, 0, 0);
-    std::cerr << "Serial message misaligned: '" << null << "'" << std::endl;
+    _controllers[0]->execute(this, 0, 0);
     return;
   }
-  long command = readOneLong();
+  long name = readOneLong();
   long length = readOneLong();
   long* data = new long[length];
-  for(unsigned long i = 0; i < length; ++i){
+  for(long i = 0; i < length; ++i){
     data[i] = readOneLong();
   }
-  if(command >= numControllers)
+  if(name >= _numControllers)
   {
-    controllers[0]->execute(hub, 0, 0);
+    _controllers[0]->execute(this, 0, 0);
     emit(0, &name, 1);
   } else
   {
-    controllers[command]->execute(this, data, length);
+    _controllers[name]->execute(this, data, length);
   }
   delete data;
 }
 
-void emit(long name, long* data, long length)
+void Hub::emit(long name, long* data, long length)
 {
   long null = 0;
   writeOneLong(null);
@@ -44,7 +43,7 @@ void emit(long name, long* data, long length)
   }
 }
 
-long readOneLong()
+long Hub::readOneLong()
 {
   long n = Serial.read();
   n += Serial.read() << 1;
@@ -53,7 +52,7 @@ long readOneLong()
   return n;
 }
 
-void writeOneLong(long value)
+void Hub::writeOneLong(long value)
 {
   Serial.write((char*)&value, 4);
 }
