@@ -6,15 +6,15 @@ cd build
 cmake .. -Dcoverage=ON
 make
 ./poseidon_arduino_Tests
-cd ../
+cd ..
 
 echo ===== Building with PlatformIO =====
 platformio run
 
-cd ../../..
+cd ../..
 
 echo Gathering coverage info.
-# {
+{
 coveralls --gcov-options '\-lp' -i ./poseidon/arduino -E ".*\/(extern|feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
-# } &> /dev/null
+} &> /dev/null
 echo Coverage info uploaded.
