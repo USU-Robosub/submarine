@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-cd poseidon/beaglebone/arduino
+cd poseidon/arduino
 mkdir -p build
 cd build
 cmake .. -Dcoverage=ON
@@ -13,6 +13,6 @@ platformio run
 
 echo Gathering coverage info.
 {
-coveralls --gcov-options '\-lp' -i ./poseidon/beaglebone/arduino -E ".*\/(extern|feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
+coveralls --gcov-options '\-lp' -i ./poseidon/arduino -E ".*\/(extern|feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
 } &> /dev/null
 echo Coverage info uploaded.
