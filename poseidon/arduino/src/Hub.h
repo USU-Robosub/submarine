@@ -5,13 +5,14 @@
 
 class Hub {
   public:
-    Hub(Controller* controllers);
+    Hub(Controller*, int);
     void poll();
     void emit(long name, long* data, long length);
   private:
     long readOneLong();
     void writeOneLong(long value);
     Controller* _controllers;
+    int _numControllers;
 };
 
 #endif

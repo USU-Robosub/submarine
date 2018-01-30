@@ -12,7 +12,7 @@ public:
 Hub* _hub;
 
 void setup() {
-  _hub = new Hub(controllers);
+  _hub = new Hub(controllers, 2);
 }
 
 void loop() {

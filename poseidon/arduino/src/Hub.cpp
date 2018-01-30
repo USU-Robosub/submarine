@@ -1,7 +1,8 @@
 #include "Hub.h"
 
-Hub::Hub(Controller* controllers)
+Hub::Hub(Controller* controllers, int numControllers)
 : _controllers(controllers)
+, _numControllers(numControllers)
 {
   Serial.begin(9600);
   while(!Serial){}
@@ -21,7 +22,14 @@ void poll()
   for(unsigned long i = 0; i < length; ++i){
     data[i] = readOneLong();
   }
-  controllers[command]->execute(this, data, length);
+  if(command >= numControllers)
+  {
+    controllers[0]->execute(hub, 0, 0);
+    emit(0, &name, 1);
+  } else
+  {
+    controllers[command]->execute(this, data, length);
+  }
   delete data;
 }
 
