@@ -4,28 +4,28 @@ matrix:
       env:
         - title=utils/cpp
       before_install:
-        - pip install -U cpp-coveralls
+        - pip install --user cpp-coveralls
       script: bash bin/utils/cpp/test.sh
 
     - language: cpp
       env:
         - title=poseidon/beaglebone/system
       before_install:
-        - pip install -U cpp-coveralls
+        - pip install --user cpp-coveralls
       script: bash bin/poseidon/beaglebone/system/test.sh
 
     - language: cpp
       env:
         - title=poseidon/beaglebone/arduino
       before_install:
-        - pip install -U cpp-coveralls platformio
+        - pip install --user cpp-coveralls platformio
       script: bash bin/poseidon/beaglebone/arduino/test.sh
 
     - language: cpp
       env:
         - title=poseidon/raspberryPI
       before_install:
-        - pip install -U cpp-coveralls
+        - pip install --user cpp-coveralls
       script: bash bin/poseidon/raspberryPI/test.sh
 
     - language: node_js
