@@ -8,12 +8,12 @@ const hub = bridge => {
       handlers[name].push(handler)
     },
     poll: () => {
-      while(bridge.hasData()){
-        const data = bridge.receive()
-        const name = data[0]
-        data.splice(0, 1)
-        handlers[name].forEach(handler => handler(hub, data))
-      }
+      const messages = bridge.receive()
+      messages.forEach(message => {
+        const name = message[0]
+        message.splice(0, 1)
+        handlers[name].forEach(handler => handler(hub, message))
+      })
     },
     emit: (name, data) => {
       bridge.send([name].concat(data))
