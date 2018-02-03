@@ -1,3 +1,5 @@
 {
-  
+  "collectCoverageFrom": [
+    "src/**/*.js"
+  ]
 }
