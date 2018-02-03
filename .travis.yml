@@ -5,7 +5,7 @@ matrix:
         - title=utils/cpp
       before_install:
         - pip install --user cpp-coveralls
-      instal:
+      install:
         - apt-get install libopencv-dev
       script: bash bin/utils/cpp/test.sh
 
