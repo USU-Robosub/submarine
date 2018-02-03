@@ -3,7 +3,7 @@
 #include <opencv2/opencv.hpp>
 #include <catch.hpp>
 
-TEST_CASE("opencv", "[opencv]"){
+TEST_CASE("the project links to OpenCV", "[OpenCV_Include]"){
   cv::Mat image;
 }
 

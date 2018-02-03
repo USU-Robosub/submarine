@@ -21,6 +21,8 @@ matrix:
         - title=poseidon/raspberryPI
       before_install:
         - pip install --user cpp-coveralls
+      install:
+        - sudo apt-get install -y libopencv-dev
       script: bash bin/poseidon/raspberryPI/test.sh
 
     - language: node_js
