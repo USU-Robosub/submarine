@@ -1,16 +1,48 @@
+const MessageStates = {
+  CHECK: 0,
+  NAME: 1,
+  LENGTH: 2,
+  DATA: 3
+}
+
 const createBridge = stream => {
+  let dataLeft = 0
+  let currentMessage = {}
+  let state = MessageStates.CHECK
   return {
     receive: () => {
       const messages = []
       while(stream.hasData()){
-        const empty = stream.poll() // must be 0
-        const name = stream.poll()
-        const length = parseInt(stream.poll())
-        const data = []
-        for(let i = 0; i < length; i++){
-          data.push(stream.poll())
+        switch(state){
+          case MessageStates.CHECK:
+            currentMessage.check = stream.poll()
+            state = MessageStates.NAME
+            break
+          case MessageStates.NAME:
+            currentMessage.name = stream.poll()
+            state = MessageStates.LENGTH
+            break
+          case MessageStates.LENGTH:
+            currentMessage.length = stream.poll()
+            dataLeft = currentMessage.length
+            if(dataLeft > 0){
+              currentMessage.data = []
+              state = MessageStates.DATA
+            }else{
+              messages.push([currentMessage.name])
+              state = MessageStates.CHECK
+            }
+            break
+          case MessageStates.DATA:
+            currentMessage.data.push(stream.poll())
+            dataLeft--
+            if(dataLeft == 0){
+              messages.push([currentMessage.name].concat(currentMessage.data))
+              currentMessage = {}
+              state = MessageStates.CHECK
+            }
+            break
         }
-        messages.push([name].concat(data))
       }
       return messages
     },

@@ -11,7 +11,6 @@ const createClientPort = (address, port) => {
       hasData: () => buffer.length > 0
     }))
     client.on('data', data => {
-      console.log('got data', data.toString())
       buffer.push(data.toString())
     })
     client.connect(port, address)

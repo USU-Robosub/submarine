@@ -15,6 +15,29 @@ describe('bridge can construct a message from stream', () => {
     ))
     expect(bridge.receive()).toEqual([['event', '999', '000'], ['test']])
   })
+
+  describe('partial message', () => {
+    test('[0][...]', () => {
+      expect(createBridge(createMockStream(
+        ['0']
+      )).receive()).toEqual([])
+    })
+    test('[0, name][...]', () => {
+      expect(createBridge(createMockStream(
+        ['0', 'name']
+      )).receive()).toEqual([])
+    })
+    test('[0, name, length][...]', () => {
+      expect(createBridge(createMockStream(
+        ['0', 'name', '3']
+      )).receive()).toEqual([])
+    })
+    test('[0, name, length, data][data...]', () => {
+      expect(createBridge(createMockStream(
+        ['0', 'name', '3', 'item 2', 'item 3']
+      )).receive()).toEqual([])
+    })
+  })
 })
 
 test('bridge can send messages', () => {
