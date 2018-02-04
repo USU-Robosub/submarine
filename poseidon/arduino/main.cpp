@@ -54,12 +54,18 @@ Controller** _controllers;
 
 void setup()
 {
-  _controllers = new Controller*[2];
+  _controllers = new Controller*[1];
   _controllers[0] = new Error;
-  _controllers[1] = new Motor;
-  _hub = new Hub(_controllers, 2);
+  //_controllers[1] = new Motor;
+  _hub = new Hub(_controllers, 1);
 }
 
+long count = 0;
+
 void loop() {
+  ++count;
+  long data[] = { count };
+  _hub->emit(10, data, 1);
   _hub->poll();
+  delay(10);
 }

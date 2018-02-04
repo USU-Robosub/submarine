@@ -63,10 +63,10 @@ void Comm::Serial::Port::push(const unsigned char* buffer, std::size_t length){
 }
 
 std::size_t Comm::Serial::Port::poll(unsigned char* buffer, std::size_t length){
-  LOG_BUFFER("reading", buffer, length);
   if(this->hasData())
   {
     int result = read(this->fileDescriptor, buffer, (size_t)length);
+    LOG_BUFFER("reading", buffer, result);
     if(result>0)
       return result;
     throw Comm::ConnectionFailure("Disconnected from remote");
@@ -96,6 +96,7 @@ void Comm::Serial::Port::configure(){
   config.c_cflag |= CS8|CREAD|CLOCAL;
   // Turn off software based flow control (XON/XOFF)
   config.c_iflag &= ~(IXON | IXOFF | IXANY);
+  //config.c_iflag |= (IXON | IXOFF | IXANY);
   // Enable NON Cannonical mode
   config.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
   // Disable post-processing of bits
@@ -105,14 +106,26 @@ void Comm::Serial::Port::configure(){
   // instant timout for new bits (return when no new bits detected)
   config.c_cc[VTIME] = 0;
 
+  cfmakeraw(&config);
+
   // apply config
   int successSettingConfig = tcsetattr(this->fileDescriptor, TCSANOW, &config);
   if(successSettingConfig == -1){
     throw Comm::ConnectionFailure("Failed to connect to serial port. Failed to apply config.");
   }
 
-  int successFlushing = tcflush(this->fileDescriptor, TCIFLUSH);
+  int successFlushing = tcflush(this->fileDescriptor, TCIOFLUSH);
   if(successFlushing == -1){
     throw Comm::ConnectionFailure("Failed to connect to serial port. Failed to flush.");
   }
+
+  // cause arduino to reset on connect
+  // int RTS_flag;
+  // RTS_flag = TIOCM_RTS;
+  // ioctl(this->fileDescriptor,TIOCMBIS,&RTS_flag);//Set RTS pin
+  // ioctl(this->fileDescriptor,TIOCMBIC,&RTS_flag);//Clear RTS pin
+  int DTR_flag;
+  DTR_flag = TIOCM_DTR;
+  ioctl(this->fileDescriptor,TIOCMBIS,&DTR_flag);//Set RTS pin
+  ioctl(this->fileDescriptor,TIOCMBIC,&DTR_flag);//Clear RTS pin
 }

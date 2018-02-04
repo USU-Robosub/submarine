@@ -15,7 +15,7 @@ namespace Comm{
 }
 
 enum class Comm::MessageState {
-  CHECK, NAME, LENGTH, DATA
+  CHECK, NAME, LENGTH, DATA, ALIGNING
 };
 
 template<class T>

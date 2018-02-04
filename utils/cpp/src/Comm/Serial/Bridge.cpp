@@ -1,10 +1,11 @@
 #include <Comm/Serial/Bridge.hpp>
 
-Comm::Serial::Bridge::Bridge(Comm::Stream<int>* stream)
+Comm::Serial::Bridge::Bridge(Comm::Stream<int>* stream, unsigned int maxReads)
   : stream(stream),
     state(Comm::MessageState::CHECK),
     currentMessage(),
-    dataLeft(0){ }
+    dataLeft(0),
+    maxReads(maxReads){ }
 
 void Comm::Serial::Bridge::send(std::vector<int> data){
   this->stream->push(0);
@@ -17,11 +18,15 @@ void Comm::Serial::Bridge::send(std::vector<int> data){
 
 std::queue<std::vector<int>> Comm::Serial::Bridge::receive(){
   std::queue<std::vector<int>> messages;
-  while(this->stream->hasData()){
+  unsigned int count = 0;
+  while(this->stream->hasData() && count < this->maxReads){
+    ++count;
     switch(this->state){
       case Comm::MessageState::CHECK:
         this->currentMessage.check = this->stream->poll();
-        this->state = Comm::MessageState::NAME;
+        if(this->currentMessage.check == 0){
+          this->state = Comm::MessageState::NAME;
+        }
         break;
       case Comm::MessageState::NAME:
         this->currentMessage.name = this->stream->poll();
@@ -30,7 +35,9 @@ std::queue<std::vector<int>> Comm::Serial::Bridge::receive(){
       case Comm::MessageState::LENGTH:
         this->currentMessage.length = this->stream->poll();
         this->dataLeft = this->currentMessage.length;
-        if(this->dataLeft > 0){
+        if(this->dataLeft > 1000){
+          throw new Comm::ConnectionFailure(("Serial message is very large, [ints] " + std::to_string(this->dataLeft)).c_str());
+        }else if(this->dataLeft > 0){
           this->state = Comm::MessageState::DATA;
         }else{
           messages.push(std::vector<int>{this->currentMessage.name});

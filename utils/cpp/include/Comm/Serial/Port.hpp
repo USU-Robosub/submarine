@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/select.h>
+#include <sys/ioctl.h> //ioctl() call defenitions
 /* --- */
 #include <string>
 #include <mutex>
