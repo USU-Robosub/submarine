@@ -2,7 +2,6 @@
 #define COMM_PORT
 
 #include <cstddef>
-#include <Threading/Lockable.hpp>
 #include <stdexcept>
 
 namespace Comm{
@@ -12,7 +11,7 @@ namespace Comm{
 }
 
 template<class T>
-class Comm::Port : public Threading::Lockable{
+class Comm::Port{
 public:
   Port & operator=(const Port&) = delete;
   Port(const Port&) = delete;

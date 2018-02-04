@@ -19,8 +19,6 @@ public:
   bool hasData();
   void push(std::string data);
   std::string poll();
-  void lock();
-  void unlock();
 
 private:
   Comm::Port<char>* port;

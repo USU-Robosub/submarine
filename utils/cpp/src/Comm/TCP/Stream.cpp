@@ -43,11 +43,3 @@ std::string Comm::TCP::Stream::poll(){
     return front;
   }
 }
-
-void Comm::TCP::Stream::lock(){
-
-}
-
-void Comm::TCP::Stream::unlock(){
-
-}

@@ -21,26 +21,18 @@ namespace Comm{
 
 class Comm::Serial::Port : public Comm::Port<unsigned char>{
 public:
-  Port(std::string portName, unsigned int speed);
+  Port(std::string portName, speed_t speed);
   ~Port();
-  void connect();
-  void disconnect();
-  bool isConnected();
   bool hasData();
   void push(const unsigned char* buffer, std::size_t length);
   std::size_t poll(unsigned char* buffer, std::size_t length);
-  void lock();
-  void unlock();
 
 private:
-  bool configure();
+  void configure();
 
   int fileDescriptor = 0;
   std::string portName;
   unsigned int speed;
-  bool connected;
-  std::mutex threadLock;
-  bool isLocked;
 };
 
 #endif

@@ -19,35 +19,17 @@
 
 Comm::Serial::Port::Port(std::string portName, unsigned int speed)
   : portName(portName),
-    speed(speed),
-    connected(false),
-    isLocked(false) {
-    this->lock();
+    speed(speed) {
+    this->fileDescriptor = open(this->portName.c_str(), O_RDWR | O_NOCTTY);
+    if(this->fileDescriptor == -1){
+      throw Comm::ConnectionFailure("Failed to connect to serial port. Failed to allocate file descriptor.");
+    }else{
+      this->configure();
+    }
   }
 
 Comm::Serial::Port::~Port(){
-  this->disconnect();
-}
-
-bool Comm::Serial::Port::isConnected(){
-  return this->connected;
-}
-
-void Comm::Serial::Port::connect(){
-  if(!this->connected){
-    this->fileDescriptor = open(this->portName.c_str(), O_RDWR | O_NOCTTY);
-    if(this->fileDescriptor == -1){
-      LOG("Failed to allocate file descriptor");
-      this->connected = false;
-    }else{
-      this->connected = this->configure();
-    }
-  }
-}
-
-void Comm::Serial::Port::disconnect(){
-  if(this->connected)
-    close(this->fileDescriptor);
+  close(this->fileDescriptor);
 }
 
 bool Comm::Serial::Port::hasData(){
@@ -62,66 +44,49 @@ bool Comm::Serial::Port::hasData(){
 }
 
 void Comm::Serial::Port::push(const unsigned char* buffer, std::size_t length){
-  if(this->isLocked)
+  int total = 0;
+  int result;
+  while(total < length)
   {
-    int total = 0;
-    int result;
-    while(total < length)
+    result = write(this->fileDescriptor, total+buffer, (size_t)length-total);
+    if(result==0)
     {
-      result = write(this->fileDescriptor, total+buffer, (size_t)length-total);
-      if(result==0)
-      {
-        throw Comm::ConnectionFailure("This shouldn't happen");
-      }
-      if(result<0)
-      {
-        throw Comm::ConnectionFailure("Error writing data");
-      }
-      total+=result;
+      throw Comm::ConnectionFailure("This shouldn't happen");
     }
+    if(result<0)
+    {
+      throw Comm::ConnectionFailure("Error writing data");
+    }
+    total+=result;
   }
   LOG_BUFFER("sending", buffer, length);
 }
 
 std::size_t Comm::Serial::Port::poll(unsigned char* buffer, std::size_t length){
-  if(this->isLocked){
-    LOG_BUFFER("reading", buffer, length);
-    if(this->hasData())
-    {
-      int result = read(this->fileDescriptor, buffer, (size_t)length);
-      if(result>0)
-        return result;
-      throw Comm::ConnectionFailure("Disconnected from remote");
-    }
-    return 0;
+  LOG_BUFFER("reading", buffer, length);
+  if(this->hasData())
+  {
+    int result = read(this->fileDescriptor, buffer, (size_t)length);
+    if(result>0)
+      return result;
+    throw Comm::ConnectionFailure("Disconnected from remote");
   }
+  return 0;
 }
 
-void Comm::Serial::Port::lock(){
-  this->threadLock.lock();
-  this->isLocked = true;
-}
-
-void Comm::Serial::Port::unlock(){
-  this->isLocked = false;
-  this->threadLock.unlock();
-}
-
-bool Comm::Serial::Port::configure(){
+void Comm::Serial::Port::configure(){
   // get config
   struct termios config;
   int successGettingConfig = tcgetattr(this->fileDescriptor, &config);
   if(successGettingConfig == -1){
-    LOG("Failed to get config");
-    return false;
+    throw Comm::ConnectionFailure("Failed to connect to serial port. Failed to get config.");
   }
 
   //set baud rate
   int inputSpeedSupported = cfsetispeed(&config, this->speed);
   int outputSpeedSupported = cfsetospeed(&config, this->speed);
   if(inputSpeedSupported == -1 || outputSpeedSupported == -1){
-    LOG("Failed to set baud rate");
-    return false;
+    throw Comm::ConnectionFailure("Failed to connect to serial port. Failed to set baud rate.");
   }
 
   // set config bits (flags)
@@ -143,14 +108,11 @@ bool Comm::Serial::Port::configure(){
   // apply config
   int successSettingConfig = tcsetattr(this->fileDescriptor, TCSANOW, &config);
   if(successSettingConfig == -1){
-    LOG("Failed to apply config");
-    return false;
+    throw Comm::ConnectionFailure("Failed to connect to serial port. Failed to apply config.");
   }
 
   int successFlushing = tcflush(this->fileDescriptor, TCIFLUSH);
   if(successFlushing == -1){
-    LOG("Failed to flush");
-    return false;
+    throw Comm::ConnectionFailure("Failed to connect to serial port. Failed to flush.");
   }
-  return true;
 }
