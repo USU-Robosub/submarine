@@ -51,4 +51,52 @@ TEST_CASE("TCP bridge can read a message", "[TCP_Bridge]"){
     messages.pop();
     REQUIRE( messages.front() == std::vector<std::string>{"event"} );
   }
+
+  SECTION("partial message"){
+    SECTION("[0][...]"){
+      stream.polled = std::vector<std::string>{
+        "0"
+      };
+    }
+    SECTION("[0, name][...]"){
+      stream.polled = std::vector<std::string>{
+        "0", "name"
+      };
+    }
+    SECTION("[0, name, length][...]"){
+      stream.polled = std::vector<std::string>{
+        "0", "name", "3"
+      };
+    }
+    SECTION("[0, name, length, data][data...]"){
+      stream.polled = std::vector<std::string>{
+        "0", "name", "3", "item 2", "item 3"
+      };
+    }
+    std::queue<std::vector<std::string>> messages = bridge.receive();
+    REQUIRE( messages.size() == 0 );
+  }
+
+  SECTION("partial message continued"){
+    SECTION("[0, name][length, data]"){
+      stream.polled = std::vector<std::string>{
+        "0", "name"
+      };
+      std::queue<std::vector<std::string>> messages = bridge.receive();
+      stream.polled = std::vector<std::string>{
+        "0", "name", "4", "1", "2", "3", "4", "0", "test", "0", "0"
+      };
+      messages = bridge.receive();
+      REQUIRE( messages.size() == 2 );
+      REQUIRE( messages.front() == std::vector<std::string>{"1", "2", "3", "4", "name"} );
+      messages.pop();
+      REQUIRE( messages.front() == std::vector<std::string>{"test"} );
+      stream.polled = std::vector<std::string>{
+        "0", "name", "4", "1", "2", "3", "4", "0", "test", "0", "0", "nothing", "1", "something"
+      };
+      messages = bridge.receive();
+      REQUIRE( messages.size() == 1 );
+      REQUIRE( messages.front() == std::vector<std::string>{"something", "nothing"});
+    }
+  }
 }
