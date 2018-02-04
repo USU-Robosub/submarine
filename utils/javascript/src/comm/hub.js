@@ -12,7 +12,11 @@ const hub = bridge => {
       messages.forEach(message => {
         const name = message[0]
         message.splice(0, 1)
-        handlers[name].forEach(handler => handler(hub, message))
+        if(handlers[name]){
+          handlers[name].forEach(handler => handler(hub, message))
+        }else{
+          console.log('Received event with no listener', name, message)
+        }
       })
     },
     emit: (name, data) => {

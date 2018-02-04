@@ -12,23 +12,23 @@
 int main(){
   bool shouldExit = false;
 
-  Comm::TCP::SingleClientServer server(3001);
-  Comm::TCP::Port raspberryPort = server.waitForConnection();
+  Comm::TCP::Port raspberryPort("localhost", 3001);
   Comm::TCP::Stream raspberryStream(&raspberryPort, '|');
   Comm::TCP::Bridge raspberryBridge(&raspberryStream);
   Comm::Hub<std::string> raspberryPI(&raspberryBridge);
 
-  raspberryPI.on("echo", [&raspberryPI](std::vector<std::string> message){
-    std::cout << "message from Raspberry PI: ";
+  raspberryPI.on("echo/r", [&raspberryPI](std::vector<std::string> message){
+    std::cout << "echo from BeagleBone: ";
     for(unsigned int i = 0; i < message.size(); ++i)
       std::cout << "\"" << std::dec << message[i] << "\", ";
     std::cout << std::endl;
-    raspberryPI.emit("echo/r", message);
   });
 
   raspberryPI.on("exit", [&shouldExit](std::vector<std::string> message){
     shouldExit = true;
   });
+
+  raspberryPI.emit("echo", std::vector<std::string>{"test", "message"});
 
   while(!shouldExit){
     raspberryPI.poll();
