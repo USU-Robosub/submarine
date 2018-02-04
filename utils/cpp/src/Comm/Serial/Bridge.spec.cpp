@@ -51,4 +51,52 @@ TEST_CASE("serial bridge can read a message", "[SerialBridge]"){
     messages.pop();
     REQUIRE( messages.front() == std::vector<int>{6} );
   }
+
+  SECTION("partial message"){
+    SECTION("[0][...]"){
+      stream.polled = std::vector<int>{
+        0
+      };
+    }
+    SECTION("[0, name][...]"){
+      stream.polled = std::vector<int>{
+        0, 10
+      };
+    }
+    SECTION("[0, name, length][...]"){
+      stream.polled = std::vector<int>{
+        0, 10, 3
+      };
+    }
+    SECTION("[0, name, length, data][data...]"){
+      stream.polled = std::vector<int>{
+        0, 10, 3, 2, 3
+      };
+    }
+    std::queue<std::vector<int>> messages = bridge.receive();
+    REQUIRE( messages.size() == 0 );
+  }
+
+  SECTION("partial message continued"){
+    SECTION("[0, name][length, data]"){
+      stream.polled = std::vector<int>{
+        0, 42
+      };
+      std::queue<std::vector<int>> messages = bridge.receive();
+      stream.polled = std::vector<int>{
+        0, 42, 4, 1, 2, 3, 4, 0, 11, 0, 0
+      };
+      messages = bridge.receive();
+      REQUIRE( messages.size() == 2 );
+      REQUIRE( messages.front() == std::vector<int>{1, 2, 3, 4, 42} );
+      messages.pop();
+      REQUIRE( messages.front() == std::vector<int>{11} );
+      stream.polled = std::vector<int>{
+        0, 42, 4, 1, 2, 3, 4, 0, 11, 0, 0, -1, 1, 1000
+      };
+      messages = bridge.receive();
+      REQUIRE( messages.size() == 1 );
+      REQUIRE( messages.front() == std::vector<int>{1000, -1});
+    }
+  }
 }

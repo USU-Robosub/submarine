@@ -18,6 +18,9 @@ public:
 
 private:
   Comm::Stream<int>* stream;
+  Comm::MessageState state;
+  Comm::Message<int> currentMessage;
+  int dataLeft;
 };
 
 #endif
