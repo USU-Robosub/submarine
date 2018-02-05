@@ -16,6 +16,7 @@ class Hub : public Emitter {
     void poll();
     void emit(long name, long* data, long length);
   private:
+    long read();
     long readOneLong();
     void writeOneLong(long value);
     Controller** _controllers;

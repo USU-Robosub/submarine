@@ -49,23 +49,61 @@ private:
   Servo _servo[numServos];
 };
 
+class Blink : public Controller{
+public:
+  Blink() : time(0), delay(200) {
+    pinMode(LED_BUILTIN, OUTPUT);
+  }
+  void update() {
+    this->time++;
+    if(this->time < this->delay){
+      digitalWrite(LED_BUILTIN, HIGH);
+    }else if(this->time < this->delay * 2){
+      digitalWrite(LED_BUILTIN, LOW);
+    }else{
+      time = 0;
+    }
+  }
+  void execute(Emitter* hub, long* data, long length){
+    delay = data[0];
+    hub->emit(10, data, 1);
+  }
+private:
+  unsigned int time;
+  unsigned int delay;
+};
+
+class Echo : public Controller{
+public:
+  Echo(long name) : name(name) {}
+  void execute(Emitter* hub, long* data, long length){
+    hub->emit(this->name, data, length);
+  }
+private:
+  long name;
+};
+
 Hub* _hub;
 Controller** _controllers;
+Blink* blink;
 
 void setup()
 {
-  _controllers = new Controller*[1];
+  _controllers = new Controller*[3];
   _controllers[0] = new Error;
+  _controllers[1] = new Echo(42);
+  _controllers[2] = blink = new Blink;
   //_controllers[1] = new Motor;
-  _hub = new Hub(_controllers, 1);
+  _hub = new Hub(_controllers, 3);
 }
 
-long count = 0;
+//long count = 0;
 
 void loop() {
-  ++count;
-  long data[] = { count };
-  _hub->emit(10, data, 1);
+  //++count;
+  //long data[] = { count };
+  //_hub->emit(10, data, 1);
   _hub->poll();
-  delay(10);
+  //blink->update();
+  //delay(10);
 }

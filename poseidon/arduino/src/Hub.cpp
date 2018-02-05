@@ -10,7 +10,7 @@ Hub::Hub(Controller** controllers, int numControllers)
 
 void Hub::poll()
 {
-  if(Serial.available() > 0){
+  if(Serial.available() >= 4*4){
     long null = readOneLong();
     if(null != 0){
       _controllers[0]->execute(this, 0, 0);
@@ -47,14 +47,17 @@ void Hub::emit(long name, long* data, long length)
 
 long Hub::readOneLong()
 {
-  long n = Serial.read();
-  n += Serial.read() << 1;
-  n += Serial.read() << 2;
-  n += Serial.read() << 3;
-  return n;
+  return (this->read()) |
+         (this->read() << 8) |
+         (this->read() << 16) |
+         (this->read() << 24);
 }
 
 void Hub::writeOneLong(long value)
 {
   Serial.write((char*)&value, 4);
+}
+
+long Hub::read(){
+  return Serial.read();
 }
