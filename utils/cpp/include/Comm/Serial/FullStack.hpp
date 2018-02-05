@@ -20,6 +20,8 @@ public:
   FullStack(const FullStack&) = delete;
   FullStack(std::string portName, speed_t speed);
   Comm::Hub<int>* hub();
+  void restartArduino();
+
 private:
   Comm::Serial::Port port;
   Comm::Serial::Stream stream;

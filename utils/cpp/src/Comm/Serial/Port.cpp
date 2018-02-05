@@ -118,7 +118,9 @@ void Comm::Serial::Port::configure(){
   if(successFlushing == -1){
     throw Comm::ConnectionFailure("Failed to connect to serial port. Failed to flush.");
   }
+}
 
+void Comm::Serial::Port::restartArduino(){
   // cause arduino to reset on connect
   // int RTS_flag;
   // RTS_flag = TIOCM_RTS;

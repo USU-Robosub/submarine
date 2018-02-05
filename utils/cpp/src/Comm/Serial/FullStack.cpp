@@ -9,3 +9,7 @@ Comm::Serial::FullStack::FullStack(std::string portName, speed_t speed)
 Comm::Hub<int>* Comm::Serial::FullStack::hub(){
   return &this->_hub;
 }
+
+void Comm::Serial::FullStack::restartArduino(){
+  this->port.restartArduino();
+}
