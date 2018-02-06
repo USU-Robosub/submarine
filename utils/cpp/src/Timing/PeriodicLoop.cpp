@@ -18,6 +18,9 @@ void Timing::PeriodicLoop::threadFunction(){
 
 void Timing::PeriodicLoop::stop(){
   this->isEnabled = false;
+}
+
+void Timing::PeriodicLoop::join(){
   this->thread->join();
   delete this->thread;
 }

@@ -24,8 +24,6 @@ StreamEye::StreamEye() {
     //   std::cout << "Char:" << nChar << std::endl;
     //   write(STDOUT_FILENO,&nChar, 1);
     // }
-    close(m_fdIn[1]);
-    close(m_fdOut[0]);
 	}
 }
 
@@ -51,7 +49,7 @@ void StreamEye::childProcess(){
   // close(m_fdIn[0]);
   // close(m_fdOut[1]);
   std::cout << "Dup2 done" << std::endl;
-  char* const  cmd[] = { "streameye"/*,"-q"*/,"-p","8080","-d","-s",SEPERATOR,NULL };
+  char* const  cmd[] = { "streameye","-q","-p","8080","-s",SEPERATOR,NULL };
   //char* const  cmd[] = { "echo"/*,"-q"*/,"-p","8080","-s",SEPERATOR,NULL };
   int result = execvp(cmd[0], &cmd[0]);
   std::perror(cmd[0]);

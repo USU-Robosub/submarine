@@ -13,6 +13,7 @@ namespace Timing{
     PeriodicLoop(std::function<void(double)> callback, double minDeltaTime) : callback(callback), minDeltaTime(minDeltaTime), isEnabled(false) {}
     void start();
     void stop();
+    void join();
   private:
     Timing::Stopwatch loopStopwatch;
     Timing::Stopwatch codeStopwatch;

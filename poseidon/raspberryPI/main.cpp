@@ -7,6 +7,7 @@
 #include <Comm/TCP/SingleClientServer.hpp>
 #include <Streameye.h>
 #include <opencv2/opencv.hpp>
+#include <Timing/PeriodicLoop.h>
 
 #include <thread>
 #include <chrono>
@@ -22,23 +23,34 @@ int main(){
     std::cerr << "Could not open video" << std::endl;
     exit(EXIT_FAILURE);
   }
-  for(;;)
-  {
-        cv::Mat frame;
-        cap >> frame;
-        if( frame.empty() )
-        {
-          cap.open("foho.mp4");
-          cap >> frame;
-          if(frame.empty())
-            break;
+  std::vector<int> compression_params;
+  compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
+  compression_params.push_back(30);
+  cv::Mat frame;
+  cap.grab();
+  Timing::PeriodicLoop loop([&frame, &cap, &compression_params, &imageStreamer, &loop](double deltaTime){
+    cap.retrieve(frame);
+    if( frame.empty() )
+    {
+      cap.open("foho.mp4");
+      cap.read(frame);
+      if( frame.empty() )
+      {
+        std::cerr << "Could not restart video." << std::endl;
+        loop.stop();
+        return;
+      }; // end of video stream
+    }; // end of video stream
+    std::vector<unsigned char> image;
+    cv::resize(frame, frame, cv::Size(640, 360));
+    cv::imencode(".jpg", frame, image, compression_params);
+    imageStreamer.writeJpeg(image);
+    cap.grab();
+  }, 1.0/24.0);
 
-        }; // end of video stream
-        std::vector<unsigned char> image;
-        cv::imencode(".jpg", frame, image);
-        //imageStreamer.writeJpeg(image);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  }
+  loop.start();
+
+  loop.join();
   // the camera will be closed automatically upon exit
   // cap.close();
 
