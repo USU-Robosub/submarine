@@ -14,7 +14,8 @@
 
 
 int main(){
-  StreamEye imageStreamer;
+  StreamEye imageStreamer(3001, 50);
+  imageStreamer.overlayTime(0, 255, 0);
   cv::VideoCapture cap;
   // open the default camera, use something different from 0 otherwise;
   // Check VideoCapture documentation.
@@ -23,11 +24,8 @@ int main(){
     std::cerr << "Could not open video" << std::endl;
     exit(EXIT_FAILURE);
   }
-  std::vector<int> compression_params;
-  compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
-  compression_params.push_back(100);
   cv::Mat frame;
-  Timing::PeriodicLoop loop([&frame, &cap, &compression_params, &imageStreamer, &loop](double deltaTime){
+  Timing::PeriodicLoop loop([&frame, &cap, &imageStreamer, &loop](double deltaTime){
     cap.read(frame);
     if( frame.empty() )
     {
@@ -40,11 +38,9 @@ int main(){
         return;
       }; // end of video stream
     }; // end of video stream
-    std::vector<unsigned char> image;
     //cv::resize(frame, frame, cv::Size(640/4, 360/4));
-    cv::putText(frame, std::to_string(deltaTime), cv::Point(30,30),    cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(0,0,0), 1, CV_AA);
-    cv::imencode(".jpg", frame, image, compression_params);
-    imageStreamer.writeJpeg(image);
+    cv::putText(frame, std::to_string(deltaTime), cv::Point(30,30),    cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(150,150,150), 1, CV_AA);
+    imageStreamer.serveFrame(frame);
   }, 1.0/20);
 
   loop.start();
