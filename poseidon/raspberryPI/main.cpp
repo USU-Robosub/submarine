@@ -27,9 +27,8 @@ int main(){
   compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
   compression_params.push_back(100);
   cv::Mat frame;
-  cap.grab();
   Timing::PeriodicLoop loop([&frame, &cap, &compression_params, &imageStreamer, &loop](double deltaTime){
-    cap.retrieve(frame);
+    cap.read(frame);
     if( frame.empty() )
     {
       cap.open(0);
@@ -43,10 +42,10 @@ int main(){
     }; // end of video stream
     std::vector<unsigned char> image;
     //cv::resize(frame, frame, cv::Size(640/4, 360/4));
+    cv::putText(frame, std::to_string(deltaTime), cv::Point(30,30),    cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(0,0,0), 1, CV_AA);
     cv::imencode(".jpg", frame, image, compression_params);
     imageStreamer.writeJpeg(image);
-    cap.grab();
-  }, 1.0/29.97);
+  }, 1.0/20);
 
   loop.start();
 
