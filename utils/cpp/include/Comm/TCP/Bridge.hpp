@@ -19,6 +19,9 @@ public:
 
 private:
   Comm::Stream<std::string>* stream;
+  Comm::MessageState state;
+  Comm::Message<std::string> currentMessage;
+  int dataLeft;
 };
 
 #endif
