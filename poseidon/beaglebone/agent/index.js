@@ -5,19 +5,10 @@ comm.create({
   port: 3001,
   separator: '|'
 }).then(hub => {
-  let shouldExit = false;
-  const updateHub = () => {
-    hub.poll()
-    if(!shouldExit){
-      setTimeout(updateHub, 100)
-    }
-  }
+  hub.on('echo/r', (hub, data) => console.log("Got echo:", data))
 
-  hub.on('echo/r', (hub, data) => {
-    console.log("got echo", data)
-  })
+  for(let i = 0; i < 10; i++)
+    hub.emit('echo', [`This is message #${i}`])
 
-  hub.emit('echo', ['this is a test'])
-
-  setTimeout(updateHub, 1000)
+  setInterval(hub.poll, 10)
 }).catch(error => console.log(error))
