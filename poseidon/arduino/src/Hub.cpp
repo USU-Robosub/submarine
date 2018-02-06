@@ -22,9 +22,9 @@ void Hub::poll()
 {
 
 
-  this->emit(10, 0, 0);
-  if(Serial.available() > 4){
-    this->emit(10, 0, 0);
+  //this->emit(10, 0, 0);
+  if(Serial.available() >= 4){
+    //this->emit(10, 0, 0);
     switch(this->state){
       case MessageState::CHECK:
         this->currentMessage.check = this->readOneLong();

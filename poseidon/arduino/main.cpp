@@ -99,11 +99,43 @@ void setup()
 
 //long count = 0;
 
+long read(){
+  return Serial.read();
+}
+
+long readOneLong()
+{
+  return (read()) |
+         (read() << 8) |
+         (read() << 16) |
+         (read() << 24);
+}
+
+void writeOneLong(long value)
+{
+  Serial.write((char*)&value, 4);
+}
+
+
 void loop() {
   //++count;
   //long data[] = { count };
   //_hub->emit(10, data, 1);
-  _hub->poll();
+  //_hub->poll();
   //blink->update();
   //delay(10);
+  if(Serial.available() >= 4*4){
+    long empty = readOneLong();
+    long name = readOneLong();
+    long length = readOneLong();
+    long data = readOneLong();
+    writeOneLong(0);
+    writeOneLong(42);
+    writeOneLong(1);
+    // writeOneLong(empty);
+    // writeOneLong(name);
+    // writeOneLong(length);
+    writeOneLong(data);
+  }
+  delay(1);
 }

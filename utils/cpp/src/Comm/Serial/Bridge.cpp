@@ -36,7 +36,7 @@ std::queue<std::vector<int>> Comm::Serial::Bridge::receive(){
         this->currentMessage.length = this->stream->poll();
         this->dataLeft = this->currentMessage.length;
         if(this->dataLeft > 1000){
-          throw new Comm::ConnectionFailure(("Serial message is very large, [ints] " + std::to_string(this->dataLeft)).c_str());
+          throw Comm::ConnectionFailure(("Serial message is very large, [ints] " + std::to_string(this->dataLeft)).c_str());
         }else if(this->dataLeft > 0){
           this->state = Comm::MessageState::DATA;
         }else{
