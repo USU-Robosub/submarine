@@ -38,20 +38,20 @@ void StreamEye::childProcess(){
   //   exit(errno);
   // }
 
-  if(dup2(ofile,STDOUT_FILENO) == -1) {
-     exit(errno);
-  }
-  if(dup2(STDOUT_FILENO,STDERR_FILENO) == -1) {
-     exit(errno);
-  }
+  // if(dup2(ofile,STDOUT_FILENO) == -1) {
+  //    exit(errno);
+  // }
+  // if(dup2(STDOUT_FILENO,STDERR_FILENO) == -1) {
+  //    exit(errno);
+  // }
   if(dup2(m_fdIn[0],STDIN_FILENO) == -1) {
     exit(errno);
   }
   close(ofile);
-  close(m_fdIn[0]);
-  close(m_fdOut[1]);
+  // close(m_fdIn[0]);
+  // close(m_fdOut[1]);
   std::cout << "Dup2 done" << std::endl;
-  char* const  cmd[] = { "streameye"/*,"-q"*/,"-p","8080","-s",SEPERATOR,NULL };
+  char* const  cmd[] = { "streameye"/*,"-q"*/,"-p","8080","-d","-s",SEPERATOR,NULL };
   //char* const  cmd[] = { "echo"/*,"-q"*/,"-p","8080","-s",SEPERATOR,NULL };
   int result = execvp(cmd[0], &cmd[0]);
   std::perror(cmd[0]);
