@@ -18,21 +18,21 @@ int main(){
   cv::VideoCapture cap;
   // open the default camera, use something different from 0 otherwise;
   // Check VideoCapture documentation.
-  if(!cap.open("foho.mp4"))
+  if(!cap.open(0))
   {
     std::cerr << "Could not open video" << std::endl;
     exit(EXIT_FAILURE);
   }
   std::vector<int> compression_params;
   compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
-  compression_params.push_back(30);
+  compression_params.push_back(100);
   cv::Mat frame;
   cap.grab();
   Timing::PeriodicLoop loop([&frame, &cap, &compression_params, &imageStreamer, &loop](double deltaTime){
     cap.retrieve(frame);
     if( frame.empty() )
     {
-      cap.open("foho.mp4");
+      cap.open(0);
       cap.read(frame);
       if( frame.empty() )
       {
@@ -42,11 +42,11 @@ int main(){
       }; // end of video stream
     }; // end of video stream
     std::vector<unsigned char> image;
-    cv::resize(frame, frame, cv::Size(640, 360));
+    //cv::resize(frame, frame, cv::Size(640/4, 360/4));
     cv::imencode(".jpg", frame, image, compression_params);
     imageStreamer.writeJpeg(image);
     cap.grab();
-  }, 1.0/24.0);
+  }, 1.0/29.97);
 
   loop.start();
 
