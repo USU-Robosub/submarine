@@ -1,7 +1,8 @@
 #include <Comm/TCP/FullStack.hpp>
 
 Comm::TCP::FullStack::FullStack(std::string address, unsigned int portNum, char separator)
-  : port(address, portNum),
+  : server(nullptr),
+    port(address, portNum),
     stream(&this->port, separator),
     bridge(&this->stream),
     _hub(&this->bridge) {}
@@ -14,7 +15,8 @@ Comm::TCP::FullStack::FullStack(unsigned int portNum, char separator)
     _hub(&this->bridge) {}
 
 Comm::TCP::FullStack::FullStack(Comm::TCP::Port port, char separator)
-  : port(std::move(port)),
+  : server(nullptr),
+    port(std::move(port)),
     stream(&this->port, separator),
     bridge(&this->stream),
     _hub(&this->bridge) {}
