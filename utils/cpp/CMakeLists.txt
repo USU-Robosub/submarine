@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.8.12)
 set(PROJECT_NAME Utils)
 project (${PROJECT_NAME})
 
+find_package( OpenCV )
+
 option(tests "Build tests" OFF)
 option(coverage "Enable coverage output" OFF)
 
@@ -34,6 +36,15 @@ foreach(SOURCE_FILE ${SOURCE_FILES})
 endforeach()
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
+
+message("======= OpenCV =======")
+if(${OpenCV_FOUND})
+  target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+  add_definitions(-DENABLE_OPEN_CV)
+  message(" - Found OpenCV")
+else()
+  message(" - Missing OpenCV, not going to build related code.")
+endif()
 
 if(${tests})
   include_directories(${SOURCE_DIR}/mock)
