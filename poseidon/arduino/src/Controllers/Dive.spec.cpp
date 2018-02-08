@@ -2,6 +2,7 @@
 #include <Controllers/Dive.hpp>
 
 TEST_CASE("dive attaches both motors", "[dive]"){
+  Servo::reset();
   REQUIRE_FALSE( Servo::attached[1] );
   REQUIRE_FALSE( Servo::attached[2] );
   Controllers::Dive dive(1, 2);
@@ -10,6 +11,7 @@ TEST_CASE("dive attaches both motors", "[dive]"){
 }
 
 TEST_CASE("dive sets both motors to same speed", "[dive]"){
+  Servo::reset();
   Controllers::Dive dive(1, 2, false);
   int32_t data[1] = { 4000 };
   dive.execute(nullptr, data, 1);
@@ -18,6 +20,7 @@ TEST_CASE("dive sets both motors to same speed", "[dive]"){
 }
 
 TEST_CASE("dive limits speed in safe mode", "[dive]"){
+  Servo::reset();
   Controllers::Dive dive(1, 2);
   int32_t data[1] = { 181 };
   dive.execute(nullptr, data, 1);

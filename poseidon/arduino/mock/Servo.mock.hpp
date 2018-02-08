@@ -1,7 +1,7 @@
 #ifndef SERVO_MOCK
 #define SERVO_MOCK
 
-#define NUM_SERVOS
+#define NUM_SERVOS 10
 
 class Servo{
 public:
@@ -14,6 +14,7 @@ public:
     Servo::speed[this->pin] = position;
   }
 
+  static void reset();
   static bool attached[NUM_SERVOS];
   static int speed[NUM_SERVOS];
 
