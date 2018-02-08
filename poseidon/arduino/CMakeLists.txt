@@ -49,4 +49,4 @@ include_directories(${SOURCE_DIR}/mock)
 
 file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
 
-add_executable(${PROJECT_NAME}_Tests test/main.cpp main.cpp ${SPEC_FILES} ${SOURCE_FILES})
+add_executable(${PROJECT_NAME}_Tests test/main.cpp main.cpp ${SPEC_FILES} ${SOURCE_FILES} test/global.cpp)

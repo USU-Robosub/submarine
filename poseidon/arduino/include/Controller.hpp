@@ -5,7 +5,7 @@
 
 class Controller {
 public:
-  virtual void execute(Emitter* emitter, long* data, long length) = 0;
+  virtual void execute(Emitter* emitter, int32_t* data, int32_t length) = 0;
 };
 
 #endif

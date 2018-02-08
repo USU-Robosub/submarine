@@ -39,7 +39,7 @@ int main(){
   bool shouldExit = false;
 
   //Comm::TCP::FullStack raspberryPI(3001, '|');
-  Comm::Serial::FullStack arduino("/dev/ttyS6", B115200);
+  Comm::Serial::FullStack arduino("/dev/ttyS8", B115200);
   arduino.restartArduino();
   std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
@@ -83,7 +83,7 @@ int main(){
   while(!shouldExit){
     //raspberryPI.hub()->poll();
     arduino.hub()->poll();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    //std::this_thread::sleep_for(std::chrono::milliseconds(10));// don't overwhelm the arduino
   }
 
   return 0;

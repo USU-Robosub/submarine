@@ -1,43 +1,41 @@
 #include <Hub.hpp>
 
-Hub::Hub(Controller** controllers, int numControllers)
+Hub::Hub(Controller** controllers, int numControllers, int maxReadsPerPoll)
 : _controllers(controllers)
 , _numControllers(numControllers)
 , state(MessageState::CHECK)
 , currentMessage()
 , dataLeft(0)
+, maxReadsPerPoll(maxReadsPerPoll)
 {
   Serial.begin(115200);//115200
   while(!Serial){}
 }
 
 void Hub::serveEvent(){
-  if(this->currentMessage.length < this->_numControllers){
+  if(this->currentMessage.name < this->_numControllers){
     _controllers[this->currentMessage.name]->execute(this, this->currentMessage.data, this->currentMessage.length);
   }
 }
 
-// fast fall through, the arduino serial buffer(s) are very small
 void Hub::poll()
 {
-
-
-  //this->emit(10, 0, 0);
-  if(Serial.available() >= 4){
-    //this->emit(10, 0, 0);
+  int count = 0;
+  while(Serial.available() >= 4 && count < this->maxReadsPerPoll){
+    ++count;
     switch(this->state){
       case MessageState::CHECK:
-        this->currentMessage.check = this->readOneLong();
+        this->currentMessage.check = this->readInt();
         if(this->currentMessage.check == 0){
           this->state = MessageState::NAME;
         }
         break;
       case MessageState::NAME:
-        this->currentMessage.name = this->readOneLong();
+        this->currentMessage.name = this->readInt();
         this->state = MessageState::LENGTH;
         break;
       case MessageState::LENGTH:
-        this->currentMessage.length = this->readOneLong();
+        this->currentMessage.length = this->readInt();
         this->dataLeft = this->currentMessage.length;
         if(this->currentMessage.data != nullptr){
           delete this->currentMessage.data;
@@ -46,7 +44,7 @@ void Hub::poll()
         if(this->dataLeft > 1000){
           this->state = MessageState::CHECK;
         }else if(this->dataLeft > 0){
-          this->currentMessage.data = new long[this->currentMessage.length];
+          this->currentMessage.data = new int32_t[this->currentMessage.length];
           this->state = MessageState::DATA;
         }else{
           this->serveEvent();
@@ -54,8 +52,8 @@ void Hub::poll()
         }
         break;
       case MessageState::DATA:
-        long dataIndex = this->currentMessage.length - this->dataLeft;
-        this->currentMessage.data[dataIndex] = this->readOneLong();
+        int32_t dataIndex = this->currentMessage.length - this->dataLeft;
+        this->currentMessage.data[dataIndex] = this->readInt();
         --this->dataLeft;
         if(this->dataLeft == 0){
           this->serveEvent();
@@ -64,45 +62,20 @@ void Hub::poll()
         break;
     }
   }
-
-
-  // // =====================
-  // if(Serial.available() > 0){
-  //   long null = readOneLong();
-  //   if(null != 0){
-  //     _controllers[0]->execute(this, 0, 0);
-  //     return;
-  //   }
-  //   long name = readOneLong();
-  //   long length = readOneLong();
-  //   long* data = new long[length];
-  //   for(long i = 0; i < length; ++i){
-  //     data[i] = readOneLong();
-  //   }
-  //   if(name >= _numControllers)
-  //   {
-  //     _controllers[0]->execute(this, 0, 0);
-  //     emit(0, &name, 1);
-  //   } else
-  //   {
-  //     _controllers[name]->execute(this, data, length);
-  //   }
-  //   delete data;
-  // }
 }
 
-void Hub::emit(long name, long* data, long length)
+void Hub::emit(int32_t name, int32_t* data, int32_t length)
 {
-  long null = 0;
-  writeOneLong(null);
-  writeOneLong(name);
-  writeOneLong(length);
-  for(long i = 0; i < length; ++i){
-    writeOneLong(data[i]);
+  int32_t null = 0;
+  writeInt(null);
+  writeInt(name);
+  writeInt(length);
+  for(int32_t i = 0; i < length; ++i){
+    writeInt(data[i]);
   }
 }
 
-long Hub::readOneLong()
+int32_t Hub::readInt()
 {
   return (this->read()) |
          (this->read() << 8) |
@@ -110,11 +83,11 @@ long Hub::readOneLong()
          (this->read() << 24);
 }
 
-void Hub::writeOneLong(long value)
+void Hub::writeInt(int32_t value)
 {
-  Serial.write((char*)&value, 4);
+  Serial.write((unsigned char*)&value, sizeof(int32_t));
 }
 
-long Hub::read(){
+int32_t Hub::read(){
   return Serial.read();
 }

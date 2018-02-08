@@ -15,27 +15,28 @@ enum class MessageState {
 };
 
 struct Message {
-  long check;
-  long name;
-  long length;
-  long* data;
+  int32_t check;
+  int32_t name;
+  int32_t length;
+  int32_t* data;
 };
 
 class Hub : public Emitter {
   public:
-    Hub(Controller**, int);
+    Hub(Controller**, int, int maxReadsPerPoll = 100);
     void poll();
-    void emit(long name, long* data, long length);
+    void emit(int32_t name, int32_t* data, int32_t length);
   private:
     void serveEvent();
-    long read();
-    long readOneLong();
-    void writeOneLong(long value);
+    int32_t read();
+    int32_t readInt();
+    void writeInt(int32_t value);
     Controller** _controllers;
     int _numControllers;
     MessageState state;
     Message currentMessage;
-    long dataLeft;
+    int32_t dataLeft;
+    int maxReadsPerPoll;
 };
 
 #endif
