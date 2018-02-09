@@ -23,5 +23,9 @@
   "devDependencies": {
     "coveralls": "^3.0.0",
     "jest": "^21.2.1"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "socket.io": "^2.0.4"
   }
 }
