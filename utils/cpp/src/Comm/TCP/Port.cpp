@@ -19,14 +19,6 @@ Comm::TCP::Port::~Port(){
     close(this->socketFD);
 }
 
-void Comm::TCP::Port::lock(){
-  // ?
-}
-
-void Comm::TCP::Port::unlock(){
- // ?
-}
-
 std::size_t Comm::TCP::Port::poll(char* buffer, std::size_t length){
   return recv(this->socketFD, buffer, length, 0); // should check if errored
 }

@@ -16,15 +16,12 @@ namespace Comm{
 class Comm::Serial::Stream : public Comm::Stream<int>{
 public:
   Stream(Comm::Port<unsigned char>* port);
-  void lock();
-  void unlock();
   int poll();
   void push(int value);
   bool hasData();
 
 private:
   Comm::Port<unsigned char>* port;
-  bool isLocked;
 };
 
 #endif

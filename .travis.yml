@@ -9,6 +9,13 @@ matrix:
         - sudo apt-get install -y libopencv-dev
       script: bash bin/utils/cpp/test.sh
 
+    - language: node_js
+      env:
+        - title=utils/javascript
+      node_js:
+        - "node"
+      script: bash bin/utils/javascript/test.sh
+
     - language: cpp
       env:
         - title=poseidon/beaglebone/system
@@ -25,9 +32,9 @@ matrix:
         - sudo apt-get install -y libopencv-dev
       script: bash bin/poseidon/raspberryPI/test.sh
 
-    - language: node_js
+    - language: cpp
       env:
-        - title=utils/javascript
-      node_js:
-        - "node"
-      script: bash bin/utils/javascript/test.sh
+        - title=poseidon/arduino
+      before_install:
+        - pip install --user cpp-coveralls platformio
+      script: bash bin/poseidon/arduino/test.sh

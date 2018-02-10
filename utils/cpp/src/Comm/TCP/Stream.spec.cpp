@@ -12,7 +12,7 @@ TEST_CASE("tcp stream can read string", "[TCP_Stream]"){
   REQUIRE( stream.poll() == std::string("abc") );
 }
 
-TEST_CASE("tcp stream can write int", "[TCP_Stream]"){
+TEST_CASE("tcp stream can write string", "[TCP_Stream]"){
   Comm::Mock::Port<char> port;
   Comm::TCP::Stream stream(&port, '|');
   char buffer[6] = { ' ' };
