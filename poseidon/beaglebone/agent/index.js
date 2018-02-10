@@ -8,7 +8,6 @@ app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../../webapp/
 app.get('/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../webapp/socketio/socket.io.min.js')))
 app.get('/rx.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../webapp/rxjs/rx.min.js')))
 app.get('/index.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../webapp/index.js')))
-app.get('/p5.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../webapp/p5js/p5.min.js')))
 
 // comm.create({
 //   address: 'localhost',
