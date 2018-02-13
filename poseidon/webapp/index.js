@@ -14,43 +14,43 @@ function setDive(x){
 }
 
 
-window.addEventListener("gamepadconnected", function(e){
+// const gamepad = navigator.getGamepads()
 
+let gamepadIndex = -1;
 
-const gamepad = e.gamepad
+console.log('app started')
+window.addEventListener("gamepadconnected", function(e) {
+  console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+    e.gamepad.index, e.gamepad.id,
+    e.gamepad.buttons.length, e.gamepad.axes.length);
+  gamepadIndex = e.gamepad.index
+});
 
 var timer = Rx.Observable.timer(200, 10);
 
-function getValue(x){ return x.value; }
-function sameValue(a, b){ return Math.abs(a - b) < 0.01; }
-function checkAxis(name, x){ return x.axis == name; }
-function deadZone(x) { return Math.abs(x) < 0.2 ? 0 : x; }
-function modmod(x, n) { return x - Math.floor(x/n) * n; }
-function getAngle(a, b, n) { return modmod(a - b + n, n * 2) - n }
+const axis = index => () => navigator.getGamepads()[gamepadIndex].axes[index]
 
-var throttle = timer.map(function() {
-  return gamepad.axes[0];
-}).map(deadZone).throttle(100).distinctUntilChanged(null, sameValue);
+const deadZone = (lower, upper) => x => x < lower ? x : x > upper ? x : 0;
 
-var steering = timer.map(function() {
-  return gamepad.axes[1];
-}).map(deadZone).throttle(100).distinctUntilChanged(null, sameValue);
+const gamepad = timer.filter(() => gamepadIndex != -1)
 
-var depthThrottle = 0;
-var depth = timer.map(function() {
-  return gamepad.axes[2];
-}).map(deadZone).throttle(100).distinctUntilChanged(null, sameValue);
+const filteredAxis = index => gamepad.map(axis(index)).map(deadZone(-0.1, 0.1)).distinctUntilChanged().throttleTime(10)
 
-throttle.subscribe(function(x) {
-  socket.emit('throttle', x)
-});
+filteredAxis(0).subscribe(axis => {
+  console.log("axis", 0, axis)
+  socket.emit('steering', axis * 90 + 90)
+})
 
-steering.subscribe(function(x) {
-  socket.emit('depth', x)
-});
+filteredAxis(1).subscribe(axis => {
+  console.log("axis", 1, axis)
+  socket.emit('throttle', -axis * 90 + 90)
+})
 
-depth.subscribe(function(x) {
-  socket.emit('depth', x)
-});
+filteredAxis(2).subscribe(axis => {
+  console.log("axis", 2, axis)
+})
 
+filteredAxis(3).subscribe(axis => {
+  console.log("axis", 3, axis)
+  socket.emit('dive', axis * 90 + 90)
 })
