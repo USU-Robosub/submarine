@@ -10,7 +10,7 @@
 int main(){
   bool shouldExit = false;
 
-  Comm::Serial::FullStack arduino("/dev/ttyS8", B115200);
+  Comm::Serial::FullStack arduino("/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0", B115200);
   arduino.restartArduino();
   Comm::TCP::FullStack agent(3001, '|');
 
@@ -28,7 +28,7 @@ int main(){
 
   agent.hub()->on("dive", [&dive, &arduino](std::vector<std::string> message){
     dive = std::stoi(message[0]);
-    arduino.hub()->emit(1, std::vector<int>{dive});
+    arduino.hub()->emit(2, std::vector<int>{dive});
   });
 
   while(!shouldExit){

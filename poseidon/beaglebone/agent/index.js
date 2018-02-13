@@ -21,14 +21,15 @@ comm.create({
       console.log('user disconnected')
     })
     socket.on('throttle', function(x){
+      console.log('throttle', x)
       hub.emit('throttle', x)
     })
     socket.on('steering', function(x){
-      console.log('user disconnected')
+      console.log('steering', x)
       hub.emit('steering', x)
     })
     socket.on('dive', function(x){
-      console.log('user disconnected')
+      console.log('dive', x)
       hub.emit('dive', x)
     })
   })

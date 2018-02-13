@@ -1,6 +1,23 @@
 var socket = io();
 
-const gamepad = navigator.getGamepads()
+function setThrottle(x){
+  socket.emit('throttle', x)
+  //socket.emit('steering', x)
+}
+
+function setSteering(x){
+  socket.emit('steering', x)
+}
+
+function setDive(x){
+  socket.emit('dive', x)
+}
+
+
+window.addEventListener("gamepadconnected", function(e){
+
+
+const gamepad = e.gamepad
 
 var timer = Rx.Observable.timer(200, 10);
 
@@ -12,16 +29,16 @@ function modmod(x, n) { return x - Math.floor(x/n) * n; }
 function getAngle(a, b, n) { return modmod(a - b + n, n * 2) - n }
 
 var throttle = timer.map(function() {
-  return gamepad.gamepads[0].state["RIGHT_BOTTOM_SHOULDER"];
+  return gamepad.axes[0];
 }).map(deadZone).throttle(100).distinctUntilChanged(null, sameValue);
 
 var steering = timer.map(function() {
-  return gamepad.gamepads[0].state["LEFT_STICK_X"];
+  return gamepad.axes[1];
 }).map(deadZone).throttle(100).distinctUntilChanged(null, sameValue);
 
 var depthThrottle = 0;
 var depth = timer.map(function() {
-  return gamepad.gamepads[0].state["RIGHT_STICK_Y"];
+  return gamepad.axes[2];
 }).map(deadZone).throttle(100).distinctUntilChanged(null, sameValue);
 
 throttle.subscribe(function(x) {
@@ -35,3 +52,5 @@ steering.subscribe(function(x) {
 depth.subscribe(function(x) {
   socket.emit('depth', x)
 });
+
+})
