@@ -1,0 +1,18 @@
+{
+  "name": "Hub",
+  "description": "Hub and controllers for listening on serial.",
+  "repository": {
+      "type": "git",
+      "url":"https://github.com/USU-Robosub/submarine.git"
+    },
+  "version": "0.1",
+  "include":
+  [
+    "include/*"
+  ],
+  "frameworks": "*",
+  "platforms": "*",
+  "build": {
+    "srcFilter": "+<../main.cpp> +<*> -<.git/> -<svn/> -<example/> -<examples/> -<test/> -<tests/> -<*.spec.*> -<**/*.spec.*> -<**/**/*.spec.*>"
+  }
+}

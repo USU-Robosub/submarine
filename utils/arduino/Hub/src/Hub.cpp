@@ -60,6 +60,9 @@ void Hub::poll()
           this->state = MessageState::CHECK;
         }
         break;
+      case MessageState::ALIGNING:
+        //Not sure what should be done here but it is complaining that it is not implemented
+        break;
     }
   }
 }
