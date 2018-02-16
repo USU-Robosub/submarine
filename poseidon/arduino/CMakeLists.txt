@@ -25,6 +25,11 @@ add_definitions(-DUNIT_TESTS)
 include_directories(${SOURCE_DIR}/include)
 include_directories(${SOURCE_DIR}/../../extern)
 
+set(tests OFF CACHE BOOL "" FORCE)
+set(coverage OFF CACHE BOOL "" FORCE)
+add_subdirectory(${SOURCE_DIR}/../../utils/arduino ${CMAKE_CURRENT_BINARY_DIR}/utils/arduino)
+include_directories(${utils_arduino_Includes})
+
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
 # remove CMakeCXXCompilerId.cpp and test files
@@ -46,7 +51,11 @@ message(" - ${${PROJECT_NAME}_SOURCE_DIR}/main.cpp")
 set_source_files_properties(main.cpp PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")
 
 include_directories(${SOURCE_DIR}/mock)
+include_directories(${utils_arduino_Mocks})
 
 file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
 
-add_executable(${PROJECT_NAME}_Tests test/main.cpp main.cpp ${SPEC_FILES} ${SOURCE_FILES} test/global.cpp)
+message("${utils_arduino_Mock_Spec}")
+
+add_executable(${PROJECT_NAME}_Tests test/main.cpp main.cpp ${SPEC_FILES} ${SOURCE_FILES} ${utils_arduino_Mock_Spec})
+target_link_libraries(${PROJECT_NAME}_Tests utils_arduino)
