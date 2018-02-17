@@ -1,7 +1,7 @@
 #ifndef MOCK_ARDUINO
 #define MOCK_ARDUINO
 
-#include <cstdint>
+#include <cstdint.mock.hpp>
 
 int constrain(int x, int a, int b);
 void delay(int time);

@@ -1,11 +1,7 @@
 #ifndef EMITTER
 #define EMITTER
 
-#ifndef UNIT_TESTS
-  #include <Arduino.h>
-#else
-  #include <cstdint>
-#endif
+#include <Arduino.h>
 
 class Emitter {
 public:
