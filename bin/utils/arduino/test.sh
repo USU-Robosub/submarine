@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
-cd poseidon/arduino
+cd utils/arduino
 mkdir -p build
 cd build
-cmake .. -Dcoverage=ON
+cmake .. -Dtests=ON -Dcoverage=ON
 make
 ./poseidon_arduino_tests
 cd ..
@@ -15,6 +15,6 @@ cd ../..
 
 echo Gathering coverage info.
 {
-coveralls --gcov-options '\-lp' -i ./poseidon/arduino -E ".*\/(extern|feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
+coveralls --gcov-options '\-lp' -i ./utils/arduino -E ".*\/(extern|feature_tests|.+\.spec|CMake(C|CXX)CompilerId|test\/main|.+\.mock).+"
 } &> /dev/null
 echo Coverage info uploaded.

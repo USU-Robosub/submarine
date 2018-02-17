@@ -4,13 +4,11 @@ project (${PROJECT_NAME})
 
 option(coverage "Enable coverage output" OFF)
 
-message("================================================")
-message("The unit tests produced do not guarantee proper")
-message("   intergration with the embeded hardware.")
-message("================================================")
-
+# ===============================================
+# =                 C++ Flags
+# ===============================================
+add_definitions(-DUNIT_TESTS)
 set(CMAKE_CXX_CUSTOM_FLAGS "-std=gnu++11 -pthread")
-
 if(${coverage})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_CUSTOM_FLAGS} -coverage")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -coverage")
@@ -20,42 +18,48 @@ else()
 endif()
 set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
-add_definitions(-DUNIT_TESTS)
-
-include_directories(${SOURCE_DIR}/include)
-include_directories(${SOURCE_DIR}/../../extern)
-
+# ===============================================
+# =           Include Utils/Arduino
+# ===============================================
 set(tests OFF CACHE BOOL "" FORCE)
 set(coverage OFF CACHE BOOL "" FORCE)
 add_subdirectory(${SOURCE_DIR}/../../utils/arduino ${CMAKE_CURRENT_BINARY_DIR}/utils/arduino)
 include_directories(${utils_arduino_Includes})
 
-file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
-
-# remove CMakeCXXCompilerId.cpp and test files
-foreach(SOURCE_FILE ${SOURCE_FILES})
+# ===============================================
+# =               Source Files
+# ===============================================
+file(GLOB_RECURSE SOURCE_FILES "src/*.cpp" "main.cpp")
+foreach(SOURCE_FILE ${SOURCE_FILES}) # remove CMakeCXXCompilerId.cpp and test files
   if(SOURCE_FILE MATCHES "CMakeCXXCompilerId|spec.cpp")
     LIST(REMOVE_ITEM SOURCE_FILES ${SOURCE_FILE})
   endif()
 endforeach()
 
-# force no standard libraries in arduino code
-message("C/C++ standard libraries have been disabled for the following files:")
+# ===============================================
+# = force no standard libraries in arduino code
+# ===============================================
 foreach(SOURCE_FILE ${SOURCE_FILES})
-  if(SOURCE_FILE MATCHES "src")
-    message(" - " + ${SOURCE_FILE})
-    set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")
-  endif()
+  message(" - ${SOURCE_FILE}")
+  set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")
 endforeach()
-message(" - ${${PROJECT_NAME}_SOURCE_DIR}/main.cpp")
-set_source_files_properties(main.cpp PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")
 
+# ===============================================
+# =            Include Directories
+# ===============================================
+include_directories(${SOURCE_DIR}/include)
+include_directories(${SOURCE_DIR}/../../extern)
 include_directories(${SOURCE_DIR}/mock)
 include_directories(${utils_arduino_Mocks})
 
+# ===============================================
+# =               Unit Test App
+# ===============================================
 file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
-
-message("${utils_arduino_Mock_Spec}")
-
-add_executable(${PROJECT_NAME}_Tests test/main.cpp main.cpp ${SPEC_FILES} ${SOURCE_FILES} ${utils_arduino_Mock_Spec})
-target_link_libraries(${PROJECT_NAME}_Tests utils_arduino)
+add_executable(${PROJECT_NAME}_tests
+  "${SOURCE_DIR}/../../extern/catch2/main.cpp"
+  ${SPEC_FILES}
+  ${SOURCE_FILES}
+  ${utils_arduino_MockSrc}
+)
+target_link_libraries(${PROJECT_NAME}_tests utils_arduino)

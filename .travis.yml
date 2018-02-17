@@ -18,6 +18,13 @@ matrix:
 
     - language: cpp
       env:
+        - title=utils/arduino
+      before_install:
+        - pip install --user cpp-coveralls platformio
+      script: bash bin/utils/arduino/test.sh
+
+    - language: cpp
+      env:
         - title=poseidon/beaglebone/system
       before_install:
         - pip install --user cpp-coveralls

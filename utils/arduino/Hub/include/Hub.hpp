@@ -4,11 +4,7 @@
 #include <Controller.hpp>
 #include <Emitter.hpp>
 
-#ifndef UNIT_TESTS
-  #include <Arduino.h>
-#else
-  #include <Serial.mock.hpp>
-#endif
+#include <Arduino.h>
 
 enum class MessageState {
   CHECK, NAME, LENGTH, DATA, ALIGNING

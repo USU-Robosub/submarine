@@ -5,4 +5,4 @@ mkdir -p build
 cd build
 cmake .. -Dtests=ON -Dcoverage=OFF
 make
-./utils_arduino_Tests
+./utils_arduino_tests

@@ -2,52 +2,102 @@ cmake_minimum_required (VERSION 2.8.12)
 set(PROJECT_NAME utils_arduino)
 project (${PROJECT_NAME})
 
-message("building arduino utils =================================")
-
 option(tests "Build tests" OFF)
 option(coverage "Enable coverage output" OFF)
 
-set(CMAKE_CXX_CUSTOM_FLAGS "-std=gnu++11")
+message("================================================")
+message("The unit tests produced do not guarantee proper")
+message("   intergration with the embeded hardware.")
+message("================================================")
 
+# ===============================================
+# =                   Paths
+# ===============================================
+set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
+set(Includes # Locations to check for header files
+  "${SOURCE_DIR}/include"
+  "${SOURCE_DIR}/Hub/include"
+)
+set(Mocks # locations to check for mock types
+  "${SOURCE_DIR}/mock"
+  "${SOURCE_DIR}/Hub/mock"
+)
+set(Src # Source directories for arduino libraries
+  "${SOURCE_DIR}/Hub/src/*.cpp"
+)
+set(MockSrc # Global declarations of mock types
+  "${SOURCE_DIR}/mock/*.mock.spec.cpp"
+)
+
+# ===============================================
+# =                 C++ Flags
+# ===============================================
+add_definitions(-DUNIT_TESTS) # enable arduino mock files
+set(CMAKE_CXX_CUSTOM_FLAGS "-std=gnu++11")
 if(${coverage})
+  message("=== Enabling Coverage for ${PROJECT_NAME}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_CUSTOM_FLAGS} -coverage")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -coverage")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -coverage")
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_CUSTOM_FLAGS}")
 endif()
-set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
-set(Includes ${SOURCE_DIR}/include ${SOURCE_DIR}/Hub/include)
-set(Mocks "${SOURCE_DIR}/mock" "${SOURCE_DIR}/Hub/mock")
-set(${PROJECT_NAME}_Includes ${Includes} PARENT_SCOPE)
-set(${PROJECT_NAME}_Mocks ${Mocks} PARENT_SCOPE)
-
-include_directories(${Includes})
-
-file(GLOB_RECURSE SOURCE_FILES "Hub/src/*.cpp")
-
-# remove CMakeCXXCompilerId.cpp and test files
-foreach(SOURCE_FILE ${SOURCE_FILES})
+# ===============================================
+# =               Source Files
+# ===============================================
+file(GLOB_RECURSE SOURCE_FILES ${Src})
+foreach(SOURCE_FILE ${SOURCE_FILES}) # remove CMakeCXXCompilerId.cpp and test files
   if(SOURCE_FILE MATCHES "CMakeCXXCompilerId|spec.cpp")
     LIST(REMOVE_ITEM SOURCE_FILES ${SOURCE_FILE})
   endif()
 endforeach()
 
-add_definitions(-DUNIT_TESTS)
+# ===============================================
+# = force no standard libraries in arduino code
+# ===============================================
+message("C/C++ standard libraries have been disabled for the following files:")
+foreach(SOURCE_FILE ${SOURCE_FILES})
+  message(" - ${SOURCE_FILE}")
+  set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")
+endforeach()
 
+# ===============================================
+# =            Include Directories
+# ===============================================
+include_directories(${Includes})
 include_directories(${Mocks})
+
+# ===============================================
+# =              Static Library
+# ===============================================
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
-file(GLOB_RECURSE MOCK_SPEC_FILES "*.mock.spec.cpp")
-get_filename_component(GLOBAL_MOCK "test/global.cpp" REALPATH)
-list(APPEND MOCK_SPEC_FILES ${GLOBAL_MOCK})
-set(${PROJECT_NAME}_Mock_Spec ${MOCK_SPEC_FILES} PARENT_SCOPE)
+# ===============================================
+# =             Mock Source Files
+# ===============================================
+file(GLOB_RECURSE MOCK_SPEC_FILES ${MockSrc})
 
+# ===============================================
+# =               Unit Test App
+# ===============================================
 if(${tests})
+  message("=== Building Unit Test App: ${PROJECT_NAME}_tests")
   file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
   include_directories(${SOURCE_DIR}/../../extern)
+  add_executable(${PROJECT_NAME}_tests
+    "${SOURCE_DIR}/../../extern/catch2/main.cpp"
+    ${SPEC_FILES}
+  )
+  target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME})
+endif()
 
-  add_executable(${PROJECT_NAME}_Tests test/main.cpp test/global.cpp ${SPEC_FILES})
-  target_link_libraries(${PROJECT_NAME}_Tests ${PROJECT_NAME})
+# ===============================================
+# =               Set parent vars
+# ===============================================
+get_directory_property(HAS_PARENT PARENT_DIRECTORY)
+if(HAS_PARENT)
+  set(${PROJECT_NAME}_Includes ${Includes} PARENT_SCOPE)
+  set(${PROJECT_NAME}_Mocks ${Mocks} PARENT_SCOPE)
+  set(${PROJECT_NAME}_MockSrc ${MOCK_SPEC_FILES} PARENT_SCOPE)
 endif()
