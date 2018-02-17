@@ -5,7 +5,7 @@ mkdir -p build
 cd build
 cmake .. -Dtests=ON -Dcoverage=ON
 make
-./poseidon_arduino_tests
+./utils_arduino_tests
 
 cd ../../..
 
