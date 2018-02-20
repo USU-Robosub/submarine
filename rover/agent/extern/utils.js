@@ -1,1 +1,1 @@
-module.exports = require('../../../../utils/javascript/lib')
+module.exports = require('../../../utils/javascript/lib')

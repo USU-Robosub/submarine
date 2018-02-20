@@ -19,12 +19,12 @@ endif()
 set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
 include_directories(${SOURCE_DIR}/include)
-include_directories(${SOURCE_DIR}/../../../extern)
+include_directories(${SOURCE_DIR}/../../extern)
 
 
 set(tests OFF CACHE BOOL "" FORCE)
 set(coverage OFF CACHE BOOL "" FORCE)
-add_subdirectory(${SOURCE_DIR}/../../../utils/cpp ${CMAKE_CURRENT_BINARY_DIR}/utils/cpp)
+add_subdirectory(${SOURCE_DIR}/../../utils/cpp ${CMAKE_CURRENT_BINARY_DIR}/utils/cpp)
 include_directories(${Utils_Includes})
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")

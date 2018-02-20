@@ -20,11 +20,11 @@ Controllers::DC_MotorDriver::DC_MotorDriver(int pinSpeedA, int pinForwardA, int 
 
 void Controllers::DC_MotorDriver::execute(Emitter* hub, int32_t* data, int32_t length){
   if(length == 2){
-    int mixLeft =  data[0] + (data[1] - 90);
-    int mixRight =  data[0] - (data[1] - 90);
+    int mixLeft =  (data[0] + (data[1] - 90) - 90) * 2;
+    int mixRight =  (data[0] - (data[1] - 90) - 90) * 2;
 
-    int speedA = this->protectMotors ? constrain(mixLeft, 10, 170) : mixLeft;
-    int speedB = this->protectMotors ? constrain(mixLeft, 10, 170) : mixLeft;
+    int speedA = this->protectMotors ? constrain(mixLeft, -180, 180) : mixLeft;
+    int speedB = this->protectMotors ? constrain(mixRight, -180, 180) : mixRight;
 
     digitalWrite(this->pinForwardA, LOW ); digitalWrite(this->pinBackwardA, LOW);
     digitalWrite(this->pinForwardB, LOW ); digitalWrite(this->pinBackwardB, LOW);
