@@ -8,4 +8,16 @@ void delay(int time){
 
 }
 
+void pinMode(int pin, int mode){
+
+}
+
+double abs(double value){
+
+}
+
+void digitalWrite(int pin, int value){
+
+}
+
 Mock::Serial Serial;

@@ -1,0 +1,12 @@
+#ifndef PIN_MAP
+#define PIN_MAP
+
+#define LEFT_MOTOR_SPEED 6
+#define LEFT_MOTOR_FORWARD 12
+#define LEFT_MOTOR_BACKWARD 13
+
+#define RIGHT_MOTOR_SPEED 5
+#define RIGHT_MOTOR_FORWARD 8
+#define RIGHT_MOTOR_BACKWARD 7
+
+#endif

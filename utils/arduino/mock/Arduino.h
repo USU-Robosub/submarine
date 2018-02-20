@@ -3,8 +3,17 @@
 
 #include <cstdint.mock.hpp>
 
+#define OUTPUT 1
+#define INPUT 2
+
+#define LOW 9
+#define HIGH 1
+
 int constrain(int x, int a, int b);
 void delay(int time);
+void pinMode(int pin, int mode);
+double abs(double value);
+void digitalWrite(int pin, int value);
 
 #define BUFFER_SIZE 500
 
