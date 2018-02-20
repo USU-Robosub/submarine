@@ -3,7 +3,7 @@
 Vision::Vision()
   : imageStreamer()
   , webcam()
-  , loop(std::bind(&Vision::doPeriodic, this, std::placeholders::_1), 1.0/60)
+  , loop(std::bind(&Vision::doPeriodic, this, std::placeholders::_1), 1.0/15)
 {
   std::cout << "Vision constructor" << std::endl;
   // open the default camera, use something different from 0 otherwise;
