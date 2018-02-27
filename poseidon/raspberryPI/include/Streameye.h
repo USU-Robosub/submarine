@@ -2,33 +2,27 @@
 #define STREAMEYE_H
 
 #define SEPERATOR "--SEPERATOR--"
+#define APP_NAME "streameye"
 
-#include <sys/wait.h>
-#include <stdio.h>
-#include <cstdio>
-#include <stdlib.h>
-#include <unistd.h>
-#include <vector>
-#include <errno.h>
-#include <cstring>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <iostream>
+#include <Threading/ProcessChild.hpp>
+#include <opencv2/opencv.hpp>
+#include <ctime>
+#include <chrono>
 
 class StreamEye {
 public:
-  StreamEye();
-  void writeJpeg(std::vector<unsigned char> image);
-  ~StreamEye();
+  StreamEye(unsigned int port, int quality);
+  void overlayTime(int r, int g, int b);
+  void serveFrame(cv::Mat frame);
+  void stopOverlay();
   StreamEye & operator=(const StreamEye&) = delete;
   StreamEye(const StreamEye&) = delete;
 
 private:
-  void childProcess();
-  int m_fdIn[2];
-  int m_fdOut[2];
-  int m_PID;
+  Threading::ProcessChild streamEyeApp;
+  std::vector<int> compressionConfig;
+  int timeR, timeG, timeB;
+  bool showTime;
 };
 
 #endif
