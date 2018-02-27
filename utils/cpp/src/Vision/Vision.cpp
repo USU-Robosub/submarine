@@ -1,3 +1,5 @@
+#ifdef ENABLE_OPEN_CV
+
 #include <Vision/Vision.hpp>
 
 Vision::Vision()
@@ -43,3 +45,5 @@ void Vision::doPeriodic(double deltaTime){
     cv::imencode(".jpg", frame, image, compression_params);
     imageStreamer.writeJpeg(image);
 }
+
+#endif

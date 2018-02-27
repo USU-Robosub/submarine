@@ -1,3 +1,5 @@
+#ifdef ENABLE_OPEN_CV
+
 #include <Vision/StreamEye.h>
 int ofile = -1;
 
@@ -73,3 +75,5 @@ StreamEye::~StreamEye() {
   waitpid(m_PID,&status,0);
   std::cout << "Process finished" << std::endl;
 }
+
+#endif
