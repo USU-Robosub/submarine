@@ -20,4 +20,8 @@ void digitalWrite(int pin, int value){
 
 }
 
+double map(double x, double oldMin, double oldMax, double newMin, double newMax){
+  
+}
+
 Mock::Serial Serial;

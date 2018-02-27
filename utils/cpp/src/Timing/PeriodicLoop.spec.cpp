@@ -54,6 +54,6 @@ TEST_CASE("loop is not run with a shorter deltaTime", "[PeriodicLoop][.timing]")
   loop.stop();
 
   double duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count() * 0.001;
-  REQUIRE(duration >= minDeltaTime);
+  REQUIRE(duration >= minDeltaTime - 0.002);
   REQUIRE(abs(reportedDeltaTime - duration) < 0.002);
 }

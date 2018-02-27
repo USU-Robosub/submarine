@@ -14,6 +14,8 @@ void delay(int time);
 void pinMode(int pin, int mode);
 double abs(double value);
 void digitalWrite(int pin, int value);
+double map(double x, double oldMin, double oldMax, double newMin, double newMax);
+void analogWrite(int pin, int value);
 
 #define BUFFER_SIZE 500
 
