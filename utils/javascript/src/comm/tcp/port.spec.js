@@ -1,13 +1,19 @@
 const createPort = require('./port.js')
 const createMockServer = require('../../../mock').createServer
+let portfinder = require('portfinder')
 
-const testPort = 3001
+let testPort = 3001
 const testAddress = 'localhost'
 
 let server = 0;
 
-beforeEach(() => {
-  server = createMockServer(testAddress, testPort)
+beforeEach(done => {
+  portfinder.getPort(function (err, port) {
+    testPort = port
+    console.log('Running on port: ', testPort)
+    server = createMockServer(testAddress, testPort)
+    done()
+  })
 })
 
 afterEach(() => {
