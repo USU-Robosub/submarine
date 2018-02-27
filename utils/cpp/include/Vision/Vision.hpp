@@ -1,3 +1,5 @@
+#ifdef ENABLE_OPEN_CV
+
 #ifndef VISION_H
 #define VISION_H
 
@@ -15,5 +17,7 @@ private:
   cv::VideoCapture webcam;
   Timing::PeriodicLoop loop;
 };
+
+#endif
 
 #endif

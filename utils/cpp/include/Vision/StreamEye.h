@@ -1,3 +1,5 @@
+#ifdef ENABLE_OPEN_CV
+
 #ifndef STREAMEYE_H
 #define STREAMEYE_H
 
@@ -30,5 +32,7 @@ private:
   int m_fdOut[2];
   int m_PID;
 };
+
+#endif
 
 #endif
