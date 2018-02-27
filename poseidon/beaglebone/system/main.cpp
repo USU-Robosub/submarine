@@ -1,29 +1,39 @@
 #include <iostream>
 
+#include <Comm/Serial/FullStack.hpp>
 #include <Comm/TCP/FullStack.hpp>
 
 #include <thread>
 #include <chrono>
+#include <string>
 
 int main(){
   bool shouldExit = false;
 
-  Comm::TCP::FullStack raspberryPI(3001, '|');
+  Comm::Serial::FullStack arduino("/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0", B115200);
+  arduino.restartArduino();
+  Comm::TCP::FullStack agent(3001, '|');
 
-  raspberryPI.hub()->on("echo", [&raspberryPI](std::vector<std::string> message){
-    std::cout << "message from Raspberry PI: ";
-    for(unsigned int i = 0; i < message.size(); ++i)
-      std::cout << "\"" << std::dec << message[i] << "\", ";
-    std::cout << std::endl;
-    raspberryPI.hub()->emit("echo/r", message);
+  int throttle = 90, steering = 90, dive = 90;
+
+  agent.hub()->on("throttle", [&throttle, &steering, &arduino](std::vector<std::string> message){
+    throttle = std::stoi(message[0]);
+    arduino.hub()->emit(1, std::vector<int>{throttle, steering});
   });
 
-  raspberryPI.hub()->on("exit", [&shouldExit](std::vector<std::string> message){
-    shouldExit = true;
+  agent.hub()->on("steering", [&throttle, &steering, &arduino](std::vector<std::string> message){
+    steering = std::stoi(message[0]);
+    arduino.hub()->emit(1, std::vector<int>{throttle, steering});
+  });
+
+  agent.hub()->on("dive", [&dive, &arduino](std::vector<std::string> message){
+    dive = std::stoi(message[0]);
+    arduino.hub()->emit(2, std::vector<int>{dive});
   });
 
   while(!shouldExit){
-    raspberryPI.hub()->poll();
+    arduino.hub()->poll();
+    agent.hub()->poll();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 

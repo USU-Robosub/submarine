@@ -3,6 +3,7 @@
 
 #include <Comm/Bridge.hpp>
 #include <Comm/Stream.hpp>
+#include <Comm/Port.hpp>
 
 namespace Comm{
   namespace Serial{
@@ -12,7 +13,7 @@ namespace Comm{
 
 class Comm::Serial::Bridge : public Comm::Bridge<int>{
 public:
-  Bridge(Comm::Stream<int>* stream);
+  Bridge(Comm::Stream<int>* stream, unsigned int maxReads = 500);
   void send(std::vector<int> data);
   std::queue<std::vector<int>> receive();
 
@@ -21,6 +22,7 @@ private:
   Comm::MessageState state;
   Comm::Message<int> currentMessage;
   int dataLeft;
+  int maxReads;
 };
 
 #endif

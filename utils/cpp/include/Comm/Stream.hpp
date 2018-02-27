@@ -12,8 +12,6 @@ public:
   virtual bool hasData() = 0;
   virtual void push(T data) = 0;
   virtual T poll() = 0;
-  virtual void lock() = 0;
-  virtual void unlock() = 0;
 };
 
 #endif
