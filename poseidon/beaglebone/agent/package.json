@@ -1,5 +1,5 @@
 {
-  "name": "Utils",
+  "name": "agent",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "watch": "jest --watch",
     "start": "node index.js"
   },
-  "author": "",
+  "author": "USU RoboSub Team",
   "license": "",
   "directories": {
     "test": "test"

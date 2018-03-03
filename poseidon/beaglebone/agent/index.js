@@ -1,4 +1,4 @@
-const comm = require('./extern/utils').comm
+const comm = require('./utils').comm
 const path = require('path')
 const app = require('express')()
 const http = require('http').Server(app)
