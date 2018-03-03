@@ -4,25 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "watch": "jest --watch",
     "start": "node index.js"
   },
   "author": "USU RoboSub Team",
   "license": "",
-  "directories": {
-    "test": "test"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/USU-Robosub/submarine"
   },
   "bugs": {
     "url": "https://github.com/USU-Robosub/submarine/issues"
-  },
-  "devDependencies": {
-    "coveralls": "^3.0.0",
-    "jest": "^21.2.1"
   },
   "dependencies": {
     "express": "^4.16.2",

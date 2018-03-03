@@ -7,7 +7,7 @@ Vision::Livestream::Livestream()
   , webcam()
   , loop(std::bind(&Vision::Livestream::doPeriodic, this, std::placeholders::_1), 1.0/15)
 {
-  if(!webcam.open("../../../../../Users/konno/Videos/raspberry_test.mp4"))
+  if(!webcam.open(0))
   {
     std::cerr << "Could not open video" << std::endl;
     exit(EXIT_FAILURE);

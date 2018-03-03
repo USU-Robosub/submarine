@@ -2,7 +2,7 @@
 
 #include <Comm/Serial/FullStack.hpp>
 #include <Comm/TCP/FullStack.hpp>
-#include <Vision/Vision.hpp>
+#include <Vision/Livestream.hpp>
 
 #include <thread>
 #include <chrono>
@@ -11,7 +11,7 @@
 int main(){
   bool shouldExit = false;
   std::cout << "Creating Vision" << std::endl;
-  Vision vision;
+  Vision::Livestream vision;
 
   Comm::Serial::FullStack arduino("/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0", B115200);
   arduino.restartArduino();

@@ -1,12 +1,12 @@
-const comm = require('./extern/utils').comm
+const comm = require('./utils').comm
 const path = require('path')
 const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 
 app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.html')))
-app.get('/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/socketio/socket.io.min.js')))
-app.get('/rx.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/rxjs/rx.min.js')))
+app.get('/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/socketio/socket.io.min.js')))
+app.get('/rx.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/rxjs/rx.min.js')))
 app.get('/index.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.js')))
 
  comm.create({
