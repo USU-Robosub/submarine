@@ -7,41 +7,18 @@ matrix:
         - pip install --user cpp-coveralls
       install:
         - sudo apt-get install -y libopencv-dev
-      script: bash bin/utils/cpp/test.sh
+      script: bash bin/utils_cpp_test.sh
 
     - language: node_js
       env:
         - title=utils/javascript
       node_js:
         - "node"
-      script: bash bin/utils/javascript/test.sh
+      script: bash bin/utils_javascript_test.sh
 
     - language: cpp
       env:
         - title=utils/arduino
       before_install:
         - pip install --user cpp-coveralls platformio
-      script: bash bin/utils/arduino/test.sh
-
-    - language: cpp
-      env:
-        - title=poseidon/beaglebone/system
-      before_install:
-        - pip install --user cpp-coveralls
-      script: bash bin/poseidon/beaglebone/system/test.sh
-
-    - language: cpp
-      env:
-        - title=poseidon/raspberryPI
-      before_install:
-        - pip install --user cpp-coveralls
-      install:
-        - sudo apt-get install -y libopencv-dev
-      script: bash bin/poseidon/raspberryPI/test.sh
-
-    - language: cpp
-      env:
-        - title=poseidon/arduino
-      before_install:
-        - pip install --user cpp-coveralls platformio
-      script: bash bin/poseidon/arduino/test.sh
+      script: bash bin/utils_arduino_test.sh
