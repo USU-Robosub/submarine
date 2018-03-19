@@ -19,6 +19,7 @@ private:
   void doPeriodic(double deltaTime);
   StreamEye imageStreamer;
   cv::VideoCapture webcam;
+  cv::VideoCapture image;
   Timing::PeriodicLoop loop;
 };
 
