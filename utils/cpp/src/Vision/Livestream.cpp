@@ -7,7 +7,7 @@ Vision::Livestream::Livestream()
   , webcam()
   , loop(std::bind(&Vision::Livestream::doPeriodic, this, std::placeholders::_1), 1.0/15)
 {
-  image = cv::imread("../../test/test.jpg", 0);
+  image = cv::imread("../../../test/test.jpg", 0);
   if(!webcam.open(0))
   {
     std::cerr << "Could not open video" << std::endl;
