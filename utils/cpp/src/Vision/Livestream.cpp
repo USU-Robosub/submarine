@@ -42,10 +42,14 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   std::cout << frame.type() << std::endl;
   std::cout << image.type() << std::endl;
 
-
   // Start
 
   cv::Mat match;
+  int result_cols =  frame.cols - image.cols + 1;
+  int result_rows = frame.rows - image.rows + 1;
+
+  match.create( result_rows, result_cols, CV_32FC1 );
+
   cv::matchTemplate( frame, image, match, CV_TM_SQDIFF ); // < from website
   cv::normalize( match, match, 0, 1, cv::NORM_MINMAX, -1, cv::Mat() );
 
