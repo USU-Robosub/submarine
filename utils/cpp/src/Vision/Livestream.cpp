@@ -37,6 +37,10 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   }; // end of video stream
   //cv::resize(frame, frame, cv::Size(640/4, 360/4));
 
+  std::cout << frame.type() << std::endl;
+  std::cout << image.type() << std::endl;
+
+
   // Start
 
   cv::Mat match;
