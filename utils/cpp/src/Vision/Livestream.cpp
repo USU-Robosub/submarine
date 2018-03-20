@@ -71,8 +71,8 @@ void Vision::Livestream::doPeriodic(double deltaTime){
 
   // end
 
-  cv::putText(match, std::to_string(deltaTime), cv::Point(30,30),    cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(0,0,0), 1, CV_AA);
-  imageStreamer.serveFrame(match);
+  cv::putText(frame, std::to_string(deltaTime), cv::Point(30,30),    cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(0,0,0), 1, CV_AA);
+  imageStreamer.serveFrame(frame);
 }
 
 #endif
