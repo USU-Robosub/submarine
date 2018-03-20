@@ -7,7 +7,7 @@ Vision::Livestream::Livestream()
   , webcam()
   , loop(std::bind(&Vision::Livestream::doPeriodic, this, std::placeholders::_1), 1.0/15)
 {
-  image = cv::imread("../../test/test.jpg", CV_LOAD_IMAGE_COLOR);
+  image = cv::imread("../../test/test.jpg", 0);
   if(!webcam.open(0))
   {
     std::cerr << "Could not open video" << std::endl;
@@ -36,6 +36,8 @@ void Vision::Livestream::doPeriodic(double deltaTime){
     }; // end of video stream
   }; // end of video stream
   //cv::resize(frame, frame, cv::Size(640/4, 360/4));
+
+  cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
 
   std::cout << frame.type() << std::endl;
   std::cout << image.type() << std::endl;
