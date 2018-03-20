@@ -67,8 +67,8 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   matchLoc = minLoc;
 
   /// Show me what you got
-  cv::rectangle( frame, matchLoc, cv::Point( matchLoc.x + image.cols , matchLoc.y + image.rows ), cv::Scalar::all(0), 2, 8, 0 );
-
+  //cv::rectangle( frame, matchLoc, cv::Point( matchLoc.x + image.cols , matchLoc.y + image.rows ), cv::Scalar::all(0), 2, 8, 0 );
+  image.copyTo(frame(cv::Rect(matchLoc.x,matchLoc.y,image.cols, image.rows)));
   // end
 
   cv::putText(frame, std::to_string(deltaTime), cv::Point(30,30),    cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(0,0,0), 1, CV_AA);
