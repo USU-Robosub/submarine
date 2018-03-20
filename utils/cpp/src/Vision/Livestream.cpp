@@ -5,13 +5,9 @@
 Vision::Livestream::Livestream()
   : imageStreamer(8000, 100)
   , webcam()
-  , image()
   , loop(std::bind(&Vision::Livestream::doPeriodic, this, std::placeholders::_1), 1.0/15)
 {
-  if(!image.open('../../test/test.jpg')){
-    std::cerr << "Could not open template" << std::endl;
-    exit(EXIT_FAILURE);
-  }
+  image = cv::imread("../../test/test.jpg", CV_LOAD_IMAGE_COLOR);
   if(!webcam.open(0))
   {
     std::cerr << "Could not open video" << std::endl;
@@ -44,8 +40,8 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   // Start
 
   cv::Mat match;
-  matchTemplate( frame, image, match, CV_TM_SQDIFF ); // < from website
-  normalize( match, match, 0, 1, NORM_MINMAX, -1, Mat() );
+  cv::matchTemplate( frame, image, match, CV_TM_SQDIFF ); // < from website
+  cv::normalize( match, match, 0, 1, cv::NORM_MINMAX, -1, cv::Mat() );
 
   // end
 
