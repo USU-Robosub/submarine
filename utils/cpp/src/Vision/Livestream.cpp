@@ -8,11 +8,11 @@ Vision::Livestream::Livestream()
   , loop(std::bind(&Vision::Livestream::doPeriodic, this, std::placeholders::_1), 1.0/15)
 {
   image = cv::imread("../../../test/dice.jpg", 0);
-  Mat bgr[3];   //destination array
-  split(image,bgr);//split source
+  cv::Mat bgr[3];   //destination array
+  cv::split(image,bgr);//split source
   //Note: OpenCV uses BGR color order
   image = bgr[2]; //red channel
-  
+
   if(!webcam.open(0))
   {
     std::cerr << "Could not open video" << std::endl;
@@ -20,7 +20,6 @@ Vision::Livestream::Livestream()
   }
   loop.start();
 }
-
 
 Vision::Livestream::~Livestream(){
   loop.join();
@@ -49,8 +48,8 @@ void Vision::Livestream::doPeriodic(double deltaTime){
 
   // Start
 
-  Mat bgr[3];   //destination array
-  split(frame,bgr);//split source
+  cv::Mat bgr[3];   //destination array
+  cv::split(frame,bgr);//split source
   //Note: OpenCV uses BGR color order
   frame = bgr[2]; //red channel
 
