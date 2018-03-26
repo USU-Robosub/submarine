@@ -7,7 +7,7 @@ Vision::Livestream::Livestream()
   , webcam()
   , loop(std::bind(&Vision::Livestream::doPeriodic, this, std::placeholders::_1), 1.0/15)
 {
-  image = cv::imread("../../../test/dice.jpg", 0);
+  image = cv::imread("../../../test/dice.jpg");
   cv::Mat bgr[3];   //destination array
   cv::split(image,bgr);//split source
   //Note: OpenCV uses BGR color order
@@ -41,7 +41,7 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   }; // end of video stream
   //cv::resize(frame, frame, cv::Size(640/4, 360/4));
 
-  cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
+  // cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
 
   std::cout << frame.type() << std::endl;
   std::cout << image.type() << std::endl;
