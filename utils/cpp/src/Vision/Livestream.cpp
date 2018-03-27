@@ -11,7 +11,7 @@ Vision::Livestream::Livestream()
   cv::Mat bgr[3];   //destination array
   cv::split(image,bgr);//split source
   //Note: OpenCV uses BGR color order
-  bgr[0]=bgr[1]=Mat::zeros(Size(image.rows, image.cols), CV_32FC1);
+  bgr[0]=bgr[1]=cv::Mat::zeros(Size(image.rows, image.cols), CV_32FC1);
   cv::merge(bgr,image);
 
   if(!webcam.open(0))
@@ -52,7 +52,7 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   cv::Mat bgr[3];   //destination array
   cv::split(frame,bgr);//split source
   //Note: OpenCV uses BGR color order
-  bgr[0]=bgr[1]=Mat::zeros(Size(frame.rows, frame.cols), CV_32FC1);
+  bgr[0]=bgr[1]=cv::Mat::zeros(Size(frame.rows, frame.cols), CV_32FC1);
   cv::merge(bgr,frame);
   cv::Mat match;
   int result_cols =  frame.cols - image.cols + 1;
