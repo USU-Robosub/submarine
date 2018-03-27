@@ -5,16 +5,13 @@
 Vision::Livestream::Livestream()
   : imageStreamer(8000, 100)
   , webcam()
-  , loop(std::bind(&Vision::Livestream::doPeriodic, this, std::placeholders::_1), 1.0/15)
+  , loop(std::bind(&Vision::Livestream::doPeriodic, this, std::placeholders::_1), 1.0/2)
 {
   image = cv::imread("../../../test/dice.jpg");
   cv::Mat bgr[3];   //destination array
   cv::split(image,bgr);//split source
   //Note: OpenCV uses BGR color order
-  std::cout << "bluesize " << bgr[0].rows << ":" << bgr[0].cols << ":" << bgr[0].depth() << std::endl;
   bgr[0]=bgr[1]=cv::Mat::zeros(cv::Size(image.cols, image.rows), CV_8U);
-  std::cout << "zerossize " << bgr[0].rows << ":" << bgr[0].cols << ":" << bgr[0].depth() << std::endl;
-  std::cout << "imagesize " << image.rows << ":" << image.cols << ":" << image.depth() << std::endl;
 
   cv::merge(bgr,3,image);
 
@@ -48,18 +45,12 @@ void Vision::Livestream::doPeriodic(double deltaTime){
 
   // cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
 
-  std::cout << frame.type() << std::endl;
-  std::cout << image.type() << std::endl;
-
   // Start
 
   cv::Mat bgr[3];   //destination array
   cv::split(frame,bgr);//split source
   //Note: OpenCV uses BGR color order
-  std::cout << "bluesize " << bgr[0].rows << ":" << bgr[0].cols << ":" << bgr[0].depth() << std::endl;
   bgr[0]=bgr[1]=cv::Mat::zeros(cv::Size(frame.cols, frame.rows), CV_8U);
-  std::cout << "zerossize " << bgr[0].rows << ":" << bgr[0].cols << ":" << bgr[0].depth() << std::endl;
-  std::cout << "imagesize " << frame.rows << ":" << frame.cols << ":" << frame.depth() << std::endl;
   cv::merge(bgr,3,frame);
   cv::Mat match;
   int result_cols =  frame.cols - image.cols + 1;
