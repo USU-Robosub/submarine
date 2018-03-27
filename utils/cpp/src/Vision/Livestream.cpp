@@ -12,7 +12,7 @@ Vision::Livestream::Livestream()
   cv::split(image,bgr);//split source
   //Note: OpenCV uses BGR color order
   std::cout << "bluesize " << bgr[0].rows << ":" << bgr[0].cols << std::endl;
-  bgr[0]=bgr[1]=cv::Mat::zeros(cv::Size(image.rows, image.cols), CV_8U);
+  bgr[0]=bgr[1]=cv::Mat::zeros(cv::Size(image.cols, image.rows), CV_8U);
   std::cout << "zerossize " << bgr[0].rows << ":" << bgr[0].cols << std::endl;
   std::cout << "imagesize " << image.rows << ":" << image.cols << std::endl;
 
@@ -56,8 +56,7 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   cv::Mat bgr[3];   //destination array
   cv::split(frame,bgr);//split source
   //Note: OpenCV uses BGR color order
-  std::cout << "B " << bgr[0].depth() << std::endl;
-  bgr[0]=bgr[1]=cv::Mat::zeros(cv::Size(frame.rows, frame.cols), CV_32FC1);
+  bgr[0]=bgr[1]=cv::Mat::zeros(cv::Size(frame.cols, frame.rows), CV_32FC1);
   cv::merge(bgr,3,frame);
   cv::Mat match;
   int result_cols =  frame.cols - image.cols + 1;
