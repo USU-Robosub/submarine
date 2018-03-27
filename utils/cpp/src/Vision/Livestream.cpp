@@ -13,6 +13,7 @@ Vision::Livestream::Livestream()
   //Note: OpenCV uses BGR color order
   std::cout << "A " << bgr[0].depth() << std::endl;
   bgr[0]=bgr[1]=cv::Mat::zeros(cv::Size(image.rows, image.cols), CV_8U);
+  std::cout << "AZ " << bgr[0].depth() << std::endl;
   cv::merge(bgr,3,image);
 
   if(!webcam.open(0))
