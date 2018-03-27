@@ -61,7 +61,7 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   match.create( result_rows, result_cols, CV_32FC1 );
 
   cv::matchTemplate( frame, image, match, CV_TM_SQDIFF ); // < from website
-  cv::normalize( match, match, 0, 1, cv::NORM_MINMAX, -1, cv::Mat() );
+  cv::normalize( match, match, 0, 225, cv::NORM_MINMAX, -1, cv::Mat() );
 
   /// Localizing the best match with minMaxLoc
   double minVal; double maxVal; cv::Point minLoc; cv::Point maxLoc;
