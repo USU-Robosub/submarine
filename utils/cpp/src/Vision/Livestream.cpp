@@ -12,7 +12,7 @@ Vision::Livestream::Livestream()
   cv::split(image,bgr);//split source
   //Note: OpenCV uses BGR color order
   std::cout << "bluesize " << bgr[0].rows << ":" << bgr[0].cols << std::endl;
-  bgr[0]=bgr[1]=cv::Mat::zeros(cv::Size(image.cols, image.rows), CV_8U);
+  bgr[0]=bgr[1]=Scalar(0);//cv::Mat::zeros(cv::Size(image.cols, image.rows), CV_8U);
   std::cout << "zerossize " << bgr[0].rows << ":" << bgr[0].cols << std::endl;
   std::cout << "imagesize " << image.rows << ":" << image.cols << std::endl;
 
