@@ -11,10 +11,10 @@ Vision::Livestream::Livestream()
   cv::Mat bgr[3];   //destination array
   cv::split(image,bgr);//split source
   //Note: OpenCV uses BGR color order
-  std::cout << "bluedepth " << bgr[0].depth() << std::endl;
+  std::cout << "bluesize " << bgr[0].rows << ":" << bgr[0].cols << std::endl;
   bgr[0]=bgr[1]=cv::Mat::zeros(cv::Size(image.rows, image.cols), CV_8U);
-  std::cout << "zerosdepth " << bgr[0].depth() << std::endl;
-  std::cout << "imgdepth " << image.depth() << std::endl;
+  std::cout << "zerossize " << bgr[0].rows << ":" << bgr[0].cols << std::endl;
+  std::cout << "imagesize " << image.rows << ":" << image.cols << std::endl;
 
   cv::merge(bgr,3,image);
 
