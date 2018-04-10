@@ -22,6 +22,8 @@ class Hub : public Emitter {
     Hub(Controller**, int, int maxReadsPerPoll = 100);
     void poll();
     void emit(int32_t name, int32_t* data, int32_t length);
+    void kill();
+    void restart();
   private:
     void serveEvent();
     int32_t read();

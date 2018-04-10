@@ -27,10 +27,13 @@ class Controllers::Dive : public Controller{
 public:
   Dive(int frontPin, int backPin, bool protectMotors = true);
   void execute(Emitter* hub, int32_t* data, int32_t length);
-
+  void kill();
+  void restart();
 private:
   Servo front;
   Servo back;
+  int frontPin;
+  int backPin;
   bool protectMotors;
 };
 

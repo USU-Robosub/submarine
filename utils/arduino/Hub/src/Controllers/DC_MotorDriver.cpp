@@ -7,7 +7,8 @@ Controllers::DC_MotorDriver::DC_MotorDriver(int pinSpeedA, int pinForwardA, int 
     pinSpeedB(pinSpeedB),
     pinForwardB(pinForwardB),
     pinBackwardB(pinBackwardB),
-    protectMotors(protectMotors) {
+    protectMotors(protectMotors),
+    stopped(false) {
 
   pinMode(this->pinSpeedA,OUTPUT);
   pinMode(this->pinForwardA,OUTPUT);
@@ -19,7 +20,7 @@ Controllers::DC_MotorDriver::DC_MotorDriver(int pinSpeedA, int pinForwardA, int 
 }
 
 void Controllers::DC_MotorDriver::execute(Emitter* hub, int32_t* data, int32_t length){
-  if(length == 2){
+  if(length == 2 && !stopped){
     int mixLeft =  map(data[0] + (data[1] - 90), 0, 180, -255, 255);
     int mixRight = map(data[0] - (data[1] - 90), 0, 180, -255, 255);
 
@@ -43,5 +44,19 @@ void Controllers::DC_MotorDriver::execute(Emitter* hub, int32_t* data, int32_t l
 }
 
 void Controllers::DC_MotorDriver::stop(){
+    stopped = true;
+    digitalWrite(this->pinForwardA, LOW ); digitalWrite(this->pinBackwardA, LOW);
+    digitalWrite(this->pinForwardB, LOW ); digitalWrite(this->pinBackwardB, LOW);
 
+    analogWrite(this->pinSpeedA, 0);
+    analogWrite(this->pinSpeedB, 0);
+
+}
+
+void  Controllers::DC_MotorDriver::kill(){
+  this->stop();
+}
+
+void Controllers::DC_MotorDriver::restart(){
+  stopped = false;
 }

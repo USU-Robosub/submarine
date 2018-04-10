@@ -11,6 +11,8 @@ class Controllers::Echo : public Controller{
 public:
   Echo(int32_t returnName);
   void execute(Emitter* hub, int32_t* data, int32_t length);
+  void kill(){};
+  void restart(){};
 
 private:
   int32_t returnName;
