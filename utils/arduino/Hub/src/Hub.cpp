@@ -98,13 +98,13 @@ int32_t Hub::read(){
 
 void Hub::kill(){
   for(int32_t i = 0; i < _numControllers; i++)  {
-    _controllers->kill();
+    _controllers[i]->kill();
   }
 }
 
 void Hub::restart()
 {
   for(int32_t i = 0; i < _numControllers; i++)  {
-    _controllers->restart();
+    _controllers[i]->restart();
   }
 }

@@ -18,20 +18,25 @@ int main(){
   Comm::TCP::FullStack agent(3001, '|');
 
   int throttle = 90, steering = 90, dive = 90;
+  
+  arduino.hub()->on(1,[&agent](std::vector<int> message){
+    bool enable = message.size()>0&&message.at(0)==1;
+    agent.hub()->emit("killswitch", std::vector<std::string>{(enable?"1":"0")});
+  });
 
   agent.hub()->on("throttle", [&throttle, &steering, &arduino](std::vector<std::string> message){
     throttle = std::stoi(message[0]);
-    arduino.hub()->emit(1, std::vector<int>{throttle, steering});
+    arduino.hub()->emit(2, std::vector<int>{throttle, steering});
   });
 
   agent.hub()->on("steering", [&throttle, &steering, &arduino](std::vector<std::string> message){
     steering = std::stoi(message[0]);
-    arduino.hub()->emit(1, std::vector<int>{throttle, steering});
+    arduino.hub()->emit(2, std::vector<int>{throttle, steering});
   });
 
   agent.hub()->on("dive", [&dive, &arduino](std::vector<std::string> message){
     dive = std::stoi(message[0]);
-    arduino.hub()->emit(2, std::vector<int>{dive});
+    arduino.hub()->emit(3, std::vector<int>{dive});
   });
 
   while(!shouldExit){

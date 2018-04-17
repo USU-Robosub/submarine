@@ -3,7 +3,7 @@
 #include <Vision/Livestream.hpp>
 
 Vision::Livestream::Livestream()
-  : imageStreamer(8000, 100)
+  : imageStreamer(8080, 100)
   , webcam()
   , loop(std::bind(&Vision::Livestream::doPeriodic, this, std::placeholders::_1), 1.0/15)
 {

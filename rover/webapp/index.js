@@ -1,23 +1,42 @@
 var socket = io();
 
+var killed = false;
+
+socket.on("killswitch", ( hub, message )=>{
+  killed = (message.length < 1 || message[0]!=="1");
+  if(killed) {
+    document.getElementById("killswitch").style.display = "block";
+  } else {
+    document.getElementById("killswitch").style.display = "none";
+  }
+});
+
 function setTank(left, right){
-  let throttle = 2 - (left + right)/2;
-  let steering = (right-left)/2+1;
-  socket.emit('throttle', throttle*90);
-  socket.emit('steering', steering*90);
+  if(!killed) {
+    let throttle = 2 - (left + right)/2;
+    let steering = (right-left)/2+1;
+    socket.emit('throttle', throttle*90);
+    socket.emit('steering', steering*90);
+  }
 }
 
 function setThrottle(x){
-  socket.emit('throttle', x)
-  //socket.emit('steering', x)
+  if(!killed) {
+    socket.emit('throttle', x)
+    //socket.emit('steering', x)
+  }
 }
 
 function setSteering(x){
-  socket.emit('steering', x)
+  if(!killed) {
+    socket.emit('steering', x)
+  }
 }
 
 function setDive(x){
-  socket.emit('dive', x)
+  if(!killed) {
+    socket.emit('dive', x)
+  }
 }
 
 let mode = "single";
@@ -88,8 +107,11 @@ filteredAxis(0).subscribe(axis => {
   {}
   else if(mode=="dual")
   {}
-  else//Single Joystick
+  else {//Single Joystick
+    if(!killed){
     socket.emit('steering', axis * 90 + 90)
+    }
+  }
 })
 
 filteredAxis(1).subscribe(axis => {
@@ -99,8 +121,11 @@ filteredAxis(1).subscribe(axis => {
     leftAxis = axis+1;
     setTank(leftAxis, rightAxis)
   }
-  else //Single Joystick
-    socket.emit('throttle', -axis * 90 + 90)
+  else { //Single Joystick
+    if(!killed){
+      socket.emit('throttle', -axis * 90 + 90)
+    }
+  }
 })
 
 filteredAxis(2).subscribe(axis => {
@@ -109,7 +134,9 @@ filteredAxis(2).subscribe(axis => {
   {}
   else if(mode=="dual")
   {
-    socket.emit('steering', axis * 90 + 90)
+    if(!killed){
+      socket.emit('steering', axis * 90 + 90)
+    }
   }
   else//Single Joystick
   {}
@@ -124,7 +151,10 @@ filteredAxis(3).subscribe(axis => {
   }
   else if(mode=="dual")
   {}
-  else//Single Joystick
-    socket.emit('dive', axis * 90 + 90)
+  else {//Single Joystick
+    if(!killed){
+      socket.emit('dive', axis * 90 + 90)
+    }
+  }
     
 })

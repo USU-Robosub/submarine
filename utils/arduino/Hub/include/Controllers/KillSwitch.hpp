@@ -15,12 +15,16 @@ public:
   void kill(){};
   void restart(){};
 
-private:
-  void interrupt();
+protected:
+  int32_t handler;
+  static Controllers::KillSwitch* killSwitch;
+  static void interrupt();
   bool stopped;
-  long lastInterrupt;
+  unsigned long lastInterrupt;
   int numInterrupts;
-  const int maxSwitchTime = 1000, waitTime = 2000, numSwitches = 2;
+  const unsigned long maxSwitchTime = 1000, waitTime = 2000;
+  const int numSwitches = 2;
+  Emitter* emitter;
 };
 
 #endif
