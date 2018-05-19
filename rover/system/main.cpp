@@ -16,7 +16,7 @@ int main(){
 
 ///dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0
 //
-  Comm::Serial::FullStack arduino("/dev/serial/by-id/usb-Teensyduino_USB_Serial_1507170-if00", B115200);
+  Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.5"), B115200);
   arduino.restartArduino();
   Comm::TCP::FullStack agent(3001, '|');
 
