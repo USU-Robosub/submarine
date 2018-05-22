@@ -2,6 +2,7 @@
 
 #include <Comm/Serial/FullStack.hpp>
 #include <Comm/TCP/FullStack.hpp>
+#include <Vision/Livestream.hpp>
 
 #include <thread>
 #include <chrono>
@@ -9,8 +10,13 @@
 
 int main(){
   bool shouldExit = false;
+  Vision::Livestream vision2("1-1.2",8082,100);
+  Vision::Livestream vision3("1-1.3",8083,100);
+  Vision::Livestream vision4("1-1.4",8084,100);
 
-  Comm::Serial::FullStack arduino("/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0", B115200);
+///dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0
+//
+  Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.5"), B115200);
   arduino.restartArduino();
   Comm::TCP::FullStack agent(3001, '|');
 

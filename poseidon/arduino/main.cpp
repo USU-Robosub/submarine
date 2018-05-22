@@ -1,5 +1,5 @@
 #include <Hub.hpp>
-#include <Controllers/Tank.hpp>
+#include <Controllers/DC_MotorDriver.hpp>
 #include <Controllers/Echo.hpp>
 #include <Controllers/Dive.hpp>
 #include <PinMap.hpp>
@@ -18,29 +18,6 @@
   #include <Servo.mock.hpp>
 #endif
 
-// class Blink : public Controller{
-// public:
-//   Blink() : time(0), delay(200) {
-//     pinMode(LED_BUILTIN, OUTPUT);
-//   }
-//   void update() {
-//     this->time++;
-//     if(this->time < this->delay){
-//       digitalWrite(LED_BUILTIN, HIGH);
-//     }else if(this->time < this->delay * 2){
-//       digitalWrite(LED_BUILTIN, LOW);
-//     }else{
-//       time = 0;
-//     }
-//   }
-//   void execute(Emitter* hub, long* data, long length){
-//     delay = data[0];
-//     hub->emit(10, data, 1);
-//   }
-// private:
-//   unsigned int time;
-//   unsigned int delay;
-// };
 
 #define ECHO_RETURN 42
 
@@ -49,11 +26,15 @@ Controller** controllers;
 
 void setup()
 {
-  controllers = new Controller*[3];
+  controllers = new Controller*[2];
   controllers[0] = new Controllers::Echo(ECHO_RETURN);
-  controllers[1] = new Controllers::Tank(LEFT_THRUSTER, RIGHT_THRUSTER);
-  controllers[2] = new Controllers::Dive(FRONT_THRUSTER, BACK_THRUSTER);
-  hub = new Hub(controllers, 3);
+  controllers[1] = new Controllers::DC_MotorDriver(LEFT_MOTOR_SPEED
+                                                    , LEFT_MOTOR_FORWARD
+                                                    , LEFT_MOTOR_BACKWARD
+                                                    , RIGHT_MOTOR_SPEED
+                                                    , RIGHT_MOTOR_FORWARD
+                                                    , RIGHT_MOTOR_BACKWARD);
+  hub = new Hub(controllers, 2);
 }
 
 void loop() {
