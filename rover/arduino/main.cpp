@@ -19,10 +19,6 @@
   #include <Servo.mock.hpp>
 #endif
 
-
-#define KILL_PIN 2
-#define ECHO_RETURN 42
-
 Hub* hub;
 Controller** controllers;
 

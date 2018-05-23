@@ -5,6 +5,7 @@
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial; }
+      div#killed { background-color:rgba(0,0,0,0.5); color:red;padding-top:40vh;width:100vh;height:100vh;display:fixed;display:none;}
     </style>
     <script src="/socket.js"></script>
     <script src="/rx.js"></script>
@@ -13,7 +14,12 @@
     <h1>Submarine Control Terminal</h1>
     <h3>Utah State Robosub Team</h3>
     <p>Use a joystick to control submarine.</p>
-    <img src="http://192.168.1.101:8000" class="shrinkToFit" width="500">
+    <img src="http://192.168.1.101:8082" class="shrinkToFit" width="500">
+    <img src="http://192.168.1.101:8083" class="shrinkToFit" width="500">
+    <img src="http://192.168.1.101:8084" class="shrinkToFit" width="500">
+    <div id="killed">
+      <h1>Killed Switch Active</h1>
+    </div>
     <script src="/index.js"></script>
   </body>
 </html>

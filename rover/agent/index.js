@@ -32,6 +32,10 @@ app.get('/index.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../we
       console.log('dive', x)
       hub.emit('dive', x)
     })
+    hub.on('killswitch', function(message){
+      console.log('kill switch', message)
+      socket.emit(message)
+    })
   })
 
    setInterval(hub.poll, 10)

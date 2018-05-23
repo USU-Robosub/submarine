@@ -9,4 +9,7 @@
 #define RIGHT_MOTOR_FORWARD 13
 #define RIGHT_MOTOR_BACKWARD 12
 
+#define KILL_PIN 2
+#define ECHO_RETURN 42
+
 #endif
