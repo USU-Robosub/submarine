@@ -21,12 +21,13 @@ set(Includes # Locations to check for header files
 set(Mocks # locations to check for mock types
   "${SOURCE_DIR}/mock"
   "${SOURCE_DIR}/Hub/mock"
+  "${SOURCE_DIR}/mock/redirects"
 )
 set(Src # Source directories for arduino libraries
   "${SOURCE_DIR}/Hub/src/*.cpp"
 )
-set(MockSrc # Global declarations of mock types
-  "${SOURCE_DIR}/mock/*.mock.spec.cpp"
+set(MockSrc # Source directories for arduino libraries
+  "${SOURCE_DIR}/mock/redirects/__MOCK__SOURCE__.cpp"
 )
 
 # ===============================================
@@ -74,22 +75,20 @@ include_directories(${Mocks})
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
 # ===============================================
-# =             Mock Source Files
-# ===============================================
-file(GLOB_RECURSE MOCK_SPEC_FILES ${MockSrc})
-
-# ===============================================
 # =               Unit Test App
 # ===============================================
 if(${tests})
   message("=== Building Unit Test App: ${PROJECT_NAME}_tests")
   file(GLOB_RECURSE SPEC_FILES "*.spec.cpp")
   include_directories(${SOURCE_DIR}/../../extern)
+
+  add_library(${PROJECT_NAME}_mocks ${MockSrc})
+
   add_executable(${PROJECT_NAME}_tests
     "${SOURCE_DIR}/../../extern/catch2/main.cpp"
     ${SPEC_FILES}
   )
-  target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME})
+  target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME} ${PROJECT_NAME}_mocks)
 endif()
 
 # ===============================================
@@ -99,5 +98,5 @@ get_directory_property(HAS_PARENT PARENT_DIRECTORY)
 if(HAS_PARENT)
   set(${PROJECT_NAME}_Includes ${Includes} PARENT_SCOPE)
   set(${PROJECT_NAME}_Mocks ${Mocks} PARENT_SCOPE)
-  set(${PROJECT_NAME}_MockSrc ${MOCK_SPEC_FILES} PARENT_SCOPE)
+  set(${PROJECT_NAME}_MockSrc ${MockSrc} PARENT_SCOPE)
 endif()

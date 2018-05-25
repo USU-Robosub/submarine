@@ -5,18 +5,11 @@
 
 #include <Arduino.h>
 
-#ifndef UNIT_TESTS
-  #include <Arduino.h>
-
-  #ifndef TEENSY
-    #include <Servo.h>
-  #else // teensy boards use a different library for servos
-    #include <PWMServo.h>
-    #define Servo PWMServo
-  #endif
-
-#else
-  #include <Servo.mock.hpp>
+#ifndef TEENSY
+  #include <Servo.h>
+#else // teensy boards use a different library for servos
+  #include <PWMServo.h>
+  #define Servo PWMServo
 #endif
 
 namespace Controllers{

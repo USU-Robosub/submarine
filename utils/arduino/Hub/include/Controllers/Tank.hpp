@@ -5,17 +5,11 @@
 
 #include <Arduino.h>
 
-#ifndef UNIT_TESTS
-
-  #ifndef TEENSY
-    #include <Servo.h>
-  #else // teensy boards use a different library for servos
-    #include <PWMServo.h>
-    #define Servo PWMServo
-  #endif
-
-#else
-  #include <Servo.mock.hpp>
+#ifndef TEENSY
+  #include <Servo.h>
+#else // teensy boards use a different library for servos
+  #include <PWMServo.h>
+  #define Servo PWMServo
 #endif
 
 namespace Controllers{
@@ -28,7 +22,7 @@ public:
   void execute(Emitter* hub, int32_t* data, int32_t length);
   void kill();
   void restart();
-  
+
 private:
   Servo left;
   Servo right;

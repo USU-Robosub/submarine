@@ -18,6 +18,14 @@ public:
     }
   }
 
+  void kill(){
+    // TODO not implemented
+  }
+
+  void restart(){
+    // TODO not implemented
+  }
+
 private:
   int32_t* buffer;
 };

@@ -2,7 +2,7 @@
 #include <Controllers/Tank.hpp>
 
 TEST_CASE("tank attaches both motors", "[tank]"){
-  Servo::reset();
+  Servo::$reset();
   REQUIRE_FALSE( Servo::attached[1] );
   REQUIRE_FALSE( Servo::attached[2] );
   Controllers::Tank tank(1, 2);
