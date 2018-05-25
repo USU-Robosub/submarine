@@ -2,6 +2,7 @@
 #define CONTROLLERS_KILL_SWITCH
 
 #include <Controller.hpp>
+#include <TimerOne.h>
 
 namespace Controllers{
   class KillSwitch;

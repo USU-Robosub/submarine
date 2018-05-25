@@ -18,8 +18,10 @@ void Controllers::Dive::execute(Emitter* hub, int32_t* data, int32_t length){
 }
 
 void Controllers::Dive::kill(){
-  this->front.detach();
-  this->back.detach();
+  this->front.write(90);
+  this->back.write(90);
+  // this->front.detach(); // this should work
+  // this->back.detach();
 }
 
 void Controllers::Dive::restart(){

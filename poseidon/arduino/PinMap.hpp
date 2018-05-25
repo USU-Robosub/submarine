@@ -9,8 +9,8 @@
 #define RIGHT_MOTOR_FORWARD 13
 #define RIGHT_MOTOR_BACKWARD 12
 
-#define KILL_PIN 4
-#define TEST_MOTOR_PIN 3
+#define KILL_PIN 3
+#define TEST_MOTOR_PIN 4
 #define ECHO_RETURN 42
 
 #endif
