@@ -6,3 +6,4 @@
 #include <math.mock.hpp>
 #include <Serial.mock.hpp>
 #include <Servo.mock.hpp>
+#include <TimerTwo.mock.hpp>

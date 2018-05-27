@@ -19,14 +19,30 @@ public:
   }
 
   void kill(){
-    // TODO not implemented
+    isKilled = true;
+    stateChanges++;
   }
 
   void restart(){
-    // TODO not implemented
+    isKilled = false;
+    stateChanges++;
+  }
+
+  bool $isKilled(){
+    return isKilled;
+  }
+
+  int $stateChanges(){
+    return stateChanges;
+  }
+
+  int $makeActive(){
+    isKilled = false;
   }
 
 private:
+  int stateChanges = 0;
+  bool isKilled = true;
   int32_t* buffer;
 };
 
