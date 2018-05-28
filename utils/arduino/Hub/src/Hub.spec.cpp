@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 #include <Hub.hpp>
 #include <Controller.mock.hpp>
+#include <FreezableController.mock.hpp>
 
 #include <iostream>
 
@@ -37,4 +38,15 @@ TEST_CASE("hub can emit an event", "[hub]"){
   REQUIRE( Serial.$nextInt() == 0 );
   REQUIRE( Serial.$nextInt() == -5000 );
   REQUIRE( Serial.$nextInt() == -50000 );
+}
+
+TEST_CASE("hub can freeze", "[hub]"){
+  Serial.$reset();
+  Mock::FreezableController freezable(nullptr);
+  Mock::Controller controller(nullptr);
+  Controller* controllers[2] = { &freezable, &controller };
+  Hub hub(controllers, 2);
+  freezable.unfreeze();
+  hub.freeze();
+  REQUIRE(freezable.$isFrozen());
 }

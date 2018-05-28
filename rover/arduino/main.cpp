@@ -26,7 +26,7 @@ void setup()
 {
   controllers = new Controller*[2];
   controllers[0] = new Controllers::Echo(ECHO_RETURN);
-  controllers[1] = new Controllers::KillSwitch(KILL_PIN, 1);
+  controllers[1] = new Controllers::KillSwitch(KILL_PIN, 1, 1000);
   controllers[2] = new Controllers::DC_MotorDriver(LEFT_MOTOR_SPEED
                                                     , LEFT_MOTOR_FORWARD
                                                     , LEFT_MOTOR_BACKWARD

@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 #include <Controllers/KillSwitch.hpp>
-#include <Emitter.mock.hpp>
+#include <Freezable.mock.hpp>
 
 #define TEST_PIN 10
 #define HANDLER_ID 13
@@ -35,10 +35,9 @@ SCENARIO("kill switches trigger when the pin's state changes"){
   GIVEN("an active kill switch"){
     Mock::Arduino::digitalPinStates[TEST_PIN] = HIGH;
     Controllers::KillSwitch killSwitch(TEST_PIN, HANDLER_ID, SECONDS(1));
-    int32_t buffer[3] = {0};
-    Mock::Emitter emitter(buffer);
-    killSwitch.use(&emitter);
-    emitter.$makeActive();
+    Mock::Freezable freezable;
+    killSwitch.use(&freezable);
+    freezable.$makeUnfrozen();
 
     WHEN("the pin goes LOW"){
       Mock::Arduino::digitalPinStates[TEST_PIN] = LOW;
@@ -52,8 +51,8 @@ SCENARIO("kill switches trigger when the pin's state changes"){
       }
 
       THEN("the emitter should be killed"){
-        REQUIRE(emitter.$isKilled());
-        REQUIRE(emitter.$stateChanges() == 1 + 1);
+        REQUIRE(freezable.$isFrozen());
+        REQUIRE(freezable.$stateChanges() == 1 + 1);
       }
     }
     WHEN("the pin goes LOW then HIGH"){
@@ -64,17 +63,16 @@ SCENARIO("kill switches trigger when the pin's state changes"){
       MsTimer2::$attachedInterrupt()();
 
       THEN("the emitter should be active"){
-        REQUIRE_FALSE(emitter.$isKilled());
-        REQUIRE(emitter.$stateChanges() == 0 + 1);
+        REQUIRE_FALSE(freezable.$isFrozen());
+        REQUIRE(freezable.$stateChanges() == 0 + 1);
       }
     }
   }
   GIVEN("a killed kill switch"){
     Mock::Arduino::digitalPinStates[TEST_PIN] = LOW;
     Controllers::KillSwitch killSwitch(TEST_PIN, HANDLER_ID, SECONDS(1));
-    int32_t buffer[3] = {0};
-    Mock::Emitter emitter(buffer);
-    killSwitch.use(&emitter);
+    Mock::Freezable freezable;
+    killSwitch.use(&freezable);
 
     WHEN("the pin goes HIGH"){
       Mock::Arduino::digitalPinStates[TEST_PIN] = HIGH;
@@ -82,8 +80,8 @@ SCENARIO("kill switches trigger when the pin's state changes"){
       MsTimer2::$attachedInterrupt()();
 
       THEN("the emitter should be active"){
-        REQUIRE_FALSE(emitter.$isKilled());
-        REQUIRE(emitter.$stateChanges() == 1 + 1);
+        REQUIRE_FALSE(freezable.$isFrozen());
+        REQUIRE(freezable.$stateChanges() == 1 + 1);
       }
     }
     WHEN("the pin goes HIGH then LOW"){
@@ -94,8 +92,8 @@ SCENARIO("kill switches trigger when the pin's state changes"){
       MsTimer2::$attachedInterrupt()();
 
       THEN("the emitter should be killed"){
-        REQUIRE(emitter.$isKilled());
-        REQUIRE(emitter.$stateChanges() == 0 + 1);
+        REQUIRE(freezable.$isFrozen());
+        REQUIRE(freezable.$stateChanges() == 0 + 1);
       }
     }
   }
@@ -108,27 +106,25 @@ SCENARIO("kill switches allways starts killed"){
   GIVEN("a HIGH pin when starting"){
     Mock::Arduino::digitalPinStates[TEST_PIN] = HIGH;
     Controllers::KillSwitch killSwitch(TEST_PIN, HANDLER_ID, SECONDS(1));
-    int32_t buffer[3] = {0};
-    Mock::Emitter emitter(buffer);
-    emitter.$makeActive();
-    killSwitch.use(&emitter);
+    Mock::Freezable freezable;
+    freezable.$makeUnfrozen();
+    killSwitch.use(&freezable);
 
     THEN("the emitter should be killed"){
-      REQUIRE(emitter.$isKilled());
-      REQUIRE(emitter.$stateChanges() == 1);
+      REQUIRE(freezable.$isFrozen());
+      REQUIRE(freezable.$stateChanges() == 1);
     }
   }
   GIVEN("a LOW pin when starting"){
     Mock::Arduino::digitalPinStates[TEST_PIN] = LOW;
     Controllers::KillSwitch killSwitch(TEST_PIN, HANDLER_ID, SECONDS(1));
-    int32_t buffer[3] = {0};
-    Mock::Emitter emitter(buffer);
-    emitter.$makeActive();
-    killSwitch.use(&emitter);
+    Mock::Freezable freezable;
+    freezable.$makeUnfrozen();
+    killSwitch.use(&freezable);
 
     THEN("the emitter should be killed"){
-      REQUIRE(emitter.$isKilled());
-      REQUIRE(emitter.$stateChanges() == 1);
+      REQUIRE(freezable.$isFrozen());
+      REQUIRE(freezable.$stateChanges() == 1);
     }
   }
 }

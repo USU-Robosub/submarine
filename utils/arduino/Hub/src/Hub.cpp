@@ -96,15 +96,28 @@ int32_t Hub::read(){
   return Serial.read();
 }
 
-void Hub::kill(){
+#include <iostream>
+
+void Hub::freeze(){
   for(int32_t i = 0; i < _numControllers; i++)  {
-    _controllers[i]->kill();
+    //((Freezable*)_controllers[i])->freeze();
+    if(_controllers[i]->type() == ControllerType::FREEZABLE){
+      ((Freezable*)_controllers[i])->test();
+      std::cout << "freezable" << std::endl;
+    }else{
+      std::cout << "not freezable" << std::endl;
+    }
+    // if(Freezable* freezableController = dynamic_cast<Freezable*>(_controllers[i])){
+    //   freezableController->freeze();
+    // }
   }
 }
 
-void Hub::restart()
+void Hub::unfreeze()
 {
   for(int32_t i = 0; i < _numControllers; i++)  {
-    _controllers[i]->restart();
+    // if(Freezable* freezableController = dynamic_cast<Freezable*>(_controllers[i])){
+    //   freezableController->unfreeze();
+    // }
   }
 }

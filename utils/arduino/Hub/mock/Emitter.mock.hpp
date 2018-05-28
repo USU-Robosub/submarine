@@ -17,32 +17,8 @@ public:
       this->buffer[i] = data[i];
     }
   }
-
-  void kill(){
-    isKilled = true;
-    stateChanges++;
-  }
-
-  void restart(){
-    isKilled = false;
-    stateChanges++;
-  }
-
-  bool $isKilled(){
-    return isKilled;
-  }
-
-  int $stateChanges(){
-    return stateChanges;
-  }
-
-  int $makeActive(){
-    isKilled = false;
-  }
-
+  
 private:
-  int stateChanges = 0;
-  bool isKilled = true;
   int32_t* buffer;
 };
 

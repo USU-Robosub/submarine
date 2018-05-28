@@ -1,5 +1,5 @@
-#ifndef EMITTER_MOCK
-#define EMITTER_MOCK
+#ifndef CONTROLLER_MOCK
+#define CONTROLLER_MOCK
 
 #include <Controller.hpp>
 
@@ -11,12 +11,6 @@ class Mock::Controller : public ::Controller{
 public:
   Controller(int32_t* buffer);
   void execute(Emitter* emitter, int32_t* data, int32_t length);
-  void kill(){
-    // TODO not implemented
-  }
-  void restart(){
-    // TODO not implemented
-  }
 
 private:
   int32_t* buffer;

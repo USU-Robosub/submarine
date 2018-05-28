@@ -8,7 +8,7 @@ bool Controllers::KillSwitch::startSate = false;
 Controllers::KillSwitch::KillSwitch(int pin, int32_t handler, int debounceDelay)
   : handler(handler),
     pin(pin),
-    emitter(nullptr) {
+    freezable(nullptr) {
 
   //#if !defined(TEENSY) || UNIT_TESTS \\ TODO remove this if it works without
   pinMode(pin, INPUT);
@@ -27,9 +27,9 @@ void Controllers::KillSwitch::execute(Emitter* emitter, int32_t* data, int32_t l
   // do nothing
 }
 
-void Controllers::KillSwitch::use(Emitter* emitter){
-  this->emitter = emitter;
-  this->emitter->kill();
+void Controllers::KillSwitch::use(Freezable* freezable){
+  this->freezable = freezable;
+  this->freezable->freeze();
 }
 
 void Controllers::KillSwitch::interrupt(){
@@ -45,9 +45,9 @@ void Controllers::KillSwitch::debounce(){
   Controllers::KillSwitch::checkingDebounce = false;
   if(Controllers::KillSwitch::startSate == digitalRead(killSwitch->pin)){
     if(Controllers::KillSwitch::startSate == HIGH){
-      killSwitch->emitter->restart();
+      killSwitch->freezable->unfreeze();
     }else{
-      killSwitch->emitter->kill();
+      killSwitch->freezable->freeze();
     }
   }
 }
