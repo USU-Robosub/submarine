@@ -32,11 +32,7 @@ public:
   int $makeUnfrozen(){
     isFrozen = false;
   }
-
-  void test(){
-    std::cout << "test mock" << std::endl;
-  }
-
+  
 private:
   int stateChanges = 0;
   bool isFrozen = true;

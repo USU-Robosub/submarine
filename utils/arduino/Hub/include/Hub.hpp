@@ -4,6 +4,7 @@
 #include <Controller.hpp>
 #include <Emitter.hpp>
 #include <Freezable.hpp>
+#include <FreezableController.hpp>
 
 #include <Arduino.h>
 
@@ -25,9 +26,6 @@ class Hub : public Emitter, public Freezable {
     void emit(int32_t name, int32_t* data, int32_t length);
     void freeze();
     void unfreeze();
-    void test() {
-      std::cout << "test hub" << std::endl;
-    }
   private:
     void serveEvent();
     int32_t read();

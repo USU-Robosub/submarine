@@ -12,9 +12,6 @@ public:
   }
   virtual void freeze() = 0;
   virtual void unfreeze() = 0;
-  void test(){
-    std::cout << "test!!!" << std::endl;
-  }
 };
 
 #endif

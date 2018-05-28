@@ -40,7 +40,7 @@ TEST_CASE("hub can emit an event", "[hub]"){
   REQUIRE( Serial.$nextInt() == -50000 );
 }
 
-TEST_CASE("hub can freeze", "[hub]"){
+TEST_CASE("hub can freeze and unfreeze", "[hub]"){
   Serial.$reset();
   Mock::FreezableController freezable(nullptr);
   Mock::Controller controller(nullptr);
@@ -49,4 +49,6 @@ TEST_CASE("hub can freeze", "[hub]"){
   freezable.unfreeze();
   hub.freeze();
   REQUIRE(freezable.$isFrozen());
+  hub.unfreeze();
+  REQUIRE_FALSE(freezable.$isFrozen());
 }

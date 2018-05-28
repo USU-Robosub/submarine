@@ -8,7 +8,7 @@ Controllers::DC_MotorDriver::DC_MotorDriver(int pinSpeedA, int pinForwardA, int 
     pinForwardB(pinForwardB),
     pinBackwardB(pinBackwardB),
     protectMotors(protectMotors),
-    stopped(false) {
+    stopped(true) {
 
   pinMode(this->pinSpeedA,OUTPUT);
   pinMode(this->pinForwardA,OUTPUT);
@@ -53,10 +53,10 @@ void Controllers::DC_MotorDriver::stop(){
 
 }
 
-void  Controllers::DC_MotorDriver::kill(){
+void  Controllers::DC_MotorDriver::freeze(){
   this->stop();
 }
 
-void Controllers::DC_MotorDriver::restart(){
+void Controllers::DC_MotorDriver::unfreeze(){
   stopped = false;
 }

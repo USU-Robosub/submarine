@@ -7,8 +7,6 @@ namespace Mock{
   class FreezableController;
 }
 
-#include <iostream>
-
 class Mock::FreezableController : public ::FreezableController{
 public:
   FreezableController(int32_t* buffer)
@@ -21,7 +19,6 @@ public:
   }
 
   void freeze(){
-    std::cout << "test" << std::endl;
     isFrozen = true;
   }
 
