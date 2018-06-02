@@ -33,6 +33,10 @@ class Hub : public Emitter {
     Message currentMessage;
     int32_t dataLeft;
     int maxReadsPerPoll;
+    bool terminalActive;
+
+    char currentCommand[30];
+    int commandIndex;
 };
 
 #endif
