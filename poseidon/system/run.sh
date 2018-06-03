@@ -3,6 +3,6 @@ set -e
 # build
 mkdir -p build
 cd build
-cmake ..
+cmake .. -Dtests=OFF -Dcoverage=OFF
 make
-./vision
+./system

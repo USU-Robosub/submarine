@@ -1,5 +1,6 @@
 #include <Comm/Serial/Port.hpp>
-
+#include <fstream>
+#include <iostream>
 //#define SHOW_LOG // use for debugging connection problems
 //#define SHOW_BUFFER_LOG
 
@@ -20,6 +21,7 @@
 Comm::Serial::Port::Port(std::string portName, unsigned int speed)
   : portName(portName),
     speed(speed) {
+      std::cout << "Port:" << portName << std::endl;
     this->fileDescriptor = open(this->portName.c_str(), O_RDWR | O_NOCTTY);
     if(this->fileDescriptor == -1){
       throw Comm::ConnectionFailure("Failed to connect to serial port. Failed to allocate file descriptor.");
@@ -30,6 +32,31 @@ Comm::Serial::Port::Port(std::string portName, unsigned int speed)
 
 Comm::Serial::Port::~Port(){
   close(this->fileDescriptor);
+}
+
+std::string Comm::Serial::Port::portNameFromPath(std::string portPath) {
+  std::string filename = std::tmpnam(nullptr);
+  system((
+  "paths=\"$(ls /dev/serial/by-path)\";"
+  "for path in $paths; do"
+  " id=\"$(echo $path | cut -d: -f2)\";"
+  "echo \"$id,/dev/serial/by-path/$path\";"
+  "done > " + filename).c_str()
+  );
+  std::ifstream file ( filename.c_str() );
+  std::string fpath;
+  std::string fname;
+  while ( file.good() )
+  {
+   getline ( file, fpath, ',' );
+   getline ( file, fname );
+   std::cout << fpath << ":" << fname << std::endl;
+   if(fpath==portPath) {
+    std::cout << fname << std::endl;
+    return fname;
+   }
+  }
+  return "";
 }
 
 bool Comm::Serial::Port::hasData(){

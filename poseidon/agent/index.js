@@ -4,16 +4,16 @@ const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 
-app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../../webapp/index.html')))
-app.get('/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../../extern/socketio/socket.io.min.js')))
-app.get('/rx.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../../extern/rxjs/rx.min.js')))
-app.get('/index.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../webapp/index.js')))
+app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.html')))
+app.get('/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/socketio/socket.io.min.js')))
+app.get('/rx.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/rxjs/rx.min.js')))
+app.get('/index.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.js')))
 
-// comm.create({
-//   address: 'localhost',
-//   port: 3001,
-//   separator: '|'
-// }).then(hub => {
+ comm.create({
+   address: 'localhost',
+   port: 3001,
+   separator: '|'
+ }).then(hub => {
 
   io.on('connection', function(socket){
     console.log('a user connected')
@@ -32,9 +32,13 @@ app.get('/index.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../..
       console.log('dive', x)
       hub.emit('dive', x)
     })
+    hub.on('killswitch', function(message){
+      console.log('kill switch', message)
+      socket.emit(message)
+    })
   })
 
-//   setInterval(hub.poll, 10)
-// }).catch(error => console.log(error))
+   setInterval(hub.poll, 10)
+ }).catch(error => console.log(error))
 
 http.listen(3000, () => console.log('Web app listening on port 3000'))

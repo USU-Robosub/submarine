@@ -178,3 +178,16 @@ void Hub::writeInt(int32_t value)
 int32_t Hub::read(){
   return Serial.read();
 }
+
+void Hub::kill(){
+  for(int32_t i = 0; i < _numControllers; i++)  {
+    _controllers[i]->kill();
+  }
+}
+
+void Hub::restart()
+{
+  for(int32_t i = 0; i < _numControllers; i++)  {
+    _controllers[i]->restart();
+  }
+}

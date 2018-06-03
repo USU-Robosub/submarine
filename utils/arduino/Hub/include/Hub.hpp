@@ -23,6 +23,8 @@ class Hub : public Emitter {
     void poll();
     void emit(int32_t name, int32_t* data, int32_t length);
     //void controlCodeHandlers(ControlCodeHandler** handlers);
+    void kill();
+    void restart();
   private:
     void serveEvent();
     int32_t read();

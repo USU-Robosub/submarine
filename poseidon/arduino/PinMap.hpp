@@ -1,9 +1,16 @@
 #ifndef PIN_MAP
 #define PIN_MAP
 
-#define LEFT_THRUSTER 10
-#define RIGHT_THRUSTER 11
-#define FRONT_THRUSTER 5
-#define BACK_THRUSTER 6
+#define LEFT_MOTOR_SPEED 5
+#define LEFT_MOTOR_FORWARD 7
+#define LEFT_MOTOR_BACKWARD 8
+
+#define RIGHT_MOTOR_SPEED 6
+#define RIGHT_MOTOR_FORWARD 13
+#define RIGHT_MOTOR_BACKWARD 12
+
+#define KILL_PIN 3
+#define TEST_MOTOR_PIN 4
+#define ECHO_RETURN 42
 
 #endif
