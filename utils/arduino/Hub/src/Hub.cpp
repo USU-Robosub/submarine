@@ -26,75 +26,75 @@ void Hub::serveEvent(){
 void Hub::poll()
 {
   if(this->terminalActive){
-    while(Serial.available()){
-      char input = Serial.read();
-      if(input == 10 || input == 96){
-        Serial.println();
-        if(input == 96){ // ingore the command and start a new one
-          this->commandIndex = 0;
-        }
-        this->currentCommand[this->commandIndex] = 0;
-        String command = this->currentCommand;
-        if(command.equals("blink")){
-          pinMode(13, OUTPUT);
-          digitalWrite(13, HIGH);
-          delay(500);
-          digitalWrite(13, LOW);
-          delay(500);
-          digitalWrite(13, HIGH);
-          delay(500);
-          digitalWrite(13, LOW);
-        }else if(command.equals("exit")){
-          Serial.println("bye!");
-          this->terminalActive = false;
-        }else if(command.equals("freeze disable")){
-          Serial.println("[Warning] all safety systems have been disabled");
-        }else if(command.equals("freeze enable")){
-          Serial.println("[Info] all safety systems have been enabled");
-        }else if(command.equals("exit")){
-          Serial.println("bye!");
-          this->terminalActive = false;
-        }else if(command.equals("clear")){
-          for(unsigned int i = 0; i < 50; ++i){
-            Serial.println();
-          }
-        }else if(command.equals("echo")){
-          char buffer[100];
-          int bufferIndex = 0;
-          Serial.print("Message: ");
-          while(buffer[bufferIndex - 1] != 10){
-            if(Serial.available()){
-              buffer[bufferIndex++] = Serial.read();
-              Serial.print(buffer[bufferIndex - 1]);
-            }
-          }
-          buffer[bufferIndex - 1] = 0;
-          Serial.println(buffer);
-        }else if(command.equals("help")){
-          Serial.println("Keys:");
-          Serial.println("  press [`] for a new prompt");
-          Serial.println("  press [ENTER] to run the command");
-          Serial.println("Commands:");
-          Serial.println("  freeze disable - force all controllers to stay unfrozen");
-          Serial.println("  freeze enable - allow controllers to be frozen");
-          Serial.println("  blink - blink the onboard LED");
-          Serial.println("  echo - echo back a message");
-          Serial.println("  clear - create some empty space above the next prompt");
-          Serial.println("  help - show available commands");
-          Serial.println("  exit - close the terminal, and return to binary input");
-        }else if(this->commandIndex > 0){ // not just an enter
-          Serial.println("No command '" + command + "' found");
-        }
-        this->commandIndex = 0;
-
-        if(this->terminalActive){
-          Serial.print("debug@Arduino$ ");
-        }
-      }else if(input >= 32 && input <= 126){
-        Serial.print(input);
-        this->currentCommand[this->commandIndex++] = input;
-      }
-    }
+    // while(Serial.available()){
+    //   char input = Serial.read();
+    //   if(input == 10 || input == 96){
+    //     Serial.println();
+    //     if(input == 96){ // ingore the command and start a new one
+    //       this->commandIndex = 0;
+    //     }
+    //     this->currentCommand[this->commandIndex] = 0;
+    //     String command = this->currentCommand;
+    //     if(command.equals("blink")){
+    //       pinMode(13, OUTPUT);
+    //       digitalWrite(13, HIGH);
+    //       delay(500);
+    //       digitalWrite(13, LOW);
+    //       delay(500);
+    //       digitalWrite(13, HIGH);
+    //       delay(500);
+    //       digitalWrite(13, LOW);
+    //     }else if(command.equals("exit")){
+    //       Serial.println("bye!");
+    //       this->terminalActive = false;
+    //     }else if(command.equals("freeze disable")){
+    //       Serial.println("[Warning] all safety systems have been disabled");
+    //     }else if(command.equals("freeze enable")){
+    //       Serial.println("[Info] all safety systems have been enabled");
+    //     }else if(command.equals("exit")){
+    //       Serial.println("bye!");
+    //       this->terminalActive = false;
+    //     }else if(command.equals("clear")){
+    //       for(unsigned int i = 0; i < 50; ++i){
+    //         Serial.println();
+    //       }
+    //     }else if(command.equals("echo")){
+    //       char buffer[100];
+    //       int bufferIndex = 0;
+    //       Serial.print("Message: ");
+    //       while(buffer[bufferIndex - 1] != 10){
+    //         if(Serial.available()){
+    //           buffer[bufferIndex++] = Serial.read();
+    //           Serial.print(buffer[bufferIndex - 1]);
+    //         }
+    //       }
+    //       buffer[bufferIndex - 1] = 0;
+    //       Serial.println(buffer);
+    //     }else if(command.equals("help")){
+    //       Serial.println("Keys:");
+    //       Serial.println("  press [`] for a new prompt");
+    //       Serial.println("  press [ENTER] to run the command");
+    //       Serial.println("Commands:");
+    //       Serial.println("  freeze disable - force all controllers to stay unfrozen");
+    //       Serial.println("  freeze enable - allow controllers to be frozen");
+    //       Serial.println("  blink - blink the onboard LED");
+    //       Serial.println("  echo - echo back a message");
+    //       Serial.println("  clear - create some empty space above the next prompt");
+    //       Serial.println("  help - show available commands");
+    //       Serial.println("  exit - close the terminal, and return to binary input");
+    //     }else if(this->commandIndex > 0){ // not just an enter
+    //       Serial.println("No command '" + command + "' found");
+    //     }
+    //     this->commandIndex = 0;
+    //
+    //     if(this->terminalActive){
+    //       Serial.print("debug@Arduino$ ");
+    //     }
+    //   }else if(input >= 32 && input <= 126){
+    //     Serial.print(input);
+    //     this->currentCommand[this->commandIndex++] = input;
+    //   }
+    // }
   }
   int count = 0;
   while(Serial.available() >= 4 && count < this->maxReadsPerPoll && !this->terminalActive){
@@ -106,10 +106,10 @@ void Hub::poll()
         if(this->currentMessage.check == 0){
           this->state = MessageState::NAME;
         }else if(this->currentMessage.check == TERMINAL_SIGNAL || this->currentMessage.check == TERMINAL_SIGNAL_2){
-          Serial.println("================================");
-          Serial.println("= USU Robosub Arduino Terminal =");
-          Serial.println("================================");
-          Serial.print("debug@Arduino$ ");
+          // Serial.println("================================");
+          // Serial.println("= USU Robosub Arduino Terminal =");
+          // Serial.println("================================");
+          // Serial.print("debug@Arduino$ ");
           this->terminalActive = true;
         }
         break;
