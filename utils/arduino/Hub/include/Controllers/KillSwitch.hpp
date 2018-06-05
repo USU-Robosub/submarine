@@ -16,7 +16,7 @@ class Controllers::KillSwitch : public Controller{
 public:
   KillSwitch(int pin, int32_t handler, int debounceDelay);
   void execute(Emitter* emitter, int32_t* data, int32_t length);
-  void use(Freezable* freezable);
+  void use(Freezable* freezable, Emitter* emitter);
 
   static void interrupt();
   static void debounce();
@@ -27,6 +27,7 @@ protected:
   int32_t handler;
   int pin;
   Freezable* freezable;
+  Emitter* emitter;
 };
 
 #endif

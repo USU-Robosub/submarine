@@ -27,7 +27,8 @@ void Controllers::KillSwitch::execute(Emitter* emitter, int32_t* data, int32_t l
   // do nothing
 }
 
-void Controllers::KillSwitch::use(Freezable* freezable){
+void Controllers::KillSwitch::use(Freezable* freezable, Emitter* emitter){
+  this->emitter = emitter;
   this->freezable = freezable;
   this->freezable->freeze();
 }
@@ -46,8 +47,16 @@ void Controllers::KillSwitch::debounce(){
   if(Controllers::KillSwitch::startSate == digitalRead(killSwitch->pin)){
     if(Controllers::KillSwitch::startSate == HIGH){
       killSwitch->freezable->unfreeze();
+      int32_t data[1] = {1};
+      if(killSwitch->emitter != nullptr){
+        killSwitch->emitter->emit(killSwitch->handler, data, 1);
+      }
     }else{
       killSwitch->freezable->freeze();
+      int32_t data[1] = {0};
+      if(killSwitch->emitter != nullptr){
+        killSwitch->emitter->emit(killSwitch->handler, data, 1);
+      }
     }
   }
 }
