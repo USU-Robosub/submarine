@@ -3,6 +3,7 @@
 
 #include <Controller.hpp>
 #include <Emitter.hpp>
+#include <ControlCodeHandler.hpp>
 
 #include <Arduino.h>
 
@@ -22,7 +23,7 @@ class Hub : public Emitter {
     Hub(Controller**, int, int maxReadsPerPoll = 100);
     void poll();
     void emit(int32_t name, int32_t* data, int32_t length);
-    //void controlCodeHandlers(ControlCodeHandler** handlers);
+    void controlCodeHandlers(ControlCodeHandler** handlers);
     void kill();
     void restart();
   private:
@@ -31,6 +32,7 @@ class Hub : public Emitter {
     int32_t readInt();
     void writeInt(int32_t value);
     Controller** _controllers;
+    ControlCodeHandler** handlers;
     int _numControllers;
     MessageState state;
     Message currentMessage;

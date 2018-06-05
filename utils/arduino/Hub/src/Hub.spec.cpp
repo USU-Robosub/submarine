@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 #include <Hub.hpp>
 #include <Controller.mock.hpp>
+#include <ControlCodeHandler.mock.hpp>
 
 #include <iostream>
 
@@ -11,12 +12,12 @@ TEST_CASE("hub can read and execute a controller", "[hub]"){
   Mock::Controller controller(buffer);
   controllers[0] = &controller;
   Hub hub(controllers, 1);
-  Serial.$loadBuffer(0, 0);
-  Serial.$loadBuffer(0, 1);
-  Serial.$loadBuffer(3, 2);
-  Serial.$loadBuffer(-40, 3);
-  Serial.$loadBuffer(765, 4);
-  Serial.$loadBuffer(13, 5);
+  Serial.$loadReadBuffer(0, 0);
+  Serial.$loadReadBuffer(0, 1);
+  Serial.$loadReadBuffer(3, 2);
+  Serial.$loadReadBuffer(-40, 3);
+  Serial.$loadReadBuffer(765, 4);
+  Serial.$loadReadBuffer(13, 5);
   Serial.$bufferLength(6);
   hub.poll();
   REQUIRE( buffer[0] == -40 );
@@ -37,4 +38,11 @@ TEST_CASE("hub can emit an event", "[hub]"){
   REQUIRE( Serial.$nextInt() == 0 );
   REQUIRE( Serial.$nextInt() == -5000 );
   REQUIRE( Serial.$nextInt() == -50000 );
+}
+
+TEST_CASE("hub can switch to handler", "[hub]"){
+  Serial.$reset();
+  Hub hub(nullptr, 0);
+  Mock::ControlCodeHandlers();
+  hub.controlCodeHandlers();
 }

@@ -2,6 +2,7 @@
 
 Hub::Hub(Controller** controllers, int numControllers, int maxReadsPerPoll)
 : _controllers(controllers)
+, handlers(nullptr)
 , _numControllers(numControllers)
 , state(MessageState::CHECK)
 , currentMessage()
@@ -160,6 +161,10 @@ void Hub::emit(int32_t name, int32_t* data, int32_t length)
   for(int32_t i = 0; i < length; ++i){
     writeInt(data[i]);
   }
+}
+
+void Hub::controlCodeHandlers(ControlCodeHandler** handlers){
+  this->handlers = handlers;
 }
 
 int32_t Hub::readInt()

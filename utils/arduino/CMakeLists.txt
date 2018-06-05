@@ -57,7 +57,7 @@ endforeach()
 # ===============================================
 # = force no standard libraries in arduino code
 # ===============================================
-message("C/C++ standard libraries have been disabled for the following files:")
+message("C/C++ standard libraries have been disabled for the following files (and any headers included by them):")
 foreach(SOURCE_FILE ${SOURCE_FILES})
   message(" - ${SOURCE_FILE}")
   set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")

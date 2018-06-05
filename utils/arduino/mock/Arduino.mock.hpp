@@ -1,10 +1,6 @@
 #ifndef MOCK_ARDUINO
 #define MOCK_ARDUINO
 
-#include <types.mock.hpp>
-#include <math.mock.hpp>
-#include <Serial.mock.hpp>
-
 #define DIGITAL_PIN_COUNT 20
 #define ANALOG_PIN_COUNT 20
 #define PORT_CONFIG_COUNT 20

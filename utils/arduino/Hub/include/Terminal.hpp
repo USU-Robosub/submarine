@@ -1,8 +1,9 @@
 #ifndef TERMINAL
 #define TERMINAL
 
-#define TERMINAL_HEADER "-= Arduino Debug Terminal =-\n"
+#define TERMINAL_HEADER "-= Arduino Debug Terminal =-"
 #define TERMINAL_PROMPT "debug@Arduino$ "
+#define COMMAND_MAX_LENGTH 30
 
 #include <ControlCodeHandler.hpp>
 #include <DebugWrapper.hpp>
@@ -21,7 +22,10 @@ public:
   int32_t controlCode();
 
 private:
-
+  int32_t code;
+  bool finished;
+  char currentCommand[COMMAND_MAX_LENGTH];
+  unsigned int commandIndex;
 };
 
 #endif
