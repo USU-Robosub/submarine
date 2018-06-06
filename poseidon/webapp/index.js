@@ -1,5 +1,13 @@
 var socket = io();
 
+socket.on('disconnect', () => {
+  console.error('server disconnected')
+});
+
+socket.on('connect', () => {
+  console.error('server connected')
+});
+
 var killed = false;
 
 socket.on("killswitch", ( hub, message )=>{

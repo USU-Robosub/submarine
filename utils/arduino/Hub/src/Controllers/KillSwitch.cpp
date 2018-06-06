@@ -8,7 +8,8 @@ bool Controllers::KillSwitch::startSate = false;
 Controllers::KillSwitch::KillSwitch(int pin, int32_t handler, int debounceDelay)
   : handler(handler),
     pin(pin),
-    freezable(nullptr) {
+    freezable(nullptr),
+    emitter(nullptr){
 
   //#if !defined(TEENSY) || UNIT_TESTS \\ TODO remove this if it works without
   pinMode(pin, INPUT);

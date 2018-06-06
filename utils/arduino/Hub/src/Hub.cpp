@@ -9,7 +9,6 @@ Hub::Hub(Controller** controllers, int numControllers, int maxReadsPerPoll)
 , maxReadsPerPoll(maxReadsPerPoll)
 {
   Serial.begin(115200);//115200
-  while(!Serial){}
 }
 
 void Hub::serveEvent(){
@@ -21,7 +20,7 @@ void Hub::serveEvent(){
 void Hub::poll()
 {
   int count = 0;
-  while(Serial.available() >= 4 && count < this->maxReadsPerPoll){
+  while(Serial && Serial.available() >= 4 && count < this->maxReadsPerPoll){
     ++count;
     switch(this->state){
       case MessageState::CHECK:

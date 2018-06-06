@@ -5,12 +5,7 @@
 
 #include <Arduino.h>
 
-#ifndef TEENSY
-  #include <Servo.h>
-#else // teensy boards use a different library for servos
-  #include <PWMServo.h>
-  #define Servo PWMServo
-#endif
+#include <Servo.h>
 
 namespace Controllers{
   class Tank;

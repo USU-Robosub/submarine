@@ -16,7 +16,7 @@ int main(){
 
 ///dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0
 //
-  std::cout << "arduino port " << Comm::Serial::Port::portNameFromPath("1.5");
+  
   Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.5"), B115200);
   arduino.restartArduino();
   Comm::TCP::FullStack agent(3001, '|');
@@ -34,19 +34,19 @@ int main(){
     std::cout << "echo " << message[0] << std::endl;
   });
 
-  agent.hub()->on("throttle", [&throttle, &steering, &arduino](std::vector<std::string> message){
-    throttle = std::stoi(message[0]);
-    arduino.hub()->emit(2, std::vector<int>{throttle, steering});
-  });
+  // agent.hub()->on("throttle", [&throttle, &steering, &arduino](std::vector<std::string> message){
+  //   throttle = std::stoi(message[0]);
+  //   arduino.hub()->emit(2, std::vector<int>{throttle, steering});
+  // });
 
-  agent.hub()->on("steering", [&throttle, &steering, &arduino](std::vector<std::string> message){
-    steering = std::stoi(message[0]);
-    arduino.hub()->emit(2, std::vector<int>{throttle, steering});
-  });
+  // agent.hub()->on("steering", [&throttle, &steering, &arduino](std::vector<std::string> message){
+  //   steering = std::stoi(message[0]);
+  //   arduino.hub()->emit(2, std::vector<int>{throttle, steering});
+  // });
 
   agent.hub()->on("dive", [&dive, &arduino](std::vector<std::string> message){
     dive = std::stoi(message[0]);
-    arduino.hub()->emit(0, std::vector<int>{dive});
+    arduino.hub()->emit(2, std::vector<int>{dive});
     std::cout << "dive " << dive << std::endl;
   });
 
