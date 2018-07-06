@@ -1,6 +1,6 @@
-const Scheduler = require('./index')
-const { tap, finalize, first, skip } = require('rxjs/operators')
-const { pipe, merge } = require('rxjs')
+const { Scheduler, Command } = require('./index')
+const { tap, finalize, first, skip, toArray, delay } = require('rxjs/operators')
+const { pipe, merge, of, timer } = require('rxjs')
 
 test('happy path', done => {
   const scheduler = Scheduler()
@@ -234,18 +234,99 @@ test('some subsystems can be shared by commands', done => {
   command2.abort()
 })
 
-test('promise based command', () => {
-  const system = {subsystem1: 0, subsystem2: 1, subsystem3: 2}
-  const requires = {subsystem1: system.subsystem1, subsystem3: system.subsystem3}
-  const promiseBasedCommand = {
-    name: 'test',
-    cancelable: true,
-    requires: ['subsystem1', 'subsystem3'],
-    action: jest.fn().mockReturnValueOnce(Promise.resolve(42))
-  }
-  const instance = Scheduler(system).run(promiseBasedCommand)
-  expect(instance.cancelable).toBeFalsy()
-  return instance.toPromise().then(result => {
+test('Command base: promise', () => {
+  return Scheduler().run(
+    Command('test', [], jest.fn().mockReturnValue(Promise.resolve(42)))
+  ).toPromise().then(result => {
     expect(result).toBe(42)
   })
+})
+
+test('Command base: custom observable', () => {
+  return Scheduler().run(
+    Command('test', [], jest.fn().mockReturnValue(of(42)))
+  ).toPromise().then(result => {
+    expect(result).not.toBeDefined()
+  })
+})
+
+test('Command base: custom observable, can be started manualy', () => {
+  const instance = Scheduler().run(
+    Command('test', [], jest.fn().mockReturnValue(of(42))
+  ), {manual: true})
+  const promise = instance.toPromise().then(result => {
+    expect(result).toBe(42)
+  })
+  instance.step()
+  return promise
+})
+
+test('subsystems can have default commands', () => {
+  const system = {
+    sensor: {
+      mustBeLocked: true,
+      commands: {
+        default: Command('test', ['sensor'], () => pipe(), {cancelable: true}),
+      },
+      method: () => {}
+    }
+  }
+  const scheduler = Scheduler(system)
+  expect(scheduler.running()).toEqual(['test'])
+})
+
+test('subsystems default commands are started after they are unlocked', () => {
+  const system = {
+    sensor: {
+      mustBeLocked: true,
+      commands: {
+        default: Command('default', ['sensor'], () => pipe(), {cancelable: true}),
+      },
+      method: () => {}
+    }
+  }
+  const scheduler = Scheduler(system)
+  expect(scheduler.running()).toEqual(['default'])
+  const instance = scheduler.run(
+    Command('other', ['sensor'], () => pipe())
+  )
+  expect(scheduler.running()).toEqual(['other'])
+  instance.abort()
+  expect(scheduler.running()).toEqual(['default'])
+})
+
+test('subsystems default commands always run if can be shared', () => {
+  const system = {
+    sensor: {
+      commands: {
+        default: Command('default', ['sensor'], () => pipe(), {cancelable: true}),
+      },
+      method: () => {}
+    }
+  }
+  const scheduler = Scheduler(system)
+  expect(scheduler.running()).toEqual(['default'])
+  const instance = scheduler.run(
+    Command('other', ['sensor'], () => pipe())
+  )
+  expect(scheduler.running()).toEqual(['default', 'other'])
+  instance.abort()
+  expect(scheduler.running()).toEqual(['default'])
+})
+
+test('command unlocks subsystems when canceled or aborted', () => {
+  const system = {
+    sensor: {
+      mustBeLocked: true,
+      method: () => {}
+    }
+  }
+  const scheduler = Scheduler(system)
+  expect(scheduler.running()).toEqual([])
+  const instance = scheduler.run(
+    Command('other', ['sensor'], () => pipe())
+  )
+  expect(scheduler.running()).toEqual(['other'])
+  instance.abort()
+  expect(scheduler.running()).toEqual([])
 })

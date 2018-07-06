@@ -1,4 +1,4 @@
-const Scheduler = require('./index')
+const { Scheduler } = require('./index')
 const { convertFRC_LikeCommand, sequential, concurrent } = require('./tools')
 
 test('frc like command', () => {
