@@ -1,58 +1,143 @@
-const { interval, Subject } = require('rxjs')
-const { publish, takeUntil } = require('rxjs/operators')
+const { interval, Subject, from } = require('rxjs')
+const { publish, takeUntil, catchError, finalize } = require('rxjs/operators')
+
+const trace = command => command.innerCommands ? ({ [command.name]: command.innerCommands().map(command => trace(command)) }) : command.name
 
 const Scheduler = (subsystems) => {
-  const locks = []
-
+  let instances = []
   return {
-    run: command => {
-      // type checks
-      if(typeof command == 'undefined' || command == null)
-        throw Error('Must pass a command')
-
-      if(typeof command.action != 'function')
-        throw Error('Command must have an action to perform')
-
-      if(!Array.isArray(command.requires))
-        throw Error('Command must require an array of subsystems')
-
-      if(typeof command.name != 'string')
-        throw Error('Command must have a name')
-
-      // lock checks
-      const lockConflicts = command.requires // TODO check if commands locking subsystem can be canceled
-        .map(name => [ name, subsystems[name] ])
-        .filter(([ name, subsystem ]) => subsystem.mustBeLocked)
-        .filter(([ name, subsystem ]) => locks.findIndex(lock => lock.name == name) >= 0)
-        .map(([ name, subsystem ]) => [name, subsystem, locks.find(lock => lock.name == name).command])
-
-      if(lockConflicts.length > 0){
-        const [ subsystemName, lockedSubsystem, lockingCommand ] = lockConflicts[0]
-        throw Error('Command \"' + command.name + '\" attempted to lock subsystem \"' + subsystemName + '\" when it is already locked by command \"' + lockingCommand.name + '\"')
-      }
-
-      // lock subsystems
-      // TODO cancel locks for subsystems
-
-      command.requires.forEach(name => locks.push({ name, command })) // TODO does not work for sharable subsystems
-
-      // create running command
-      const required = command.requires.reduce((obj, name) => ({ ...obj, [name]: subsystems[name] }), {})
-
-      const cancelSubject = new Subject();
-      const observable = interval().pipe(
-        command.action(required),
-        takeUntil(cancelSubject),
-        publish()
-      )
-      observable.connect()
+    run: (command, config) => {
+      checkForValidCommand(command)
+      removeCancelableLocks(instances, subsystems, command)
+      checkForLockConflicts(instances, subsystems, command)
+      const instance = createCommandInstance(instances, subsystems, command, config, () => instances.splice(instances.indexOf(instance), 1))
+      instances.push(instance)
       return {
-        cancel: () => {
-          cancelSubject.next()
-        }
+        toPromise: () => instance.internal.observable.toPromise(),
+        toObservable: () => instance.internal.observable,
+        cancelable: instance.cancelable,
+        step: instance.step,
+        cancel: instance.cancel,
+        abort: instance.abort
       }
+    },
+    running: () => {
+      return instances.map(instance => trace(instance.internal.command))
     }
   }
 }
 
 module.exports = Scheduler
+
+const propWithDefault = (obj, prop, def) => typeof obj != 'undefined' && typeof obj[prop] != 'undefined' ? obj[prop] : def
+const propIsTrue = (obj, prop) => typeof obj != 'undefined' && typeof obj[prop] != 'undefined' && obj[prop] === true
+
+const generateBaseObservable = (config, action) => {
+  if(actionNotPipeOperator(action)){
+    return {
+      base: from(action)
+    }
+  }else if(propIsTrue(config, 'manual')){
+    const manualSubject = new Subject()
+    return {
+      base: manualSubject.pipe(action),
+      step: () => manualSubject.next()
+    }
+  }else{
+    return {
+      base: interval(propWithDefault(config, 'interval', 1000 / 60)).pipe(action)
+    }
+  }
+}
+const actionNotPipeOperator = action => typeof action != 'function'
+
+const createCommandInstance = (instances, subsystems, command, config, removeInstance) => {
+  const required = command.requires.reduce((obj, name) => ({ ...obj, [name]: subsystems[name] }), {})
+  const cancelSubject = new Subject();
+  const action = command.action(required)
+  const { base:baseObservable, step:observableStep } = generateBaseObservable(config, action)
+  const cancelable = actionNotPipeOperator(action) ? false : command.cancelable
+  const observable = baseObservable.pipe(
+    takeUntil(cancelSubject),
+    finalize(() => removeInstance()),
+    publish(),
+  )
+  observable.connect()
+  const instance = {
+    internal:{
+      command,
+      observable,
+      locks: command.requires.filter(name => subsystems[name].mustBeLocked),
+    },
+    cancelable,
+    cancel: () => {
+      if(!cancelable)
+        throw Error('Can only cancel a command marked as cancelable. The command \"' + command.name + '\" is not marked cancelable')
+
+      cancelSubject.next()
+    },
+    abort: () => {
+      cancelSubject.next()
+    },
+    step: () => {
+      if(notDefined(observableStep))
+        throw Error('Can only step an instance created with manual flag')
+
+      observableStep()
+    }
+  }
+  return instance
+}
+const notDefined = x => typeof x == 'undefined'
+
+const removeCancelableLocks = (instances, subsystems, command) => {
+  const cancelableInstances = command.requires
+    .filter(subsystemName => subsystems[subsystemName].mustBeLocked)
+    .filter(subsystemName => instances.some(
+      instance => instance.internal.locks.some(name => name == subsystemName)
+        && instance.internal.command.cancelable)
+    )
+    .map(subsystemName => [
+      subsystemName,
+      subsystems[subsystemName],
+      instances.find(
+        instance => instance.internal.locks.some(name => name == subsystemName)
+      )
+    ])
+
+  cancelableInstances.forEach(([ name, subsystem, instance ]) => instance.cancel())
+}
+
+const checkForLockConflicts = (instances, subsystems, command) => {
+  const lockConflicts = command.requires
+    .filter(subsystemName => subsystems[subsystemName].mustBeLocked)
+    .filter(subsystemName => instances.some(
+      instance => instance.internal.locks.some(name => name == subsystemName))
+    )
+    .map(subsystemName => [
+      subsystemName,
+      subsystems[subsystemName],
+      instances.find(
+        instance => instance.internal.locks.some(name => name == subsystemName)
+      )
+    ])
+
+  if(lockConflicts.length > 0){
+    const [ subsystemName, lockedSubsystem, lockingInstance ] = lockConflicts[0]
+    throw Error('Command \"' + command.name + '\" attempted to lock subsystem \"' + subsystemName + '\" when it is already locked by command \"' + lockingInstance.internal.command.name + '\"')
+  }
+}
+
+const checkForValidCommand = command => {
+  if(typeof command == 'undefined' || command == null)
+    throw Error('Must pass a command')
+
+  if(typeof command.action != 'function')
+    throw Error('Command must have an action to perform')
+
+  if(!Array.isArray(command.requires))
+    throw Error('Command must require an array of subsystems')
+
+  if(typeof command.name != 'string')
+    throw Error('Command must have a name')
+}
