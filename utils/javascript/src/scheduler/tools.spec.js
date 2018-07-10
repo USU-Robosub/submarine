@@ -1,10 +1,19 @@
-const { Scheduler } = require('./index')
-const { convertFRC_LikeCommand, sequential, concurrent } = require('./tools')
+const { Scheduler, Subsystem, Command } = require('./index')
+const { frc, sequential, concurrent } = require('./tools')
+const { map, first, tap, delay, toArray } = require('rxjs/operators')
+const { Subject, of } = require('rxjs')
 
-test('frc like command', () => {
-  const system = {subsystem1: 0, subsystem2: 1, subsystem3: 2}
-  const FRC_likeCommand = {
-    requires: ['subsystem1', 'subsystem3'],
+const once = func => system => of(0).pipe(map(() => func(system)))
+const delayed = (func, time=1) => system => once(func)(system).pipe(delay(time))
+
+test('create command that uses the same interface as FRC', () => {
+  const subsystem = {
+    method: () => {}
+  }
+  const subsystems = [
+    Subsystem(subsystem).named('subsystem')
+  ]
+  const action = {
     init: jest.fn(),
     execute: jest.fn(),
     isFinished: jest.fn()
@@ -13,111 +22,72 @@ test('frc like command', () => {
       .mockReturnValueOnce(true),
     end: jest.fn(),
   }
-  const instance = Scheduler(system).run(convertFRC_LikeCommand('command name', FRC_likeCommand), {manual: true})
+  const base = new Subject()
+  const instance = Scheduler(subsystems).run(Command().require('subsystem').action(frc(action, {base})))
 
-  expect(FRC_likeCommand.init).toHaveBeenCalledTimes(0)
-  expect(FRC_likeCommand.execute).toHaveBeenCalledTimes(0)
-  expect(FRC_likeCommand.isFinished).toHaveBeenCalledTimes(0)
-  expect(FRC_likeCommand.end).toHaveBeenCalledTimes(0)
-  instance.step()
-  expect(FRC_likeCommand.init).toHaveBeenCalledTimes(1)
-  expect(FRC_likeCommand.execute).toHaveBeenCalledTimes(0)
-  expect(FRC_likeCommand.isFinished).toHaveBeenCalledTimes(1)
-  expect(FRC_likeCommand.end).toHaveBeenCalledTimes(0)
-  instance.step()
-  expect(FRC_likeCommand.init).toHaveBeenCalledTimes(1)
-  expect(FRC_likeCommand.execute).toHaveBeenCalledTimes(1)
-  expect(FRC_likeCommand.isFinished).toHaveBeenCalledTimes(2)
-  expect(FRC_likeCommand.end).toHaveBeenCalledTimes(0)
-  instance.step()
-  expect(FRC_likeCommand.init).toHaveBeenCalledTimes(1)
-  expect(FRC_likeCommand.execute).toHaveBeenCalledTimes(2)
-  expect(FRC_likeCommand.isFinished).toHaveBeenCalledTimes(3)
-  expect(FRC_likeCommand.end).toHaveBeenCalledTimes(1)
+  expect(action.init).toHaveBeenCalledTimes(0)
+  expect(action.execute).toHaveBeenCalledTimes(0)
+  expect(action.isFinished).toHaveBeenCalledTimes(0)
+  expect(action.end).toHaveBeenCalledTimes(0)
+  base.next()
+  expect(action.init).toHaveBeenCalledTimes(1)
+  expect(action.execute).toHaveBeenCalledTimes(0)
+  expect(action.isFinished).toHaveBeenCalledTimes(1)
+  expect(action.end).toHaveBeenCalledTimes(0)
+  base.next()
+  expect(action.init).toHaveBeenCalledTimes(1)
+  expect(action.execute).toHaveBeenCalledTimes(1)
+  expect(action.isFinished).toHaveBeenCalledTimes(2)
+  expect(action.end).toHaveBeenCalledTimes(0)
+  base.next()
+  expect(action.init).toHaveBeenCalledTimes(1)
+  expect(action.execute).toHaveBeenCalledTimes(2)
+  expect(action.isFinished).toHaveBeenCalledTimes(3)
+  expect(action.end).toHaveBeenCalledTimes(1)
 
-  const requires = {subsystem1: system.subsystem1, subsystem3: system.subsystem3}
-  expect(FRC_likeCommand.init).toHaveBeenCalledWith(requires)
-  expect(FRC_likeCommand.execute).toHaveBeenCalledWith(requires)
-  expect(FRC_likeCommand.isFinished).toHaveBeenCalledWith(requires)
-  expect(FRC_likeCommand.end).toHaveBeenCalledWith(requires)
+  expect(action.init).toHaveBeenCalledWith({subsystem})
+  expect(action.execute).toHaveBeenCalledWith({subsystem})
+  expect(action.isFinished).toHaveBeenCalledWith({subsystem})
+  expect(action.end).toHaveBeenCalledWith({subsystem})
 })
-//
-// test('can combine commands', done => {
-//   let count = 0
-//   const test = {
-//     requires: [],
-//     init: requires => console.log('FRC init'),
-//     execute: requires => {
-//       console.log('FRC execute')
-//       count++
-//       return 'hello'
-//     },
-//     isFinished: requires => {
-//       console.log('FRC isFinished')
-//       return count > 5
-//     },
-//     end: requires => {
-//       console.log('FRC end')
-//     },
-//   }
-//   const scheduler = Scheduler()
-//   const instance = scheduler.run(convertFRC_LikeCommand('test', test))
-//   instance.toPromise().then(() => {
-//     console.log('Done!')
-//     done()
-//   })
-//   // instance.pipe(
-//   //   tap(x => console.log('Tap', x))
-//   // ).subscribe(() => console.log('Next'), e => console.log('Error', e), () => console.log('Complete'))
-// })
-//
-// // const hotSwap = currentOperator => source => new Observable(observer => {
-// //   let count = 0;
-// //   return source.subscribe({
-// //     next(x) {
-// //       currentOperator()(source)
-// //     },
-// //     error(err) { observer.error(err); },
-// //     complete() { observer.complete(); }
-// //   })
-// // })
-//
-//
-//
-// test.only('multiple commands in one', () => {
-//   try{
-//   let count = 0
-//   const scheduler = Scheduler()
-//   const doSomething = name => {
-//     let count = 0
-//     return {
-//       requires: [],
-//       execute: () => {
-//         count++
-//         //console.log(name)
-//       },
-//       isFinished: () => count > 5,
-//     }
-//   }
-//   setTimeout(() => {
-//     try{
-//     console.log(tree(scheduler.running()))
-//   }catch(e){
-//     console.log(e)
-//   }
-// }, 1000)
-//   scheduler.run(convertFRC_LikeCommand('something else', doSomething('something else')), {interval: 1000})
-//   return scheduler.run(sequential('score goal',
-//     convertFRC_LikeCommand('aim', doSomething('test')),
-//     concurrent('kick ball',
-//       convertFRC_LikeCommand('spin kicker', doSomething('test')),
-//       convertFRC_LikeCommand('open hatch', doSomething('test2'))
-//     )
-//   ), {interval: 100}).toPromise().then(() => {
-//     console.log('Done!')
-//   })
-// }catch(e){
-//   console.error('Error!!!!', e)
-//   return Promise.resolve()
-// }
-// })
+
+test('create command that runs other commands in sequence', () => {
+  const scheduler = Scheduler()
+  const base = new Subject()
+  const instance = scheduler.run(
+    sequential(
+      Command().action(once(() => { console.log(1); return 1 })).named('1'),
+      Command().action(once(() => { console.log(2); return 2 })).named('2'),
+      Command().action(once(() => { console.log(3); return 3 })).named('3'),
+    ).bind(scheduler).base(base).named('multiple')
+  )
+  const promise = instance.toObservable().pipe(toArray()).toPromise().then(result => {
+    expect(result).toEqual([1, 2, 3])
+  })
+  // expect(scheduler.runningByName()).toEqual(['multiple'])
+  // base.next()
+  // expect(scheduler.runningByName()).toEqual(['multiple', '1'])
+  // base.next()
+  // expect(scheduler.runningByName()).toEqual(['multiple', '2'])
+  // base.next()
+  // //expect(scheduler.runningByName()).toEqual(['multiple', '3'])
+  // base.next()
+  //expect(scheduler.runningByName()).toEqual([])
+
+  return promise
+})
+
+test('create command that runs other commands in concurrent', () => {
+  const scheduler = Scheduler()
+  const instance = scheduler.run(
+    concurrent(
+      Command().action(delayed(() => 1, 30)),
+      Command().action(delayed(() => 2, 20)),
+      Command().action(delayed(() => 3, 10)),
+    ).named('multiple')
+  )
+  expect(scheduler.runningByName()).toEqual(['multiple'])
+  return instance.toObservable().pipe(toArray()).toPromise().then(result => {
+    expect(result).toEqual([3, 2, 1])
+  })
+})

@@ -1,332 +1,170 @@
-const { Scheduler, Command } = require('./index')
-const { tap, finalize, first, skip, toArray, delay } = require('rxjs/operators')
-const { pipe, merge, of, timer } = require('rxjs')
+const { Subsystem, Command, Scheduler } = require('./index')
+const { map, first, tap, delay } = require('rxjs/operators')
+const { of, interval, empty } = require('rxjs')
 
-test('happy path', done => {
+const once = func => system => of(0).pipe(map(() => func(system)))
+const forever = system => interval(1000)
+const nothing = system => empty()
+
+test('runs very simple command', () => {
+  const mockFn = jest.fn()
+  return Scheduler().run(
+    Command().action(once(mockFn))
+  ).toPromise().then(() => {
+    expect(mockFn).toHaveBeenCalledTimes(1)
+    expect(mockFn).toHaveBeenCalledWith({})
+  })
+})
+
+test('runs command that requires a subsystem', () => {
+  const test = {
+    method: () => {}
+  }
+  const subsystems = [
+    Subsystem(test).named('test')
+  ]
+  const mockFn = jest.fn()
+  return Scheduler(subsystems).run(
+    Command().require('test').action(once(mockFn))
+  ).toPromise().then(() => {
+    expect(mockFn).toHaveBeenCalledWith({test})
+  })
+})
+
+test('only one command can use a subsystem by default', () => {
+  const test = {
+    method: () => {}
+  }
+  const subsystems = [
+    Subsystem(test).named('test')
+  ]
+  const scheduler = Scheduler(subsystems)
+  scheduler.run(Command().require('test').action(forever).named('first'))
+  expect(scheduler.run(Command().require('test').action(forever)))
+    .toEqual({lockingFailed: true, lockConflicts: [{command: 'first', subsystem: 'test'}]})
+})
+
+test('multiple commands can use a shared subsystem', () => {
+  const test = {
+    method: () => {}
+  }
+  const subsystems = [
+    Subsystem(test).named('test').makeShared()
+  ]
+  const scheduler = Scheduler(subsystems)
+  scheduler.run(Command().require('test').action(forever).named('first'))
+  scheduler.run(Command().require('test').action(forever).named('second'))
+  expect(scheduler.runningByName()).toEqual(['first', 'second'])
+})
+
+test('subsystems unlock after command completes', () => {
+  const test = {
+    method: () => {}
+  }
+  const subsystems = [
+    Subsystem(test).named('test')
+  ]
+  const scheduler = Scheduler(subsystems)
+  const first = scheduler.run(Command().require('test').action(forever).named('first'))
+  expect(scheduler.runningByName()).toEqual(['first'])
+  first.abort()
+  const second = scheduler.run(Command().require('test').action(forever).named('second'))
+  expect(scheduler.runningByName()).toEqual(['second'])
+})
+
+test('immediate complete actions are still removed from instances', () => {
   const scheduler = Scheduler()
-  const command = scheduler.run({
-    name: 'test',
-    requires: [],
-    action: () => pipe(
-      tap(x => {
-        console.log(x)
-        command.cancel()
-      }),
-      finalize(() => {
-        console.log('finalize command')
-        done()
-      })
+  scheduler.run(Command().action(nothing))
+  expect(scheduler.runningByName()).toEqual([])
+})
+
+test('can abort any command', () => {
+  const scheduler = Scheduler()
+  const first = scheduler.run(Command().action(forever).named('test'))
+  expect(scheduler.runningByName()).toEqual(['test'])
+  first.abort()
+  expect(scheduler.runningByName()).toEqual([])
+})
+
+test('can cancel cancelable command', () => {
+  const scheduler = Scheduler()
+  const first = scheduler.run(Command().action(forever).named('test').makeCancelable())
+  expect(scheduler.runningByName()).toEqual(['test'])
+  expect(first.cancel()).toBeTruthy()
+  expect(scheduler.runningByName()).toEqual([])
+})
+
+test('cannot cancel normal command', () => {
+  const scheduler = Scheduler()
+  const first = scheduler.run(Command().action(forever).named('test'))
+  expect(scheduler.runningByName()).toEqual(['test'])
+  expect(first.cancel()).toBeFalsy()
+  expect(scheduler.runningByName()).toEqual(['test'])
+})
+
+test('subsystems can have a command that is run when no other command is run', () => {
+  const scheduler = Scheduler([
+    Subsystem().whenIdleRun(Command().action(forever).named('test'))
+  ])
+  expect(scheduler.runningByName()).toEqual(['test'])
+})
+
+test('a subsystem\'s default command is started after it is unlocked', () => {
+  const scheduler = Scheduler([
+    Subsystem().named('subsystem').whenIdleRun(
+      Command().require('subsystem').action(forever).named('default').makeCancelable()
     )
-  })
+  ])
+  expect(scheduler.runningByName()).toEqual(['default'])
+  const instance = scheduler.run(Command().require('subsystem').action(forever).named('test'))
+  expect(scheduler.runningByName()).toEqual(['test'])
+  instance.abort()
+  expect(scheduler.runningByName()).toEqual(['default'])
 })
 
-test('throw if not given a command', () => {
-  expect(() => Scheduler().run()).toThrowError('Must pass a command')
-})
-
-test('throw if given a command without requires', () => {
-  expect(() => Scheduler().run({
-    name: 'test',
-    action: () => {}
-  })).toThrowError('Command must require an array of subsystems')
-})
-
-test('throw if given a command without action', () => {
-  expect(() => Scheduler().run({
-    name: 'test',
-    requires: []
-  })).toThrowError('Command must have an action to perform')
-})
-
-test('throw if given a command without a name', () => {
-  expect(() => Scheduler().run({
-    requires: [],
-    action: () => {}
-  })).toThrowError('Command must have a name')
-})
-
-test('locks an actuator subsystem so only one command can use it', done => {
-  const system = {
-    actuator: {
-      mustBeLocked: true,
-      commands: {
-        inactive: null,
-      },
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  const command = scheduler.run({
-    name: 'test',
-    requires: ['actuator'],
-    action: () => pipe(
-      tap(() => command.cancel()),
-      finalize(() => done())
+test('a shareable subsystem\'s default command is always running', () => {
+  const scheduler = Scheduler([
+    Subsystem().named('subsystem').makeShared().whenIdleRun(
+      Command().require('subsystem').action(forever).named('default').makeCancelable()
     )
-  })
-  expect(() => scheduler.run({
-    name: 'test2',
-    requires: ['actuator'],
-    action: () => {}
-  })).toThrowError('Command \"test2\" attempted to lock subsystem \"actuator\" when it is already locked by command \"test\"')
+  ])
+  expect(scheduler.runningByName()).toEqual(['default'])
+  const instance = scheduler.run(Command().require('subsystem').action(forever).named('test'))
+  expect(scheduler.runningByName()).toEqual(['default', 'test'])
+  instance.abort()
+  expect(scheduler.runningByName()).toEqual(['default'])
 })
 
-test('does not lock a sensor subsystem', done => {
-  const system = {
-    actuator: {
-      mustBeLocked: false,
-      commands: {
-        inactive: null,
-      },
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  const command = scheduler.run({
-    name: 'test',
-    requires: ['actuator'],
-    action: () => pipe(
-      tap(() => command.cancel()),
-      finalize(() => done())
-    )
-  })
-  expect(() => scheduler.run({
-    name: 'test2',
-    requires: ['actuator'],
-    action: () => pipe()
-  })).not.toThrow()
+test('cancels cancelable command when new command needs a subsystem', () => {
+  const scheduler = Scheduler([
+    Subsystem().named('subsystem')
+  ])
+  expect(scheduler.runningByName()).toEqual([])
+  const first = scheduler.run(Command().require('subsystem').action(forever).named('first').makeCancelable())
+  expect(scheduler.runningByName()).toEqual(['first'])
+  const second = scheduler.run(Command().require('subsystem').action(forever).named('second'))
+  expect(scheduler.runningByName()).toEqual(['second'])
 })
 
-test('required subsystems are injected into the command\'s action', done => {
-  const system = {
-    actuator: {
-      mustBeLocked: true,
-      commands: {
-        inactive: null,
-      },
-      method: () => {}
-    }
-  }
-  const command = Scheduler(system).run({
-    name: 'test',
-    requires: ['actuator'],
-    action: required => pipe(
-      tap(() => {
-        expect(required.actuator).toBe(system.actuator)
-        command.cancel()
-      }),
-      finalize(() => done())
-    )
-  })
-})
-
-test('cancels old command if cancelable and subsystem is not shareable', done => {
-  const system = {
-    actuator: {
-      mustBeLocked: true,
-      commands: {
-        inactive: null,
-      },
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  const command = scheduler.run({
-    name: 'test',
-    cancelable: true,
-    requires: ['actuator'],
-    action: () => pipe(
-      tap(() => command.cancel()),
-      finalize(() => done())
-    )
-  })
-  expect(() => scheduler.run({
-    name: 'test2',
-    requires: ['actuator'],
-    action: () => pipe()
-  })).not.toThrow()
-})
-
-test('can only cancel cancelable commands', () => {
-  const system = {
-    actuator: {
-      mustBeLocked: true,
-      commands: {
-        inactive: null,
-      },
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  const command = scheduler.run({
-    name: 'test',
-    cancelable: false,
-    requires: ['actuator'],
-    action: () => pipe(
-      finalize(() => {})
-    )
-  })
-  expect(() => command.cancel()).toThrowError('Can only cancel a command marked as cancelable. The command \"test\" is not marked cancelable')
-})
-
-test('can abort non cancelable commands', (done) => {
-  const system = {
-    actuator: {
-      mustBeLocked: true,
-      commands: {
-        inactive: null,
-      },
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  const command = scheduler.run({
-    name: 'test',
-    cancelable: false,
-    requires: ['actuator'],
-    action: () => pipe(
-      finalize(() => done())
-    )
-  })
-  expect(() => command.abort()).not.toThrow()
-})
-
-test('some subsystems can be shared by commands', done => {
-  const system = {
-    sensor: {
-      mustBeLocked: false,
-      commands: {
-        inactive: null,
-      },
-      method: () => {}
-    },
-    sensor2: {
-      mustBeLocked: true,
-      commands: {
-        inactive: null,
-      },
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  const command = scheduler.run({
-    name: 'test',
-    requires: ['sensor'],
-    action: () => pipe(
-      finalize(() => {})
-    )
-  })
-  const command2 = scheduler.run({
-    name: 'test2',
-    requires: ['sensor', 'sensor2'],
-    action: () => pipe(
-      finalize(() => done())
-    )
-  })
-  command.abort()
-  expect(() => scheduler.run({
-    name: 'test3',
-    requires: ['sensor2'],
-    action: () => pipe(
-      finalize(() => {})
-    )
-  })).toThrowError('Command \"test3\" attempted to lock subsystem \"sensor2\" when it is already locked by command \"test2\"')
-  command2.abort()
-})
-
-test('Command base: promise', () => {
+test('can convert command instance to promise', () => {
   return Scheduler().run(
-    Command('test', [], jest.fn().mockReturnValue(Promise.resolve(42)))
+    Command().action(() => of(42).pipe(delay(1)))
   ).toPromise().then(result => {
     expect(result).toBe(42)
   })
 })
 
-test('Command base: custom observable', () => {
+test('can convert command instance to observable', () => {
   return Scheduler().run(
-    Command('test', [], jest.fn().mockReturnValue(of(42)))
-  ).toPromise().then(result => {
-    expect(result).not.toBeDefined()
-  })
+    Command().action(() => of(42).pipe(delay(1)))
+  ).toObservable().pipe(
+    tap(result => expect(result).toBe(42))
+  ).toPromise()
 })
 
-test('Command base: custom observable, can be started manualy', () => {
-  const instance = Scheduler().run(
-    Command('test', [], jest.fn().mockReturnValue(of(42))
-  ), {manual: true})
-  const promise = instance.toPromise().then(result => {
-    expect(result).toBe(42)
-  })
-  instance.step()
-  return promise
-})
-
-test('subsystems can have default commands', () => {
-  const system = {
-    sensor: {
-      mustBeLocked: true,
-      commands: {
-        default: Command('test', ['sensor'], () => pipe(), {cancelable: true}),
-      },
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  expect(scheduler.running()).toEqual(['test'])
-})
-
-test('subsystems default commands are started after they are unlocked', () => {
-  const system = {
-    sensor: {
-      mustBeLocked: true,
-      commands: {
-        default: Command('default', ['sensor'], () => pipe(), {cancelable: true}),
-      },
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  expect(scheduler.running()).toEqual(['default'])
-  const instance = scheduler.run(
-    Command('other', ['sensor'], () => pipe())
-  )
-  expect(scheduler.running()).toEqual(['other'])
-  instance.abort()
-  expect(scheduler.running()).toEqual(['default'])
-})
-
-test('subsystems default commands always run if can be shared', () => {
-  const system = {
-    sensor: {
-      commands: {
-        default: Command('default', ['sensor'], () => pipe(), {cancelable: true}),
-      },
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  expect(scheduler.running()).toEqual(['default'])
-  const instance = scheduler.run(
-    Command('other', ['sensor'], () => pipe())
-  )
-  expect(scheduler.running()).toEqual(['default', 'other'])
-  instance.abort()
-  expect(scheduler.running()).toEqual(['default'])
-})
-
-test('command unlocks subsystems when canceled or aborted', () => {
-  const system = {
-    sensor: {
-      mustBeLocked: true,
-      method: () => {}
-    }
-  }
-  const scheduler = Scheduler(system)
-  expect(scheduler.running()).toEqual([])
-  const instance = scheduler.run(
-    Command('other', ['sensor'], () => pipe())
-  )
-  expect(scheduler.running()).toEqual(['other'])
-  instance.abort()
-  expect(scheduler.running()).toEqual([])
+test.only('demo', () => {
+  return Scheduler().run(Command().named('test command').action(() => {
+    console.log('created')
+    return interval(1000).pipe(map(() => console.log('hello')))
+  })).toPromise()
 })

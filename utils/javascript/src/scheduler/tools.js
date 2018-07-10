@@ -1,5 +1,6 @@
-const { tap, finalize, first, skip, takeUntil, filter, refCount, publish, map } = require('rxjs/operators')
-const { pipe, merge, concat } = require('rxjs')
+const { Command } = require('./index')
+const { tap, finalize, first, skip, takeUntil, filter, refCount, publish, map, concatMap, take } = require('rxjs/operators')
+const { pipe, merge, concat, interval, range } = require('rxjs')
 
 const parallel = (...pipes) => source =>
   merge(...pipes.map(pipe => source.pipe(pipe)))
@@ -16,67 +17,66 @@ const completeWhen = operators => pipe(
   ),
 )
 
-const convertFRC_LikeCommand = (name, command) => ({
-  name,
-  requires: command.requires,
-  cancelable: command.cancelable,
-  action: requires => pipe(
-    parallel(
-      pipe(
-        first(),
-        map(() => command.init ? command.init(requires) : (command.execute ? command.execute(requires) : null))
-      ),
-      pipe(
-        skip(1),
-        map(() => command.execute ? command.execute(requires) : null),
-      )
+const frc = (action, { base=interval(20) }={}) => system => base.pipe(
+  parallel(
+    pipe(
+      first(),
+      map(() => action.init ? action.init(system) : (action.execute ? action.execute(system) : null))
     ),
-    completeWhen(
-      pipe(
-        filter(() => command.isFinished ? command.isFinished(requires) : null)
-      )
-    ),
-    finalize(() => command.end ? command.end(requires) : null),
-  )
-})
-
-const sequential = (name, ...commands) => {
-  let currentCommand = null
-  return {
-    name: name,
-    requires: commands.reduce((array, command) => array.concat(command.requires), []),
-    innerCommands: () => {
-      return currentCommand ? [currentCommand] : []
-    },
-    action: requires => pipe(
-      operatorConcat(...commands.map(command => pipe(
-        tap(() => { currentCommand = command }),
-        command.action(requires),
-      ))),
+    pipe(
+      skip(1),
+      map(() => action.execute ? action.execute(system) : null),
     )
-  }
+  ),
+  completeWhen(
+    pipe(
+      filter(() => action.isFinished ? action.isFinished(system) : null)
+    )
+  ),
+  finalize(() => action.end ? action.end(system) : null),
+)
+
+// const sequential = (...commands) => Command().action(
+//   system => concat(...commands.map(command => command.internal.createObservable(system)))
+// )
+
+const count = () => {
+  let counter = 0
+  return map(() => counter++)
 }
 
-const concurrent = (name, ...commands) => {
-  const currentCommands = []
-  return {
-    name: name,
-    requires: commands.reduce((array, command) => array.concat(command.requires), []),
-    innerCommands: () => {
-      return currentCommands
+const sequential = (...commands) => {
+  let scheduler = null
+  let base = range(0, commands.length)
+  const command = {
+    ...Command().action(
+      () => base.pipe(
+        take(commands.length),
+        count(),
+        concatMap(index => {
+          const instance = scheduler.run(commands[index])
+          return instance.toObservable()
+        })
+      )
+    ),
+    bind: x => {
+      scheduler = x
+      return command
     },
-    action: requires => pipe(
-      parallel(...commands.map(command => pipe(
-        tap(() => { if(currentCommands.indexOf(command) == -1) currentCommands.push(command) }),
-        command.action(requires),
-        finalize(() => { currentCommands.splice(currentCommands.indexOf(command), 1) }),
-      ))),
-    )
+    base: x => {
+      base = x
+      return command
+    }
   }
+  return command
 }
+
+const concurrent = (...commands) => Command().action(
+  system => merge(...commands.map(command => command.internal.createObservable(system)))
+)
 
 module.exports = {
-  convertFRC_LikeCommand,
+  frc,
   sequential,
   concurrent
 }
