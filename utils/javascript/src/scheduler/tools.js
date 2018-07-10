@@ -1,21 +1,53 @@
 const { Command } = require('./index')
-const { tap, finalize, first, skip, takeUntil, filter, refCount, publish, map, concatMap, take } = require('rxjs/operators')
-const { pipe, merge, concat, interval, range } = require('rxjs')
+const { finalize, first, skip, map, concatMap, take, mergeMap, toArray, delay } = require('rxjs/operators')
+const { pipe, merge, concat, interval, range, of, Observable, timer, from } = require('rxjs')
 
-const parallel = (...pipes) => source =>
-  merge(...pipes.map(pipe => source.pipe(pipe)))
 
-const operatorConcat = (...operators) => source => concat(...operators.map(operator => operator(source)))
+const sequential = (...commands) => {
+  let base = range(0, commands.length)
+  const command = {
+    ...Command().action(
+      (system, scheduler) => base.pipe(
+        take(commands.length),
+        count(),
+        concatMap(index => {
+          const instance = scheduler.run(commands[index])
+          return instance.toObservable()
+        })
+      )
+    ),
+    base: x => {
+      base = x
+      return command
+    }
+  }
+  return command
+}
 
-const self = func => source => func(source)(source)
-
-const completeWhen = operators => pipe(
-  publish(),
-  refCount(),
-  self(self =>
-    takeUntil(self.pipe(operators))
-  ),
-)
+const concurrent = (...commands) => {
+  let base = of(0)
+  const command = {
+    ...Command().action(
+      (system, scheduler) => base.pipe(
+        take(1),
+        mergeMap(() => {
+          return merge(...commands.map(command => {
+            const instance = scheduler.run(command)
+            if(instance.lockingFailed){
+              throw Error(instance)
+            }
+            return instance.toObservable()
+          }))
+        })
+      )
+    ),
+    base: x => {
+      base = x
+      return command
+    }
+  }
+  return command
+}
 
 const frc = (action, { base=interval(20) }={}) => system => base.pipe(
   parallel(
@@ -28,55 +60,51 @@ const frc = (action, { base=interval(20) }={}) => system => base.pipe(
       map(() => action.execute ? action.execute(system) : null),
     )
   ),
-  completeWhen(
-    pipe(
-      filter(() => action.isFinished ? action.isFinished(system) : null)
-    )
-  ),
+  takeWhileInclusive(() => !action.isFinished || !action.isFinished(system)),
   finalize(() => action.end ? action.end(system) : null),
+  toArray(),
 )
 
-// const sequential = (...commands) => Command().action(
-//   system => concat(...commands.map(command => command.internal.createObservable(system)))
-// )
+const once = action => system => of(0).pipe(map(() => action(system)))
+
+const delayThen = (action, time=1) => system => timer(time).pipe(map(() => action(system)))
+
+const repeatWithDelay = (action, time=1) => system => interval(time).pipe(map(() => action(system)))
+
+const repeat = action => system => repeatWithDelay(action, 1)(system)
+
+const fromPromise = action => system => from(action(system))
+
+module.exports = {
+  sequential,
+  concurrent,
+  frc,
+  once,
+  delayThen,
+  repeat,
+  repeatWithDelay,
+  fromPromise,
+}
 
 const count = () => {
   let counter = 0
   return map(() => counter++)
 }
 
-const sequential = (...commands) => {
-  let scheduler = null
-  let base = range(0, commands.length)
-  const command = {
-    ...Command().action(
-      () => base.pipe(
-        take(commands.length),
-        count(),
-        concatMap(index => {
-          const instance = scheduler.run(commands[index])
-          return instance.toObservable()
-        })
-      )
-    ),
-    bind: x => {
-      scheduler = x
-      return command
+const parallel = (...pipes) => source =>
+  merge(...pipes.map(pipe => source.pipe(pipe)))
+
+const takeWhileInclusive = predicate => source => new Observable(observer => {
+  return source.subscribe({
+    next(x) {
+      if(predicate()){
+        observer.next(x)
+      }else{
+        observer.next(x)
+        observer.complete()
+      }
     },
-    base: x => {
-      base = x
-      return command
-    }
-  }
-  return command
-}
-
-const concurrent = (...commands) => Command().action(
-  system => merge(...commands.map(command => command.internal.createObservable(system)))
-)
-
-module.exports = {
-  frc,
-  sequential,
-  concurrent
-}
+    error(err) { observer.error(err) },
+    complete() { observer.complete() }
+  })
+})

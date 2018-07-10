@@ -39,7 +39,7 @@ function Command(){
       isCommand: true,
       requiredSubsystems: () => requiredSubsystems,
       cancelable: () => cancelable,
-      createObservable: system => createObservable(system),
+      createObservable: (system, scheduler) => createObservable(system, scheduler),
       name: () => name,
     },
     require: (...args) => {
@@ -67,13 +67,22 @@ function Scheduler(subsystems=[], {  }={}){
   const instances = []
   const scheduler = {
     run: command => {
+      const instance = scheduler.build(command)
+      if(instance.lockingFailed){
+        return instance
+      }
+      return instance.run()
+    },
+    build: command => {
       assertCommand(command)
+      let result = checkForMissingRequires(command, subsystems)
+      if(result.lockingFailed) return result
       removeCancelableLocks(command, instances)
-      const result = checkForLockConflicts(command, instances)
+      result = checkForLockConflicts(command, instances)
       if(result.lockingFailed) return result
       const system = createSystemForCommand(command, subsystems)
       const { control, observable } = createControlForObservable(
-        command.internal.createObservable(system),
+        command.internal.createObservable(system, scheduler),
         {onStart: () => {}, onStop: () => {
           instances.splice(instances.indexOf(instance), 1)
           restartDefaultCommands(instance.locks, scheduler, subsystems, command)
@@ -81,9 +90,21 @@ function Scheduler(subsystems=[], {  }={}){
       )
       allowObservableToStopCommand(observable, control)
       const instance = createCommandInstance(command, control, observable, subsystems)
-      instances.push(instance)
-      control.start()
-      return instance.public
+      const withRun = {
+        ...instance.public,
+        run: () => {
+          if(!instances.includes(instance)){
+            instances.push(instance)
+            instance.control.start()
+          }
+          return withRun
+        },
+        then: handler => {
+          instance.public.then(handler)
+          return withRun
+        }
+      }
+      return withRun
     },
     runningByName: () => {
       return instances.map(instance => instance.command.internal.name())
@@ -139,6 +160,7 @@ const createCommandInstance = (command, control, observable, subsystems) => {
   const locks = command.internal.requiredSubsystems().filter(
     name => !subsystems.find(subsystem => subsystem.internal.name() == name).internal.shareable()
   )
+  let promise = null
   const instance = {
     control,
     locks,
@@ -156,7 +178,18 @@ const createCommandInstance = (command, control, observable, subsystems) => {
       abort: () => {
         control.stop()
       },
-      toPromise: () => observable.toPromise(),
+      then: handler => {
+        if(promise === null){
+          promise = observable.toPromise()
+        }
+        promise = promise.then(handler)
+      },
+      toPromise: () => {
+        if(promise === null){
+          return observable.toPromise()
+        }
+        return promise
+      },
       toObservable: () => observable,
     }
   }
@@ -179,7 +212,15 @@ const checkForLockConflicts = (command, instances) => {
           command: conflict.instance.command.internal.name(),
           subsystem: conflict.subsystem
         })
-      )
+      ),
+      toPromise: () => Promise.reject({
+        lockConflicts: lockConflicts.map(
+          conflict => ({
+            command: conflict.instance.command.internal.name(),
+            subsystem: conflict.subsystem
+          })
+        )
+      })
     }
   }
   return {
@@ -193,6 +234,25 @@ const createSystemForCommand = (command, subsystems) => {
     return system
   }, {})
   return system
+}
+
+const checkForMissingRequires = (command, subsystems) => {
+  const missingRequires = command.internal.requiredSubsystems().filter(
+    name => subsystems.findIndex(subsystem => subsystem.internal.name() == name) < 0
+  )
+  if(missingRequires.length > 0){
+    return {
+      lockingFailed: true,
+      missingRequires: missingRequires.map(
+        missing => ({
+          subsystem: missing
+        })
+      )
+    }
+  }
+  return {
+    lockingFailed: false,
+  }
 }
 
 const createControlForObservable = (observable, { onStart, onStop }) => {
