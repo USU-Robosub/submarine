@@ -9,14 +9,14 @@ test('once() runs the predicate a single time', () => {
     Command().action(once(() => 42))
   ).then(result => {
     expect(result).toBe(42)
-  }).run().toPromise()
+  }).run().to.promise()
 })
 
 test('delayThen() runs the predicate a single time after a delay', () => {
   const fn = jest.fn()
   return Scheduler().build(
     Command().action(delayThen(() => 42, 10))
-  ).run().toPromise().then(result => {
+  ).run().to.promise().then(result => {
     expect(result).toBe(42)
   })
 })
@@ -25,7 +25,7 @@ test('repeat() runs the predicate repeatedly forever', () => {
   const fn = jest.fn()
   return Scheduler().build(
     Command().action(repeat(() => 42))
-  ).run().toObservable().pipe(take(5), toArray()).toPromise().then(result => {
+  ).run().to.observable().pipe(take(5), toArray()).toPromise().then(result => {
     expect(result).toEqual([42, 42, 42, 42, 42])
   })
 })
@@ -34,7 +34,7 @@ test('repeatWithDelay() runs the predicate repeatedly forever with a delay betwe
   const fn = jest.fn()
   return Scheduler().build(
     Command().action(repeatWithDelay(() => 42, 10))
-  ).run().toObservable().pipe(take(5), toArray()).toPromise().then(result => {
+  ).run().to.observable().pipe(take(5), toArray()).toPromise().then(result => {
     expect(result).toEqual([42, 42, 42, 42, 42])
   })
 })
@@ -43,7 +43,7 @@ test('fromPromise() converts promise into a command action', () => {
   const fn = jest.fn()
   return Scheduler().build(
     Command().action(fromPromise(() => Promise.resolve(42)))
-  ).run().toPromise().then(result => {
+  ).run().to.promise().then(result => {
     expect(result).toBe(42)
   })
 })
@@ -57,7 +57,7 @@ test('sequence commands run one after another', () => {
       Command().action(delayThen(() => { order.push(3); return 3 }, 10)),
     )
   )
-  return instance.toObservable().pipe(toArray()).toPromise().then(result => {
+  return instance.to.observable().pipe(toArray()).toPromise().then(result => {
     expect(result).toEqual([1, 2, 3])
     expect(order).toEqual([1, 2, 3])
   })
@@ -72,7 +72,7 @@ test('concurrent commands run at the same time', () => {
       Command().action(delayThen(() => { order.push(3); return 3 }, 10)),
     )
   )
-  return instance.toObservable().pipe(toArray()).toPromise().then(result => {
+  return instance.to.observable().pipe(toArray()).toPromise().then(result => {
     expect(result).toEqual([3, 2, 1])
     expect(order).toEqual([3, 2, 1])
   })
@@ -98,7 +98,7 @@ test('create command that uses the same interface as FRC', () => {
   }
   return Scheduler(subsystems).run(
     Command().require('subsystem').action(frc(action))
-  ).toPromise().then(result => {
+  ).to.promise().then(result => {
     expect(result).toEqual([1, 2, 2])
 
     expect(action.init).toHaveBeenCalledTimes(1)
@@ -168,7 +168,7 @@ test('sequence allows a custom base observable', () => {
       Command().action(() => inner.pipe(take(1), map(() => 3))).named('3'),
     ).base(base).named('multiple')
   )
-  const promise = instance.toObservable().pipe(toArray()).toPromise().then(result => {
+  const promise = instance.to.observable().pipe(toArray()).toPromise().then(result => {
     expect(result).toEqual([1, 2, 3])
   })
   expect(scheduler.runningByName()).toEqual(['multiple'])
@@ -199,7 +199,7 @@ test('concurrent allows a custom base observable', () => {
       Command().action(() => inner.pipe(take(1), map(() => 3))).named('3'),
     ).base(base).named('multiple')
   )
-  const promise = instance.toObservable().pipe(toArray()).toPromise().then(result => {
+  const promise = instance.to.observable().pipe(toArray()).toPromise().then(result => {
     expect(result).toEqual([1, 2, 3])
   })
   expect(scheduler.runningByName()).toEqual(['multiple'])

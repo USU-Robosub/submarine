@@ -12,7 +12,7 @@ const sequential = (...commands) => {
         count(),
         concatMap(index => {
           const instance = scheduler.run(commands[index])
-          return instance.toObservable()
+          return instance.to.observable()
         })
       )
     ),
@@ -36,7 +36,7 @@ const concurrent = (...commands) => {
             if(instance.lockingFailed){
               throw Error(instance)
             }
-            return instance.toObservable()
+            return instance.to.observable()
           }))
         })
       )

@@ -1,13 +1,15 @@
 const { publish } = require('rxjs/operators')
+const { _throw } = require('rxjs')
 
 function Subsystem(raw={}){
   let shareable = false
   let defaultCommand = null
   let name = '<anonymous>'
+  let rawObj = raw
   const subsystem = {
     internal:{
       isSubsystem: true,
-      raw,
+      raw: () => rawObj,
       shareable: () => shareable,
       hasDefaultCommand: () => defaultCommand !== null,
       defaultCommand: () => defaultCommand,
@@ -25,6 +27,10 @@ function Subsystem(raw={}){
       name = string
       return subsystem
     },
+    raw: obj => {
+      rawObj = obj
+      return subsystem
+    }
   }
   return subsystem
 }
@@ -64,22 +70,36 @@ function Command(){
 
 function Scheduler(subsystems=[], {  }={}){
   subsystems.forEach(assertSubsystem)
+  const commands = []
   const instances = []
   const scheduler = {
+    remember: (...args) => {
+      const commandsToRemember = mergeIntoOneArray(args)
+      commandsToRemember.forEach(command => {
+        if(commands.findIndex(com => com.internal.name() == command.internal.name()) >= 0)
+          throw Error('Already remembered a command with the name ' + command.internal.name())
+        commands.push(command)
+      })
+    },
     run: command => {
       const instance = scheduler.build(command)
-      if(instance.lockingFailed){
+      if(instance.errors){
         return instance
       }
       return instance.run()
     },
     build: command => {
+      if(Object.prototype.toString.call(command) === "[object String]"){
+        if(commands.findIndex(com => com.internal.name() == command) < 0)
+          throw Error('Haven\'t remembered a command with the name ' + command)
+        command = commands.find(com => com.internal.name() == command)
+      }
       assertCommand(command)
       let result = checkForMissingRequires(command, subsystems)
-      if(result.lockingFailed) return result
+      if(result.errors) return result
       removeCancelableLocks(command, instances)
       result = checkForLockConflicts(command, instances)
-      if(result.lockingFailed) return result
+      if(result.errors) return result
       const system = createSystemForCommand(command, subsystems)
       const { control, observable } = createControlForObservable(
         command.internal.createObservable(system, scheduler),
@@ -90,13 +110,11 @@ function Scheduler(subsystems=[], {  }={}){
       )
       allowObservableToStopCommand(observable, control)
       const instance = createCommandInstance(command, control, observable, subsystems)
+      instances.push(instance)
       const withRun = {
         ...instance.public,
         run: () => {
-          if(!instances.includes(instance)){
-            instances.push(instance)
-            instance.control.start()
-          }
+          instance.control.start()
           return withRun
         },
         then: handler => {
@@ -166,7 +184,7 @@ const createCommandInstance = (command, control, observable, subsystems) => {
     locks,
     command,
     public: {
-      lockingFailed: false,
+      errors: null,
       cancelable: command.internal.cancelable(),
       cancel: () => {
         if(command.internal.cancelable()){
@@ -184,13 +202,15 @@ const createCommandInstance = (command, control, observable, subsystems) => {
         }
         promise = promise.then(handler)
       },
-      toPromise: () => {
-        if(promise === null){
-          return observable.toPromise()
-        }
-        return promise
-      },
-      toObservable: () => observable,
+      to: {
+        promise: () => {
+          if(promise === null){
+            return observable.toPromise()
+          }
+          return promise
+        },
+        observable: () => observable
+      }
     }
   }
   return instance
@@ -205,22 +225,20 @@ const checkForLockConflicts = (command, instances) => {
     ))
   , [])
   if(lockConflicts.length > 0){
-    return {
-      lockingFailed: true,
-      lockConflicts: lockConflicts.map(
+    const errors = {
+      conflicts: lockConflicts.map(
         conflict => ({
           command: conflict.instance.command.internal.name(),
           subsystem: conflict.subsystem
         })
-      ),
-      toPromise: () => Promise.reject({
-        lockConflicts: lockConflicts.map(
-          conflict => ({
-            command: conflict.instance.command.internal.name(),
-            subsystem: conflict.subsystem
-          })
-        )
-      })
+      )
+    }
+    return {
+      errors,
+      to: {
+        promise: () => Promise.reject(errors),
+        observable: () => _throw(errors)
+      }
     }
   }
   return {
@@ -230,7 +248,7 @@ const checkForLockConflicts = (command, instances) => {
 
 const createSystemForCommand = (command, subsystems) => {
   const system = command.internal.requiredSubsystems().reduce((system, name) => {
-    system[name] = subsystems.find(subsystem => subsystem.internal.name() == name).internal.raw
+    system[name] = subsystems.find(subsystem => subsystem.internal.name() == name).internal.raw()
     return system
   }, {})
   return system
@@ -241,13 +259,19 @@ const checkForMissingRequires = (command, subsystems) => {
     name => subsystems.findIndex(subsystem => subsystem.internal.name() == name) < 0
   )
   if(missingRequires.length > 0){
-    return {
-      lockingFailed: true,
-      missingRequires: missingRequires.map(
+    const errors = {
+      missing: missingRequires.map(
         missing => ({
           subsystem: missing
         })
       )
+    }
+    return {
+      errors,
+      to: {
+        promise: () => Promise.reject(errors),
+        observable: () => _throw(errors)
+      }
     }
   }
   return {

@@ -10,7 +10,7 @@ test('runs very simple command', () => {
   const mockFn = jest.fn()
   return Scheduler().run(
     Command().action(once(mockFn))
-  ).toPromise().then(() => {
+  ).to.promise().then(() => {
     expect(mockFn).toHaveBeenCalledTimes(1)
     expect(mockFn).toHaveBeenCalledWith({})
   })
@@ -26,12 +26,12 @@ test('runs command that requires a subsystem', () => {
   const mockFn = jest.fn()
   return Scheduler(subsystems).run(
     Command().require('test').action(once(mockFn))
-  ).toPromise().then(() => {
+  ).to.promise().then(() => {
     expect(mockFn).toHaveBeenCalledWith({test})
   })
 })
 
-test.only('only one command can use a subsystem by default', () => {
+test('only one command can use a subsystem by default', () => {
   const test = {
     method: () => {}
   }
@@ -41,7 +41,7 @@ test.only('only one command can use a subsystem by default', () => {
   const scheduler = Scheduler(subsystems)
   scheduler.run(Command().require('test').action(forever).named('first'))
   const instance = scheduler.run(Command().require('test').action(forever))
-  expect(instance.errors).toEqual({lockConflicts: [{command: 'first', subsystem: 'test'}]})
+  expect(instance.errors).toEqual({conflicts: [{command: 'first', subsystem: 'test'}]})
 })
 
 test('multiple commands can use a shared subsystem', () => {
@@ -149,7 +149,7 @@ test('cancels cancelable command when new command needs a subsystem', () => {
 test('can convert command instance to promise', () => {
   return Scheduler().run(
     Command().action(() => of(42).pipe(delay(1)))
-  ).toPromise().then(result => {
+  ).to.promise().then(result => {
     expect(result).toBe(42)
   })
 })
@@ -157,7 +157,7 @@ test('can convert command instance to promise', () => {
 test('can convert command instance to observable', () => {
   return Scheduler().run(
     Command().action(() => of(42).pipe(delay(1)))
-  ).toObservable().pipe(
+  ).to.observable().pipe(
     tap(result => expect(result).toBe(42))
   ).toPromise()
 })
@@ -166,7 +166,7 @@ test('can run command after creating result handlers', () => {
   const instance = Scheduler().build(
     Command().action(once(() => 42))
   )
-  const promise = instance.toPromise().then(result => {
+  const promise = instance.to.promise().then(result => {
     expect(result).toBe(42)
   })
   instance.run()
@@ -182,7 +182,7 @@ test('can call .then() on instance to add to promise chain', () => {
   }).then(result => {
     expect(result).toBe(101)
     return 123
-  }).run().toPromise().then(result => {
+  }).run().to.promise().then(result => {
     expect(result).toBe(123)
   })
 })
@@ -191,12 +191,12 @@ test('bind promise before running command using .then()', () => {
   return Promise.all([
     Scheduler().build(
       Command().action(once(() => 42))
-    ).run().toPromise().then(result => {
+    ).run().to.promise().then(result => {
       expect(result).not.toBeDefined()
     }),
     Scheduler().build(
       Command().action(once(() => 42))
-    ).then().run().toPromise().then(result => {
+    ).then().run().to.promise().then(result => {
       expect(result).toBe(42)
     }),
   ])
@@ -206,12 +206,32 @@ test('does not throw error if subsystem is not defined', () => {
   const instance = Scheduler().run(
     Command().require('nothing').action(once(() => 42))
   )
-  expect(instance.lockingFailed).toBeTruthy()
-  expect(instance.missingRequires).toEqual([{subsystem: 'nothing'}])
+  expect(instance.errors).toEqual({missing: [{subsystem: 'nothing'}]})
 })
 
 test('makes promise reject if creating run failed', () => {
-  return expect(() => Scheduler().run(
+  return expect(Scheduler().run(
     Command().require('nothing').action(once(() => 42))
-  ).toPromise()).rejects.toBe('test')
+  ).to.promise()).rejects.toEqual({missing: [{subsystem: 'nothing'}]})
+})
+
+test('a command reserves subsystems even if it is only built but not run', () => {
+  const system = [
+    Subsystem().named('nothing')
+  ]
+  const scheduler = Scheduler(system)
+  const instance = scheduler.build(
+    Command().require('nothing').action(forever).named('a')
+  )
+  return expect(scheduler.run(
+    Command().require('nothing').action(once(() => 42)).named('b')
+  ).to.promise()).rejects.toEqual({conflicts: [{subsystem: 'nothing', command: 'a'}]})
+})
+
+test.only('allow scheduler to remember commands', () => {
+  const scheduler = Scheduler()
+  scheduler.remember(Command().action(once(() => 42)).named('test'))
+  return expect(
+    scheduler.build('test').then().run().to.promise()
+  ).resolves.toBe(42)
 })
