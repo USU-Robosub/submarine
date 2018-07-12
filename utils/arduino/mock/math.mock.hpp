@@ -2,7 +2,7 @@
 #define MATH_MOCK
 
 double map(double x, double oldMin, double oldMax, double newMin, double newMax);
-int constrain(int x, int a, int b);
+double constrain(double x, double a, double b);
 double abs(double value);
 
 #ifdef MOCK_INCLUDE_SOURCE
@@ -11,7 +11,7 @@ double map(double x, double oldMin, double oldMax, double newMin, double newMax)
   return (((x - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin;
 }
 
-int constrain(int x, int a, int b){
+double constrain(double x, double a, double b){
   return (x < a ? a : (x > b ? b : x));
 }
 
