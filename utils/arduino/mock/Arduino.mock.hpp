@@ -5,10 +5,10 @@
 #include <math.mock.hpp>
 #include <Serial.mock.hpp>
 
-#define DIGITAL_PIN_COUNT 20
-#define ANALOG_PIN_COUNT 20
-#define PORT_CONFIG_COUNT 20
-#define INTERRUPT_COUNT 20
+#define DIGITAL_PIN_COUNT 30
+#define ANALOG_PIN_COUNT 30
+#define PORT_CONFIG_COUNT 30
+#define INTERRUPT_COUNT 30
 
 namespace Mock{
   namespace Arduino{
@@ -32,6 +32,7 @@ int digitalPinToInterrupt(int pin);
 void attachInterrupt(int interrupt, void(func) (), int type);
 void delay(int ammount);
 long millis();
+void memcpy(void* dest, void* source, int size);
 
 #ifdef MOCK_INCLUDE_SOURCE
 
@@ -98,6 +99,14 @@ int digitalRead(int pin){
 
 void analogWrite(int pin, int value){
   Mock::Arduino::analogPinStates[pin] = value;
+}
+
+void memcpy(void* dest, void* source, int size){
+  char* dest_temp = (char*)dest;
+  char* source_temp = (char*)source;
+  for(int i = 0; i < size; i++){
+    dest_temp[i] = source_temp[i];
+  }
 }
 
 #endif

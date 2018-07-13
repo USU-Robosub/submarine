@@ -4,6 +4,10 @@ Components::Motors::BlueRoboticsR1Esc::BlueRoboticsR1Esc(Components::Motors::Blu
   : pin(config.pin),
     maxReversePower(map(config.trim.maxReverse, MOTOR_REVERSE, MOTOR_STOP, BR_R1_PWM_MOTOR_REVERSE, BR_R1_PWM_MOTOR_STOP)),
     minReversePower(map(config.trim.minReverse, MOTOR_REVERSE, MOTOR_STOP, BR_R1_PWM_MOTOR_REVERSE, BR_R1_PWM_MOTOR_STOP)),
+    stopPower(config.trim.stop >= MOTOR_STOP ?
+      map(config.trim.stop, MOTOR_REVERSE, MOTOR_STOP, BR_R1_PWM_MOTOR_REVERSE, BR_R1_PWM_MOTOR_STOP) :
+      map(config.trim.stop, MOTOR_STOP, MOTOR_FORWARD, BR_R1_PWM_MOTOR_STOP, BR_R1_PWM_MOTOR_FORWARD)
+    ),
     minForwardPower(map(config.trim.minForward, MOTOR_STOP, MOTOR_FORWARD, BR_R1_PWM_MOTOR_STOP, BR_R1_PWM_MOTOR_FORWARD)),
     maxForwardPower(map(config.trim.maxForward, MOTOR_STOP, MOTOR_FORWARD, BR_R1_PWM_MOTOR_STOP, BR_R1_PWM_MOTOR_FORWARD)),
     isEnabled(false){
@@ -35,7 +39,7 @@ void Components::Motors::BlueRoboticsR1Esc::disable(){
 }
 
 void Components::Motors::BlueRoboticsR1Esc::stop(){
-  this->servo.writeMicroseconds(BR_R1_PWM_MOTOR_STOP);
+  this->servo.writeMicroseconds(this->stopPower);
 }
 
 void Components::Motors::BlueRoboticsR1Esc::forward(float amount){

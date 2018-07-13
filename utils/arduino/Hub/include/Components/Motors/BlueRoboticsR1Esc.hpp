@@ -13,20 +13,21 @@ namespace Components{
   namespace Motors{
     class BlueRoboticsR1Esc;
     struct BlueRoboticsR1EscConfig;
-    struct RangeWithDeadZone;
+    struct Trim;
   }
 }
 
-struct Components::Motors::RangeWithDeadZone{
+struct Components::Motors::Trim{
   float maxReverse;
   float minReverse;
+  float stop;
   float minForward;
   float maxForward;
 };
 
 struct Components::Motors::BlueRoboticsR1EscConfig{
   int pin;
-  RangeWithDeadZone trim;
+  Trim trim;
 };
 
 class Components::Motors::BlueRoboticsR1Esc : public Components::Motors::Motor{
@@ -45,6 +46,7 @@ private:
   Servo servo;
   float maxReversePower;
   float minReversePower;
+  float stopPower;
   float minForwardPower;
   float maxForwardPower;
   bool isEnabled;
