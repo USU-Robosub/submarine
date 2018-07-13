@@ -1,37 +1,25 @@
 #include <Controllers/Dive.hpp>
+#include <tools.hpp>
 
-#define BLUE_ROBOTICS_ESC_PWM_REVERSE 1100
-#define BLUE_ROBOTICS_ESC_PWM_FORWARD 1900
+Controllers::Dive::Dive(Components::Motors::Motor* front, Components::Motors::Motor* back)
+  : frontMotor(front),
+    backMotor(back){
 
-Controllers::Dive::Dive(int frontPin, int backPin, bool protectMotors)
-  : frontPin(frontPin),
-    backPin(backPin),
-    protectMotors(protectMotors),
-    stopped(true) { 
-  this->unfreeze();      
 }
 
 void Controllers::Dive::execute(Emitter* hub, int32_t* data, int32_t length){
-  if(length == 1 && !stopped){
-    // this->front.write(this->protectMotors ? constrain(data[0], 10, 170) : data[0]);
-    // this->back.write(this->protectMotors ? constrain(data[0], 10, 170) : data[0]);
-    this->front.writeMicroseconds(map(this->protectMotors ? constrain(data[0], 10, 170) : data[0], 0, 180, BLUE_ROBOTICS_ESC_PWM_REVERSE, BLUE_ROBOTICS_ESC_PWM_FORWARD));
-    this->back.writeMicroseconds(map(this->protectMotors ? constrain(data[0], 10, 170) : data[0], 0, 180, BLUE_ROBOTICS_ESC_PWM_REVERSE, BLUE_ROBOTICS_ESC_PWM_FORWARD));
+  if(length == 1){
+    this->frontMotor->power(int32AsFloat(data[0]));
+    this->backMotor->power(int32AsFloat(data[0]));
   }
 }
 
 void Controllers::Dive::freeze(){
-  stopped = true;
-  this->front.writeMicroseconds(1500);
-  this->back.writeMicroseconds(1500);
-  this->front.detach();
-  this->back.detach();
+  this->frontMotor->disable();
+  this->backMotor->disable();
 }
 
 void Controllers::Dive::unfreeze(){
-  stopped = false;
-  this->front.attach(this->frontPin);
-  this->back.attach(this->backPin);
-  this->front.writeMicroseconds(1500);
-  this->back.writeMicroseconds(1500);
+  this->frontMotor->enable();
+  this->backMotor->enable();
 }

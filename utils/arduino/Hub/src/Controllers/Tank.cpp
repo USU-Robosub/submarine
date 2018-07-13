@@ -1,37 +1,25 @@
 #include <Controllers/Tank.hpp>
+#include <tools.hpp>
 
-Controllers::Tank::Tank(int leftPin, int rightPin, bool protectMotors)
-  : left(),
-    right(),
-    protectMotors(protectMotors),
-    stopped(true),
-    leftPin(leftPin),
-    rightPin(rightPin){
-  this->left.attach(leftPin);
-  this->right.attach(rightPin);
-  this->left.write(90);
-  this->right.write(90);
+Controllers::Tank::Tank(Components::Motors::Motor* left, Components::Motors::Motor* right)
+  : leftMotor(left),
+    rightMotor(right){
+
 }
 
 void Controllers::Tank::execute(Emitter* hub, int32_t* data, int32_t length){
-  if(length == 2 && !stopped){
-    int mixLeft =  data[0] + (data[1] - 90);
-    int mixRight =  data[0] - (data[1] - 90);
-    this->left.write(this->protectMotors ? constrain(mixLeft, 10, 170) : mixLeft);
-    this->right.write(this->protectMotors ? constrain(mixRight, 10, 170) : mixRight);
+  if(length == 2){
+    this->leftMotor->power(int32AsFloat(data[0]) + int32AsFloat(data[1]));
+    this->rightMotor->power(int32AsFloat(data[0]) - int32AsFloat(data[1]));
   }
 }
 
 void Controllers::Tank::freeze(){
-  stopped = true;
-  this->left.write(90);
-  this->right.write(90);
-  this->left.detach();
-  this->right.detach();
+  this->leftMotor->disable();
+  this->rightMotor->disable();
 }
 
 void Controllers::Tank::unfreeze(){
-  stopped = false;
-  this->left.attach(this->leftPin);
-  this->right.attach(this->rightPin);
+  this->leftMotor->enable();
+  this->rightMotor->enable();
 }
