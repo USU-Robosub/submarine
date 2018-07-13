@@ -45,6 +45,8 @@ void createControllers(){
 
 void setupControllers(){
   //static_cast<Controllers::KillSwitch*>(controllers[1])->use(hub, hub);
+  static_cast<Controllers::Dive*>(controllers[2])->unfreeze();
+  static_cast<Controllers::Tank*>(controllers[3])->unfreeze();
 }
 
 void connectToSerial(){
