@@ -30,8 +30,11 @@ void Controllers::Dive::freeze(){
 
 void Controllers::Dive::unfreeze(){
   stopped = false;
+  digitalWrite(13, HIGH);
   this->front.attach(this->frontPin);
   this->back.attach(this->backPin);
   this->front.writeMicroseconds(1500);
   this->back.writeMicroseconds(1500);
+  delay(1000);
+  digitalWrite(13, LOW);
 }

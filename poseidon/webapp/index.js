@@ -44,8 +44,13 @@ function setSteering(x){
 function setDive(x){
   if(!killed) {
     socket.emit('dive', x)
+    document.getElemnt.ById("divestatus").innerHTML = x;
   }
 }
+let curDive = 90;
+let stop = function(){curDive = 90;setDive(curDive);};
+let downDive = function(){setDive(--curDive);};
+let upDive = function(){setDive(++curDive);};
 
 let mode = "single";
 let leftAxis = 0;

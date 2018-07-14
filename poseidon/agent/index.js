@@ -1,14 +1,15 @@
 const comm = require('./utils').comm
 const path = require('path')
-const app = require('express')()
+const express = require('express')
+const app = express();
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 
 app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.html')))
-app.get('/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/socketio/socket.io.min.js')))
-app.get('/rx.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/rxjs/rx.min.js')))
-app.get('/index.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.js')))
-
+app.get('/rsapp/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/socketio/socket.io.min.js')))
+app.get('/rsapp/rx.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/rxjs/rx.min.js')))
+app.get('/rsapp/index.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.js')))
+app.use(express.static(path.resolve(__dirname + '/../webapp')))
 function init(){
  comm.create({
    address: 'localhost',
@@ -48,4 +49,4 @@ function init(){
 
 init()
 
-http.listen(3000, () => console.log('Web app listening on port 3000'))
+http.listen(1234, () => console.log('Web app listening on port 3000'))
