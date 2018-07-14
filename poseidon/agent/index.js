@@ -23,15 +23,23 @@ function init(){
     })
     socket.on('throttle', function(x){
       console.log('throttle', x)
-      hub.emit('throttle', x)
+      hub.emit('tank/throttle', x)
     })
     socket.on('steering', function(x){
       console.log('steering', x)
-      hub.emit('steering', x)
+      hub.emit('tank/steering', x)
+    })
+    socket.on('left', function(x){
+      console.log('left', x)
+      hub.emit('tank/left', x)
+    })
+    socket.on('right', function(x){
+      console.log('right', x)
+      hub.emit('tank/right', x)
     })
     socket.on('dive', function(x){
       console.log('dive', x)
-      hub.emit('dive', x)
+      hub.emit('dive/power', x)
     })
     hub.on('killswitch', function(message){
       console.log('kill switch', message)

@@ -41,6 +41,18 @@ function setSteering(x){
   }
 }
 
+function setLeft(x){
+  if(!killed) {
+    socket.emit('left', x)
+  }
+}
+
+function setRight(x){
+  if(!killed) {
+    socket.emit('right', x)
+  }
+}
+
 function setDive(x){
   if(!killed) {
     socket.emit('dive', x)
@@ -164,5 +176,5 @@ filteredAxis(3).subscribe(axis => {
       socket.emit('dive', axis * 90 + 90)
     }
   }
-    
+
 })

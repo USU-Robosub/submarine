@@ -3,22 +3,13 @@
 #include <Comm/Serial/FullStack.hpp>
 #include <Comm/TCP/FullStack.hpp>
 #include <Vision/Livestream.hpp>
+#include <Comm/tools.hpp>
+#include <Subsystem/Dive.hpp>
+#include <Subsystem/Tank.hpp>
 
 #include <thread>
 #include <chrono>
 #include <string>
-
-float int32AsFloat(int32_t x){
-  float temp;
-  memcpy(&temp, &x, sizeof(temp));
-  return temp;
-}
-
-int32_t floatAsInt32(float x){
-  int32_t temp;
-  memcpy(&temp, &x, sizeof(temp));
-  return temp;
-}
 
 int main(){
   bool shouldExit = false;
@@ -36,7 +27,7 @@ int main(){
 
   std::cout << "created network" << std::endl;
 
-  int throttle = 90, steering = 90, dive = 90;
+  int throttle = 90, steering = 90;//, dive = 90;
 
   //arduino.hub()->on(1,[&agent](std::vector<int> message){
   //  bool enable = message.size()>0&&message.at(0)==1;
@@ -47,29 +38,12 @@ int main(){
     std::cout << "echo " << message[0] << std::endl;
   });
 
-  agent.hub()->on("throttle", [&throttle, &steering, &arduino](std::vector<std::string> message){
-    throttle = std::stoi(message[0]);
-    arduino.hub()->emit(3, std::vector<int>{floatAsInt32((float)(throttle - 90) / 90.0f), floatAsInt32((float)(steering - 90) / 90.0f)});
-    std::cout << "tank, throttle" << throttle << ", steering " << steering << std::endl;
-  });
-
-  agent.hub()->on("steering", [&throttle, &steering, &arduino](std::vector<std::string> message){
-    steering = std::stoi(message[0]);
-    arduino.hub()->emit(3, std::vector<int>{floatAsInt32((float)(throttle - 90) / 90.0f), floatAsInt32((float)(steering - 90) / 90.0f)});
-    std::cout << "tank, throttle" << throttle << ", steering " << steering << std::endl;
-  });
-
-  agent.hub()->on("dive", [&dive, &arduino](std::vector<std::string> message){
-    dive = std::stoi(message[0]);
-    arduino.hub()->emit(2, std::vector<int>{floatAsInt32((float)(dive - 90) / 90.0f)});
-    std::cout << "dive " << dive << std::endl;
-  });
+  Subsystem::Dive dive(arduino.hub(), 2, agent.hub(), "dive");
+  Subsystem::Tank tank(arduino.hub(), 3, agent.hub(), "tank");
 
   while(!shouldExit){
-    //std::cout << "o" << std::endl;
     arduino.hub()->poll();
     agent.hub()->poll();
-    //arduino.hub()->emit(0, std::vector<int>{10});
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
