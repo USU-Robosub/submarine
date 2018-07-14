@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <string>
 #include <Servo.h>
+#include <Arduino.h>
 #include <sstream>
 #include <iomanip>
 
@@ -49,6 +50,20 @@ std::string asciiBoard[ASCII_BOARD_SIZE] = {
   "+-------------------------------+",
 };
 
+#define SHIFT_REGISTER_CHIP_SIZE 10
+std::string shiftRegisterChip[SHIFT_REGISTER_CHIP_SIZE] = {
+  "+-----\\__/-----+",
+  "| []1    VCC[] |",
+  "| []2      0[] |",
+  "| []3     DS[] |",
+  "| []4     OE[] |",
+  "| []5   STCP[] |",
+  "| []6   SHCP[] |",
+  "| []7     MR[] |",
+  "| []GND   7'[] |",
+  "+--------------+",
+};
+
 void initScreen(){
   signal(SIGWINCH, signalHandler);
 
@@ -80,6 +95,18 @@ int serialBaud = 0;
 void setSerialInfo(std::string port, int baud){
   serialPath = port;
   serialBaud = baud;
+}
+
+Mock::Device::ShiftRegister* _shiftRegister = nullptr;
+int _shiftClockPin;
+int _storageClockPin;
+int _dataPin;
+
+void displayShiftRegister(Mock::Device::ShiftRegister* shiftRegister, int shiftClockPin, int storageClockPin, int dataPin){
+  _shiftRegister = shiftRegister;
+  _shiftClockPin = shiftClockPin;
+  _storageClockPin = storageClockPin;
+  _dataPin = dataPin;
 }
 
 void updateBoard(){
@@ -123,6 +150,38 @@ void updateBoard(){
         mvprintw(boardY + 5 + 10 - (i - 13), boardX + asciiBoard[0].length() + 1, "Servo");
         mvprintw(boardY + 5 + 10 - (i - 13), boardX + asciiBoard[0].length() + 1 + 6, std::to_string(Servo::delay[i]).c_str());
       }
+    }else{
+      if(i <= 12){
+        if(Mock::Arduino::digitalPinModes[i] == OUTPUT){
+          mvprintw(boardY + 3 + i, boardX - 7, "OUTPUT");
+          mvprintw(boardY + 3 + i, boardX - 7 - 5, (Mock::Arduino::digitalPinStates[i] == HIGH ? "HIGH" : "LOW"));
+        }
+      }else{
+        // TODO
+      }
+    }
+  }
+
+  int shiftY = boardY + ASCII_BOARD_SIZE + 1;
+  int shiftX = width/2 - shiftRegisterChip[0].length()/2;
+  // print board
+  for(int i = 0; i < SHIFT_REGISTER_CHIP_SIZE; i++){
+    mvprintw(shiftY + i, shiftX, shiftRegisterChip[i].c_str());
+  }
+  // mvprintw(shiftY + 1, shiftX + shiftRegisterChip[0].length() + 1, "+5V");
+  // mvprintw(shiftY + SHIFT_REGISTER_CHIP_SIZE - 2, shiftX - 4, "+0V");
+  mvprintw(shiftY + SHIFT_REGISTER_CHIP_SIZE - 4, shiftX + shiftRegisterChip[0].length() + 1, ("PIN #" + std::to_string(_shiftClockPin)).c_str());
+  mvprintw(shiftY + SHIFT_REGISTER_CHIP_SIZE - 5, shiftX + shiftRegisterChip[0].length() + 1, ("PIN #" + std::to_string(_storageClockPin)).c_str());
+  mvprintw(shiftY + 3, shiftX + shiftRegisterChip[0].length() + 1, ("PIN #" + std::to_string(_dataPin)).c_str());
+  // print shiftRegister
+  for(int i = 0; i < 8; i++){
+    if(i == 0){
+      mvprintw(shiftY + 2 + i, shiftX + shiftRegisterChip[0].length(), "                    ");
+      mvprintw(shiftY + 2 + i, shiftX + shiftRegisterChip[0].length() + 1, (_shiftRegister->pins[i] == HIGH ? "HIGH" : "LOW"));
+    }else{
+      mvprintw(shiftY + 1 + i - 1, shiftX - 20, "                    ");
+      mvprintw(shiftY + 1 + i - 1, shiftX - 7, "OUTPUT");
+      mvprintw(shiftY + 1 + i - 1, shiftX - 7 - 5, (_shiftRegister->pins[i] == HIGH ? "HIGH" : "LOW"));
     }
   }
   refresh();

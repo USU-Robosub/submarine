@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 #include <Components/Motors/BlueRoboticsR1Esc.hpp>
+#include <Components/Chips/ShiftRegister.hpp>
 
 #include <Controllers/Empty.hpp>
 #include <Controllers/Echo.hpp>
@@ -11,6 +12,7 @@
 #include <Controllers/Tank.hpp>
 
 typedef Components::Motors::BlueRoboticsR1Esc Motor;
+typedef Components::Chips::ShiftRegister ShiftRegister;
 
 struct Thrusters{
   Motor* front;
@@ -24,6 +26,8 @@ struct Thrusters{
 Hub* hub;
 Controller** controllers;
 Thrusters thrusters;
+ShiftRegister* shiftRegister;
+
 
 void createComponents(){
   thrusters.front = new Motor({.pin=FRONT_MOTOR_PIN, .trim=MOTOR_DEFAULT_TRIM}),
@@ -59,13 +63,20 @@ void pollSerialData(){
 
 void setup()
 {
+  shiftRegister = new ShiftRegister({.shiftClockPin=10, .storageClockPin=11, .dataPin=12, .blinkDelay=500});
+  shiftRegister->blinkPin(4);
   createComponents();
   createControllers();
   connectToSerial();
   setupControllers();
 }
 
+bool state = false;
+
 void loop() {
+  state = !state;
+  shiftRegister->pin(0, state);
+  shiftRegister->update();
   pollSerialData();
   delay(LOOP_DELAY);
 }

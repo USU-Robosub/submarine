@@ -78,6 +78,9 @@ int main(int argc, char** args){
 
   //std::cout << "Arduino Emulator v0.1" << std::endl;
   Mock::Arduino::$reset();
+  Mock::Arduino::$enableMillis();
+  Mock::Device::ShiftRegister shiftRegister(10, 11, 12);
+  displayShiftRegister(&shiftRegister, 10, 11, 12);
   //std::cout << "Running setup()" << std::endl;
   setup();
   //std::cout << "Starting loop()" << std::endl;
