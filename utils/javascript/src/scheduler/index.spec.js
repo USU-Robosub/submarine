@@ -228,10 +228,18 @@ test('a command reserves subsystems even if it is only built but not run', () =>
   ).to.promise()).rejects.toEqual({conflicts: [{subsystem: 'nothing', command: 'a'}]})
 })
 
-test.only('allow scheduler to remember commands', () => {
+test('allow scheduler to remember commands', () => {
   const scheduler = Scheduler()
   scheduler.remember(Command().action(once(() => 42)).named('test'))
   return expect(
     scheduler.build('test').then().run().to.promise()
   ).resolves.toBe(42)
+})
+
+test('promise resolves when command is canceled', () => {
+  const scheduler = Scheduler()
+  const instance = scheduler.run(Command().action(() => interval(100)).makeCancelable())
+  const promise = instance.to.promise()
+  instance.cancel()
+  return expect(promise).resolves.not.toBeDefined()
 })

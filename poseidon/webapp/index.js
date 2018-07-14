@@ -19,6 +19,14 @@ socket.on("killswitch", ( hub, message )=>{
   }
 });
 
+socket.on('dive/lost', () => {
+  console.log('Lost control over dive subsystem')
+})
+
+socket.on('tank/lost', () => {
+  console.log('Lost control over tank subsystem')
+})
+
 function setTank(left, right){
   if(!killed) {
     let throttle = 2 - (left + right)/2;

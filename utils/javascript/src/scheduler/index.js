@@ -1,5 +1,5 @@
-const { publish } = require('rxjs/operators')
-const { _throw } = require('rxjs')
+const { publish, takeUntil } = require('rxjs/operators')
+const { _throw, Subject } = require('rxjs')
 
 function Subsystem(raw={}){
   let shareable = false
@@ -280,7 +280,8 @@ const checkForMissingRequires = (command, subsystems) => {
 }
 
 const createControlForObservable = (observable, { onStart, onStop }) => {
-  const publishedObservable = observable.pipe(publish())
+  const stopSubject = new Subject()
+  const publishedObservable = observable.pipe(takeUntil(stopSubject), publish())
   const control = {
     subscription: null,
     started: false,
@@ -301,7 +302,7 @@ const createControlForObservable = (observable, { onStart, onStop }) => {
         control.stoppedWhenStarting = true
       }else if(!control.stopped){
         control.stopped = true
-        control.subscription.unsubscribe()
+        stopSubject.next()
         onStop()
       }
     },
