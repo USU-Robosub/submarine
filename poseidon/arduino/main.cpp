@@ -64,18 +64,112 @@ void pollSerialData(){
 void setup()
 {
   shiftRegister = new ShiftRegister({.shiftClockPin=10, .storageClockPin=11, .dataPin=12, .blinkDelay=500});
-  shiftRegister->blinkPin(4);
+  // shiftRegister->blinkPin(0);
+  // shiftRegister->blinkPin(2);
+  // shiftRegister->blinkPin(5);
+  // shiftRegister->blinkPin(7);
   createComponents();
   createControllers();
   connectToSerial();
   setupControllers();
 }
 
-bool state = false;
+//bool state = false;
+int index = 0;
+unsigned long lastMillis = 0;
 
 void loop() {
-  state = !state;
-  shiftRegister->pin(0, state);
+  if(lastMillis + 75 < millis()){
+    lastMillis = millis();
+
+    // spin
+    // shiftRegister->pin(index >= 4 ? 11 - index : index, LOW);
+    // index = (index + 1) % 8;
+    // shiftRegister->pin(index >= 4 ? 11 - index : index, HIGH);
+
+    // bounce
+    // shiftRegister->pin(abs(-index + 3) + 4, LOW);
+    // index = (index + 1) % 6;
+    // shiftRegister->pin(abs(-index + 3) + 4, HIGH);
+
+    // progress
+    // if(index <= 3){
+    //   shiftRegister->pin(index + 4, LOW);
+    // }
+    // index = (index + 1) % 8;
+    // if(index + 1 <= 3){
+    //   shiftRegister->pin(index + 4, HIGH);
+    //   shiftRegister->pin(index + 5, HIGH);
+    // }
+
+    // fast bounce
+    // shiftRegister->pin(abs(-index + 2) + 4, LOW);
+    // shiftRegister->pin(abs(-index + 2) + 5, LOW);
+    // index = (index + 1) % 4;
+    // shiftRegister->pin(abs(-index + 2) + 4, HIGH);
+    // shiftRegister->pin(abs(-index + 2) + 5, HIGH);
+
+    // large bounce
+    // shiftRegister->pin(0, LOW);
+    // shiftRegister->pin(1 + 4, LOW);
+    // shiftRegister->pin(2, LOW);
+    // shiftRegister->pin(3 + 4, LOW);
+    // index = (index + 1) % 18;
+    // int pos = abs(-index + 9) - 3;
+    // if(abs(pos) < 2){
+    //   shiftRegister->pin(0, HIGH);
+    // }
+    // if(abs(pos - 1) < 2){
+    //   shiftRegister->pin(1 + 4, HIGH);
+    // }
+    // if(abs(pos - 2) < 2){
+    //   shiftRegister->pin(2, HIGH);
+    // }
+    // if(abs(pos - 3) < 2){
+    //   shiftRegister->pin(3 + 4, HIGH);
+    // }
+
+    shiftRegister->pin(0, LOW);
+    shiftRegister->pin(1 + 4, LOW);
+    shiftRegister->pin(2, LOW);
+    shiftRegister->pin(3 + 4, LOW);
+
+    shiftRegister->pin(0 + 4, LOW);
+    shiftRegister->pin(1, LOW);
+    shiftRegister->pin(2 + 4, LOW);
+    shiftRegister->pin(3, LOW);
+
+    index = (index + 1) % 26;
+    int pos = abs(-index + 13) - 3;
+
+    if(abs(pos) < 2){
+      shiftRegister->pin(0, HIGH);
+    }
+    if(abs(pos - 1) < 2){
+      shiftRegister->pin(1, HIGH);
+    }
+    if(abs(pos - 2) < 2){
+      shiftRegister->pin(2, HIGH);
+    }
+    if(abs(pos - 3) < 2){
+      shiftRegister->pin(3, HIGH);
+    }
+
+    if(abs(pos - 4) < 2){
+      shiftRegister->pin(7, HIGH);
+    }
+    if(abs(pos - 5) < 2){
+      shiftRegister->pin(6, HIGH);
+    }
+    if(abs(pos - 6) < 2){
+      shiftRegister->pin(5, HIGH);
+    }
+    if(abs(pos - 7) < 2){
+      shiftRegister->pin(4, HIGH);
+    }
+  }
+  // state = !state;
+  // shiftRegister->pin(0, state);
   shiftRegister->update();
   pollSerialData();
   delay(LOOP_DELAY);

@@ -15,7 +15,7 @@ file(GLOB_RECURSE SOURCE_FILES "${SOURCE_DIR}/*.cpp" "${SOURCE_DIR}/../../utils/
 
 # remove CMakeCXXCompilerId.cpp and test files
 foreach(SOURCE_FILE ${SOURCE_FILES})
-  if(SOURCE_FILE MATCHES "CMakeCXXCompilerId|spec.cpp")
+  if(SOURCE_FILE MATCHES "CMakeCXXCompilerId|spec.cpp|\\.piolibdeps")
     LIST(REMOVE_ITEM SOURCE_FILES ${SOURCE_FILE})
   endif()
 endforeach()

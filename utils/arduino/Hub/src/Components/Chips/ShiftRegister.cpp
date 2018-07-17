@@ -14,18 +14,18 @@ void Components::Chips::ShiftRegister::shiftInBit(bool state){
     digitalWrite(this->config.dataPin, LOW); // write off
   }
   digitalWrite(this->config.shiftClockPin, LOW); // reset clock pin
-  delay(5);
+  //delay(1);
   digitalWrite(this->config.shiftClockPin, HIGH); // shift bit in
-  delay(5);
+  //delay(1);
   digitalWrite(this->config.dataPin, LOW); // reset data pin
   digitalWrite(this->config.shiftClockPin, LOW); // reset clock pin
 }
 
 void Components::Chips::ShiftRegister::show(){
   digitalWrite(this->config.storageClockPin, LOW);
-  delay(5);
+  //delay(1);
   digitalWrite(this->config.storageClockPin, HIGH);
-  delay(5);
+  //delay(1);
   digitalWrite(this->config.storageClockPin, LOW);
 }
 
