@@ -14,22 +14,19 @@ namespace Calibration{
 #define Y 1
 #define Z 2
 
-#define MATRIX_3X3 3
+#define RAD_DOWN (PI * -0.5f)
 
-#define MESH_PHI_RESOLUTION 12
+#define ANGULAR_RESOLUTION 12
+#define MESH_PHI_RESOLUTION ANGULAR_RESOLUTION
 #define MESH_THETA_RESOLUTION (2 * MESH_PHI_RESOLUTION)
-#define MAX_SAMPLES 240 // must be less than or equal to MESH_PHI_RESOLUTION * MESH_THETA_RESOLUTION
+#define MAX_SAMPLES_PER_BIN 4
 
-#define DEFAULT_GEOMAGNETIC_FIELD 50.0f // (uT)
+// expected orientation z axis up, x axis forward
 
-#define RAD_DOWN PI * -0.5f
-#define EMPTY_BIN -1
-
-// sensor generates -2048 - 2048 at a gain level
-// use int16_t to minimize size
-
-// this algorithm works best if the sensor outputs data oriented with the
-// z axis pointing up, and the x/y axis level with the ground, x axis pointing forward
+// store samples in a mesh that is based on bucket sort
+// uses sphere coordinantes to place smaples into groups
+// phi angle of projection on xz plane
+// theta angle of projection on xy plane
 
 class Calibration::Magnetic{
 private:
@@ -39,37 +36,38 @@ private:
   };
 
 public:
+  struct Model{
+    int32_t hardIronOffset[VECTOR3]; // (nT)
+    float scale[VECTOR3];
+  };
+
   struct Sample{
-    int16_t x;
-    int16_t y;
-    int16_t z;
+    int32_t x; // (nT)
+    int32_t y; // (nT)
+    int32_t z; // (nT)
   };
 
   Magnetic();
   void addSample(Sample sample);
-  void generateModelForOnlyHardIron();
-  Sample transform(Sample sample);
+  Model generateModel();
+  float getCoverage();
+
+  int32_t(*samples())[VECTOR3][MAX_SAMPLES_PER_BIN][MESH_PHI_RESOLUTION][MESH_THETA_RESOLUTION];
 
 private:
-
   void precalculateTangents();
   void initMesh();
 
   Bin getBinForSample(Sample sample);
   void insertSample(Sample sample, Bin bin);
-  Bin findOldestSample();
+  void removeOldestSampleFromBin(Bin bin);
 
-  int16_t sampleMesh[VECTOR3][MESH_PHI_RESOLUTION][MESH_THETA_RESOLUTION];
-  int32_t sampleTimes[MESH_PHI_RESOLUTION][MESH_THETA_RESOLUTION];
-  int16_t sampleCount;
-  int32_t time;
+  // 2D matrix where each entry is a circular buffer of 3D vectors
+  int32_t sampleMesh[VECTOR3][MAX_SAMPLES_PER_BIN][MESH_PHI_RESOLUTION][MESH_THETA_RESOLUTION];
+  int8_t sampleIndex[MESH_PHI_RESOLUTION][MESH_THETA_RESOLUTION];
+  int8_t sampleCount[MESH_PHI_RESOLUTION][MESH_THETA_RESOLUTION];
 
-  float hardIronOffset[VECTOR3]; // (uT)
-  float inverseSoftIronMatrix[MATRIX_3X3][MATRIX_3X3];
-  float geomagneticFieldMagnitude; // (uT)
-  float fitError; // (%)
-
-  int16_t tangentBins[MESH_PHI_RESOLUTION - 1];
+  int16_t tangentBins[ANGULAR_RESOLUTION - 1];
 };
 
 #endif

@@ -7,6 +7,9 @@ double map(double x, double oldMin, double oldMax, double newMin, double newMax)
 double constrain(double x, double a, double b);
 double abs(double value);
 double tan(double value);
+double sin(double value);
+double cos(double value);
+double sqrt(double value);
 
 #ifdef MOCK_INCLUDE_SOURCE
 
@@ -28,6 +31,18 @@ double abs(double value){
 
 double tan(double value){
   return RAW_CPP::tan(value);
+}
+
+double sin(double value){
+  return RAW_CPP::sin(value);
+}
+
+double cos(double value){
+  return RAW_CPP::cos(value);
+}
+
+double sqrt(double value){
+  return RAW_CPP::sqrt(value);
 }
 
 #endif
