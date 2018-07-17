@@ -28,6 +28,7 @@ public:
   void push(const unsigned char* buffer, std::size_t length);
   std::size_t poll(unsigned char* buffer, std::size_t length);
   void restartArduino();
+  static std::string portNameFromPath(std::string portPath);
 
 private:
   void configure();

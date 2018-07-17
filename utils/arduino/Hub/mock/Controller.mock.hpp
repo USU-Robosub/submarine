@@ -1,5 +1,5 @@
-#ifndef EMITTER_MOCK
-#define EMITTER_MOCK
+#ifndef CONTROLLER_MOCK
+#define CONTROLLER_MOCK
 
 #include <Controller.hpp>
 

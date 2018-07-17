@@ -2,18 +2,123 @@
 <html>
   <head>
     <title>Submarine Control Terminal</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-    </style>
-    <script src="/socket.js"></script>
-    <script src="/rx.js"></script>
+    <link rel="stylesheet" href="/rsapp/fontawesome/css/all.css" />
+    <link rel="stylesheet" href="/rsapp/css/animate.css" />
+    <link rel="stylesheet" href="/rsapp/bulma/css/bulma.css" />
+    <script src="/rsapp/socket.js"></script>
+    <script src="/rsapp/rx.js"></script>
   </head>
   <body>
-    <h1>Submarine Control Terminal</h1>
-    <h3>Utah State Robosub Team</h3>
-    <p>Use a joystick to control submarine.</p>
-
-    <script src="/index.js"></script>
+    <section class="section">
+      <div class="container">
+        <h1 class="title">Submarine Control Terminal</h1>
+        <h2 class="subtitle">Utah State Robosub Team</h3>
+        <p>Use a joystick to control submarine.</p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="container">
+        <div class="tile is-ancestor is-vertical">
+          <div class="tile is-parent">
+            <div class="tile is-child box notification is-danger is-hidden" id="killed">
+              <h1>Killed Switch Active</h1>
+            </div>
+          </div>
+          <div class="tile">
+            <div class="tile is-parent">
+              <div class="tile is-child box">
+                <h3 class="title is-3">Dive</h3>
+                <div class="columns">
+                    <div class="column is-3">
+                      <button  class="button is-primary is-large" onclick="upDive();">
+                        <span class="icon is-small">
+                        <i class="fas fa-angle-double-up"></i>
+                      </span>
+                      </button><br>
+                      <button  class="button is-danger is-large" onclick="stopDive();">
+                        <span class="icon is-small">
+                        <i class="fas fa-stop"></i>
+                      </span>
+                      </button><br>
+                      <button  class="button is-primary is-large" onclick="downDive();">
+                        <span class="icon is-small">
+                        <i class="fas fa-angle-double-down"></i>
+                      </span>
+                      </button>
+                    </div>
+                    <div class="column">
+                      <h4 class="title is-4">Status</h4>
+                      <p id="divestatus"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tile is-parent">
+                <div class="tile is-child box">
+                  <h3 class="title is-3">Thrust</h3>
+                  <div class="columns">
+                      <div class="column is-3">
+                        <button  class="button is-primary is-large" onclick="upThrust();">
+                          <span class="icon is-small">
+                          <i class="fas fa-angle-double-up"></i>
+                        </span>
+                        </button><br>
+                        <button  class="button is-danger is-large" onclick="stopThrust();">
+                          <span class="icon is-small">
+                          <i class="fas fa-stop"></i>
+                        </span>
+                        </button><br>
+                        <button  class="button is-primary is-large" onclick="downThrust();">
+                          <span class="icon is-small">
+                          <i class="fas fa-angle-double-down"></i>
+                        </span>
+                        </button>
+                      </div>
+                      <div class="column">
+                        <h4 class="title is-4">Status</h4>
+                        <p id="thruststatus"></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="tile is-parent">
+                  <div class="tile is-child box">
+                    <h3 class="title is-3">Steer</h3>
+                    <div>
+                        <div>
+                          <button  class="button is-primary is-large" onclick="leftSteer();">
+                            <span class="icon is-small">
+                            <i class="fas fa-angle-double-left"></i>
+                          </span>
+                          </button>
+                          <button  class="button is-danger is-large" onclick="stopSteer();">
+                            <span class="icon is-small">
+                            <i class="fas fa-stop"></i>
+                          </span>
+                          </button>
+                          <button  class="button is-primary is-large" onclick="rightSteer();">
+                            <span class="icon is-small">
+                            <i class="fas fa-angle-double-right"></i>
+                          </span>
+                          </button>
+                        </div>
+                        <div>
+                          <h4 class="title is-4">Status</h4>
+                          <p id="steerstatus"></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!--<img src="http://192.168.1.101:8082" class="shrinkToFit" width="500">-->
+    <!--<img src="http://192.168.1.101:8083" class="shrinkToFit" width="500">-->
+    <!--<img src="http://192.168.1.101:8084" class="shrinkToFit" width="500">-->
+    <script src="/rsapp/index.js"></script>
   </body>
 </html>

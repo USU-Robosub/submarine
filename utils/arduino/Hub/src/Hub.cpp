@@ -9,7 +9,6 @@ Hub::Hub(Controller** controllers, int numControllers, int maxReadsPerPoll)
 , maxReadsPerPoll(maxReadsPerPoll)
 {
   Serial.begin(115200);//115200
-  while(!Serial){}
 }
 
 void Hub::serveEvent(){
@@ -21,7 +20,7 @@ void Hub::serveEvent(){
 void Hub::poll()
 {
   int count = 0;
-  while(Serial.available() >= 4 && count < this->maxReadsPerPoll){
+  while(Serial && Serial.available() >= 4 && count < this->maxReadsPerPoll){
     ++count;
     switch(this->state){
       case MessageState::CHECK:
@@ -94,4 +93,21 @@ void Hub::writeInt(int32_t value)
 
 int32_t Hub::read(){
   return Serial.read();
+}
+
+void Hub::freeze(){
+  for(int32_t i = 0; i < _numControllers; i++)  {
+    if(_controllers[i]->type() == ControllerType::FREEZABLE){
+      ((FreezableController*)_controllers[i])->freeze();
+    }
+  }
+}
+
+void Hub::unfreeze()
+{
+  for(int32_t i = 0; i < _numControllers; i++)  {
+    if(_controllers[i]->type() == ControllerType::FREEZABLE){
+      ((FreezableController*)_controllers[i])->unfreeze();
+    }
+  }
 }
