@@ -19,6 +19,9 @@ protected:
   std::string name;
 };
 
-#include "../../src/Comm/Remote.ipp"
+template<typename U>
+void Comm::Remote::attach(std::string method, void (U::*handler) (std::vector<std::string>), U* _this){
+  this->hub->on(this->name + '/' + method, std::bind(handler, _this, std::placeholders::_1));
+}
 
 #endif

@@ -19,6 +19,14 @@ socket.on("killswitch", ( hub, message )=>{
   }
 });
 
+socket.on('dive/lost', () => {
+  console.log('Lost control over dive subsystem')
+})
+
+socket.on('tank/lost', () => {
+  console.log('Lost control over tank subsystem')
+})
+
 function setTank(left, right){
   if(!killed) {
     let throttle = 2 - (left + right)/2;
@@ -38,6 +46,18 @@ function setThrottle(x){
 function setSteering(x){
   if(!killed) {
     socket.emit('steering', x)
+  }
+}
+
+function setLeft(x){
+  if(!killed) {
+    socket.emit('left', x)
+  }
+}
+
+function setRight(x){
+  if(!killed) {
+    socket.emit('right', x)
   }
 }
 
@@ -169,5 +189,5 @@ filteredAxis(3).subscribe(axis => {
       socket.emit('dive', axis * 90 + 90)
     }
   }
-    
+
 })

@@ -13,6 +13,6 @@
   "frameworks": "*",
   "platforms": "*",
   "build": {
-    "srcFilter": "+<../main.cpp> +<*> -<.git/> -<svn/> -<example/> -<examples/> -<test/> -<tests/> -<*.spec.*> -<**/*.spec.*> -<**/**/*.spec.*>"
+    "srcFilter": "+<../main.cpp> +<*> -<.git/> -<svn/> -<example/> -<examples/> -<test/> -<tests/> -<*.spec.*> -<**/*.spec.*> -<**/**/*.spec.*> -<**/**/**/*.spec.*>"
   }
 }

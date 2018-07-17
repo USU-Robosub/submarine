@@ -8,21 +8,35 @@ namespace Mock{
   public:
     bool isStarted = false;
 
-    void begin(int port) {
+    void begin(int baud) {
+      if(this->begin_itr != nullptr){
+        this->begin_itr(baud);
+        return;
+      }
       this->isStarted = true;
     }
 
     int available(){
+      if(this->available_itr != nullptr){
+        return this->available_itr();
+      }
       return this->bufferLength - this->bufferReadIndex;
     }
 
     void write(unsigned char* buffer, long length){
+      if(this->write_itr != nullptr){
+        this->write_itr(buffer, length);
+        return;
+      }
       for(int i = 0; i < length; ++i){
         this->buffer[bufferWriteIndex++] = buffer[i];
       }
     }
 
     int16_t read() {
+      if(this->read_itr != nullptr){
+        return this->read_itr();
+      }
       return this->buffer[bufferReadIndex++];
     }
 
@@ -59,12 +73,24 @@ namespace Mock{
       this->bufferLength = length * 4;
     }
 
+    void $intercept(int16_t (*read)(), void (*write)(unsigned char* buffer, long length), int (*available)(), void (*begin)(int port)){
+      this->read_itr = read;
+      this->write_itr = write;
+      this->available_itr = available;
+      this->begin_itr = begin;
+    }
+
     unsigned char buffer[BUFFER_SIZE] = {0};
 
   private:
     int bufferReadIndex = 0;
     int bufferWriteIndex = 0;
     int bufferLength = 0;
+
+    int16_t (*read_itr)() = nullptr;
+    void (*write_itr)(unsigned char* buffer, long length) = nullptr;
+    int (*available_itr)() = nullptr;
+    void (*begin_itr)(int port) = nullptr;
   };
 }
 

@@ -60,7 +60,7 @@ endforeach()
 message("C/C++ standard libraries have been disabled for the following files:")
 foreach(SOURCE_FILE ${SOURCE_FILES})
   message(" - ${SOURCE_FILE}")
-  set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")
+  #set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-nostdlib -fno-exceptions -fno-rtti -nostdinc++ -nostdinc")
 endforeach()
 
 # ===============================================

@@ -1,35 +1,27 @@
 #include <catch2/catch.hpp>
 #include <Controllers/Dive.hpp>
-
-TEST_CASE("dive attaches both motors", "[dive]"){
-  Servo::$reset();
-  REQUIRE_FALSE( Servo::attached[1] );
-  REQUIRE_FALSE( Servo::attached[2] );
-  Controllers::Dive dive(1, 2);
-  REQUIRE( Servo::attached[1] );
-  REQUIRE( Servo::attached[2] );
-}
+#include <Components/Motors/Motor.mock.hpp>
+#include <tools.hpp>
 
 TEST_CASE("dive sets both motors to same speed", "[dive]"){
-  Servo::$reset();
-  Controllers::Dive dive(1, 2, false);
-  int32_t data[1] = { 4000 };
+  Mock::Components::Motors::Motor front, back;
+  Controllers::Dive dive(&front, &back);
+  int32_t data[1] = { floatAsInt32(0.78) };
   dive.unfreeze();
   dive.execute(nullptr, data, 1);
-  REQUIRE( Servo::speed[1] == 4000 );
-  REQUIRE( Servo::speed[2] == 4000 );
+  REQUIRE( front.$power == 0.78f );
+  REQUIRE( back.$power == 0.78f );
 }
 
-TEST_CASE("dive limits speed in safe mode", "[dive]"){
-  Servo::$reset();
-  Controllers::Dive dive(1, 2);
-  int32_t data[1] = { 181 };
+TEST_CASE("dive enables and disables motors when frozen", "[dive]"){
+  Mock::Components::Motors::Motor front, back;
+  Controllers::Dive dive(&front, &back);
+  REQUIRE_FALSE( front.$isEnabled );
+  REQUIRE_FALSE( back.$isEnabled );
   dive.unfreeze();
-  dive.execute(nullptr, data, 1);
-  REQUIRE( Servo::speed[1] == 170 );
-  REQUIRE( Servo::speed[2] == 170 );
-  data[0] = -1;
-  dive.execute(nullptr, data, 1);
-  REQUIRE( Servo::speed[1] == 10 );
-  REQUIRE( Servo::speed[2] == 10 );
+  REQUIRE( front.$isEnabled );
+  REQUIRE( back.$isEnabled );
+  dive.freeze();
+  REQUIRE_FALSE( front.$isEnabled );
+  REQUIRE_FALSE( back.$isEnabled );
 }
