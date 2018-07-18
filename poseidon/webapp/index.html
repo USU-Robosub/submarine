@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/rsapp/bulma/css/bulma.css" />
     <script src="/rsapp/socket.js"></script>
     <script src="/rsapp/rx.js"></script>
+    <script src="/rsapp/three.js"></script>
+    <script src="/rsapp/STLLoader.js"></script>
   </head>
   <body>
     <section class="section">
@@ -58,17 +60,17 @@
                   <h3 class="title is-3">Thrust</h3>
                   <div class="columns">
                       <div class="column is-3">
-                        <button  class="button is-primary is-large" onclick="upThrust();">
+                        <button  class="button is-primary is-large" onclick="upThrottle();">
                           <span class="icon is-small">
                           <i class="fas fa-angle-double-up"></i>
                         </span>
                         </button><br>
-                        <button  class="button is-danger is-large" onclick="stopThrust();">
+                        <button  class="button is-danger is-large" onclick="stopThrottle();">
                           <span class="icon is-small">
                           <i class="fas fa-stop"></i>
                         </span>
                         </button><br>
-                        <button  class="button is-primary is-large" onclick="downThrust();">
+                        <button  class="button is-primary is-large" onclick="downThrottle();">
                           <span class="icon is-small">
                           <i class="fas fa-angle-double-down"></i>
                         </span>
@@ -113,6 +115,10 @@
               </div>
             </div>
           </div>
+          <div class="tile is-parent">
+            <div class="tile is-child" id="submodel">
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -120,5 +126,6 @@
     <!--<img src="http://192.168.1.101:8083" class="shrinkToFit" width="500">-->
     <!--<img src="http://192.168.1.101:8084" class="shrinkToFit" width="500">-->
     <script src="/rsapp/index.js"></script>
+    <script src="/rsapp/submodel.js"></script>
   </body>
 </html>
