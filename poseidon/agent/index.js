@@ -4,8 +4,8 @@ const express = require('express')
 const app = express();
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
-const { map } = require('rxjs/operators')
-const { fromEvent, merge } = require('rxjs')
+const { map, throttleTime } = require('rxjs/operators')
+const { fromEvent, merge, Observable } = require('rxjs')
 
 app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.html')))
 app.get('/rsapp/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/socketio/socket.io.min.js')))
@@ -25,11 +25,17 @@ function init(){
 
     const scheduler = Scheduler([
       subsystems.dive(hub),
-      subsystems.tank(hub)
+      subsystems.tank(hub),
+      subsystems.imu(hub)
     ])
 
     io.on('connection', function(socket){
       console.log('a user connected')
+
+      scheduler.run(listenToRotation(socket)).to.promise().then(() => {
+        socket.emit('imu/lost')
+        console.log('Imu listen stopped for user')
+      }).catch(e => console.error(e))
 
       scheduler.run(remoteControlDive(socket)).to.promise().then(() => {
         socket.emit('dive/lost')
@@ -64,6 +70,25 @@ const forwardData = (hub, module, method) => amount => {
 }
 
 const subsystems = {
+  imu: hub => Subsystem()
+    .named('imu')
+    .makeShared()
+    .raw({
+      // rotation: () => fromEvent(hub, 'imu/rotation').pipe(
+      //   map(([ x, y, z]) => [parseInt(x), parseInt(y), parseInt(z)])
+      // ),
+      rotation: () => new Observable(observer => {
+        console.log('imu!!!!');
+        const listener = hub.on('imu/rotation', (hub, data) => {
+          observer.next(data)
+        })
+        return () => {
+          console.log('remove listener')
+          listener.remove()
+          console.log('remove listener 2')
+        }
+      })
+    }),
   dive: hub => Subsystem()
     .named('dive')
     .raw({
@@ -105,6 +130,21 @@ const remoteControlTank = socket => Command()
       map(amount => system.tank.right(amount))
     )
   ))
+  
+const listenToRotation = socket => Command()
+  .named('imu listen')
+  .require('imu')
+  .makeCancelable()
+  .action(system => {
+    console.log('running imu')
+    return system.imu.rotation().pipe(
+      throttleTime(200),
+      map(data => {
+        //console.log('imu', data)
+        socket.emit('imu/rotation', data)
+      })  
+    )
+  })
 
 init()
 

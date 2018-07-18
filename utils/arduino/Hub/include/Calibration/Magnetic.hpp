@@ -2,8 +2,6 @@
 #define CALIBRATION_MAGNETIC
 
 #include <Arduino.h>
-#include <Components/Sensors/Magnetometer.hpp>
-#include <Components/Sensors/Accelerometer.hpp>
 
 namespace Calibration{
   class Magnetic;

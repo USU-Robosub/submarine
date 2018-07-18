@@ -27,6 +27,11 @@ socket.on('tank/lost', () => {
   console.log('Lost control over tank subsystem')
 })
 
+/*global setSubmarineRotation */
+socket.on('imu/rotation', ([ x, y, z ]) => {
+  setSubmarineVector(x,y,z);
+})
+
 function setTank(left, right){
   if(!killed) {
     let throttle = 2 - (left + right)/2;

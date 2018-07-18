@@ -36,10 +36,13 @@ var worldAxis = new THREE.AxesHelper(20);
 scene.add(worldAxis);
 
 
+var arrowHelper = false;
+
 // Append Renderer to DOM
 document.getElementById("submodel").appendChild( renderer.domElement );
 
 let submesh;
+let baseQuat = (new THREE.Quaternion(0,0,0,0)).setFromEuler(new THREE.Euler( 0, 0, Math.PI/2, 'XYZ' ));
 
 var loader = new THREE.STLLoader();
 loader.load( '/rsapp/mini.stl', function ( geometry ) {
@@ -47,13 +50,20 @@ loader.load( '/rsapp/mini.stl', function ( geometry ) {
   var mesh = new THREE.Mesh( geometry, material );
 
   mesh.position.set( 0, 0, 0 );
-  mesh.rotation.set( 0, 0, Math.PI/2 );
+  mesh.setRotationFromQuaternion(baseQuat);
   mesh.scale.set( 0.5, 0.5, 0.5 );
 
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   scene.add( mesh );
   submesh = mesh;
+  
+  var origin = new THREE.Vector3( 0, 0, 0 );
+  var length = 2;
+  var hex = 0xad42f4;
+  
+  arrowHelper = new THREE.ArrowHelper( new THREE.Vector3(0, 0, 1), origin, length, hex );
+  scene.add( arrowHelper );
 } );
 
 function addShadowedLight( x, y, z, color, intensity ) {
@@ -80,21 +90,51 @@ function addShadowedLight( x, y, z, color, intensity ) {
 
 }
 
+/* global THREE */
 scene.add( new THREE.HemisphereLight( 0x443333, 0x111122 ) );
 
 addShadowedLight( 10, 10, 10, 0xffffff, 1.35 );
 addShadowedLight( -10, -10, 10, 0xffffff, 0.5 );
 
-let baseX = 0;
-let baseY = 0;
-let baseZ = Math.PI/2;
+let targetQuat = false;
+
+/* global Quaternian, Vector3 */
+let setSubmarineVector = (vX, vY, vZ)=>{
+  
+  // if(vX > 32767){
+  //   vX = 32767 - vX
+  // }
+  // if(vY > 32767){
+  //   vY = vY % 32767
+  // }
+  // if(vZ > 32767){
+  //   vZ = 32767 - vZ
+  // }
+  
+  let vector = new THREE.Vector3(vX,vY,vZ);
+  vector.normalize(); 
+  console.log(vX, vY, vZ)
+  if(arrowHelper){
+    arrowHelper.setDirection(vector)
+  }
+  // if(submesh){
+  //   submesh.lookAt(vector)
+  // }
+  // const rotQuat = (new THREE.Quaternion()).setFromAxisAngle(vector, 1)
+  // targetQuat = new THREE.Quaternion();
+  // targetQuat.multiplyQuaternions(baseQuat,  rotQuat)
+};
 
 // Render Loop
 var render = function () {
   requestAnimationFrame( render );
   //
-  submesh.rotation.z += 0.01;
-
+  if(targetQuat && submesh){
+    //console.log('lerp', targetQuat, submesh.quaternion)
+    const newQuat = submesh.quaternion.slerp(targetQuat, 0.1)
+    submesh.setRotationFromQuaternion(newQuat);
+  }
+  
   // Render the scene
   renderer.render(scene, camera);
 };

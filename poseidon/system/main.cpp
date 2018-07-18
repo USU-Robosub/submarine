@@ -20,9 +20,8 @@ int main(){
 ///dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0
 //
 
-  //Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.5"), B115200);
-  Comm::Serial::FullStack arduino("/tmp/virtualcom1", B115200);
-  //Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.4"), B115200);
+  //Comm::Serial::FullStack arduino("/tmp/virtualcom1", B115200);
+  Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.2"), B115200);
   arduino.restartArduino();
   Comm::TCP::FullStack agent(3001, '|');
 
@@ -41,6 +40,13 @@ int main(){
 
   Subsystem::Dive dive(arduino.hub(), 2, agent.hub(), "dive");
   Subsystem::Tank tank(arduino.hub(), 3, agent.hub(), "tank");
+
+  arduino.hub()->on(4,[&agent](std::vector<int> message){
+    //std::cout << "Got IMU" << std::endl;
+    if(message.size() != 3)
+      return;
+    agent.hub()->emit("imu/rotation", std::vector<std::string>{std::to_string(message[0]),std::to_string(message[1]),std::to_string(message[2])});
+  });
 
   while(!shouldExit){
     arduino.hub()->poll();
