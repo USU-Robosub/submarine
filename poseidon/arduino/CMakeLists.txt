@@ -20,6 +20,8 @@ foreach(SOURCE_FILE ${SOURCE_FILES})
   endif()
 endforeach()
 
+add_definitions(-DEMULATOR)
+
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIRS})
 

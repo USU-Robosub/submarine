@@ -1,5 +1,5 @@
 #include <Calibration/Magnetic.hpp>
-#include <iostream>
+//#include <iostream>
 
 Calibration::Magnetic::Magnetic(){
   this->precalculateTangents();
