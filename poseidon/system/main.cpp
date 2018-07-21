@@ -21,7 +21,7 @@ int main(){
 //
 
   //Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.5"), B115200);
-  Comm::Serial::FullStack arduino("/tmp/virtualcom1", B115200);
+  //Comm::Serial::FullStack arduino("/tmp/virtualcom1", B115200);
   Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.4"), B115200);
   arduino.restartArduino();
   Comm::TCP::FullStack agent(3001, '|');
