@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-while getopts "rcjav:p9" option; do
+while getopts "rcjav:p9h" option; do
   case $option in
     r )
         clone_repo=true
@@ -24,6 +24,9 @@ while getopts "rcjav:p9" option; do
     ;;
     9 )
         install_cloud9=true
+    ;;
+    h )
+        install_haproxy=true
     ;;
   esac
 done
@@ -155,4 +158,43 @@ if [[ $install_cloud9 && $install_cloud9==true ]]; then
     cd cloud9
     scripts/install-sdk.sh
     cd ..
+fi
+
+if [[ $install_haproxy && $install_haproxy==true ]]; then
+	# install haproxy, expects cloud9 and submarine webApp
+  sudo apt install haproxy -y
+  sudo sed -i '0,/errorfile 504 \/etc\/haproxy\/errors\/504.http/!d' /etc/haproxy/haproxy.cfg # delete any config that is not default
+  sudo sh -c 'echo "
+
+  userlist WebApp
+    user robosub insecure-password robosub2017!
+
+  frontend http-in
+  	bind *:80
+  	acl is_root path -i /
+  	acl is_webapp path_beg -i /rsapp/
+  	acl is_index path_beg -i /index.
+  	acl is_socketio path_beg -i /socket.io
+
+  	use_backend cloud9 if !is_root !is_webapp !is_index !is_socketio
+  	default_backend rswebapp
+
+  	http-request set-path %[path].html if { path /ide }
+
+  backend cloud9
+  	balance leastconn
+  	option forwardfor
+  	option httpclose
+  	server cloud9-1 127.0.0.1:4967 cookie A check
+  	acl AuthOkay_WebApp http_auth(WebApp)
+  	http-request auth realm RoboSub if !AuthOkay_WebApp
+
+  backend rswebapp
+  	balance leastconn
+  	option forwardfor
+  	option httpclose
+  	server webapp-1 127.0.0.1:1234 cookie A check
+
+  " >> /etc/haproxy/haproxy.cfg'
+  sudo service haproxy restart
 fi

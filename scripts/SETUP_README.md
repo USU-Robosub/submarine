@@ -13,3 +13,4 @@
 | v | pi, amd | Installs dependencies for vision code. `pi` will compile OpenCV optimized for the Raspberry PI. `amd` will compile OpenCV for laptops or desktops | streameye, opencv (+dependencies) | Slow |
 | p |  | Installs PM2 process manager, and sets it to run on boot | pm2 | Fast |
 | 9 |  | Installs Cloud9 IDE for remote editing | cloud9 | Slow |
+| h |  | Installs HAProxy to cleanup Cloud9 and the submarine's webApp urls | haproxy | Fast |

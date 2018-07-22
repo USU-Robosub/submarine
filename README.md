@@ -68,7 +68,7 @@ bash submarine/scripts/setup.sh -cjav amd
 Use the following commands to setup a Raspberry PI to be used as the main computer.
 
 ```
-wget -qO- https://raw.githubusercontent.com/USU-Robosub/submarine/develop/scripts/setup.sh | bash -s -- -rcjap9
+wget -qO- https://raw.githubusercontent.com/USU-Robosub/submarine/develop/scripts/setup.sh | bash -s -- -rcjap9h
 bash submarine/scripts/add_cloud9_to_pm2.sh
 bash submarine/scripts/add_[submarine's name]_to_pm2.sh
 ```
@@ -78,7 +78,7 @@ bash submarine/scripts/add_[submarine's name]_to_pm2.sh
 Use the following commands to setup a Raspberry PI to be used for vision processing.
 
 ```
-wget -qO- https://raw.githubusercontent.com/USU-Robosub/submarine/develop/scripts/setup.sh | bash -s -- -rcp9v pi
+wget -qO- https://raw.githubusercontent.com/USU-Robosub/submarine/develop/scripts/setup.sh | bash -s -- -rcp9hv pi
 bash submarine/scripts/add_cloud9_to_pm2.sh
 bash submarine/scripts/add_[submarine's name]_vision_to_pm2.sh
 ```
