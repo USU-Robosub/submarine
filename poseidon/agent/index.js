@@ -78,14 +78,11 @@ const subsystems = {
       //   map(([ x, y, z]) => [parseInt(x), parseInt(y), parseInt(z)])
       // ),
       rotation: () => new Observable(observer => {
-        console.log('imu!!!!');
         const listener = hub.on('imu/rotation', (hub, data) => {
           observer.next(data)
         })
         return () => {
-          console.log('remove listener')
           listener.remove()
-          console.log('remove listener 2')
         }
       })
     }),
@@ -101,7 +98,24 @@ const subsystems = {
       steering: forwardData(hub, 'tank', 'steering'),
       left: forwardData(hub, 'tank', 'left'),
       right: forwardData(hub, 'tank', 'right'),
-    })
+    }),
+  pid: hub => Subsystem()
+    .named('pid')
+    .raw({
+      setpoint: forwardData(hub, 'pid', 'setpoint'),
+      p: forwardData(hub, 'pid', 'p'),
+      i: forwardData(hub, 'pid', 'i'),
+      d: forwardData(hub, 'pid', 'd'),
+      value: forwardData(hub, 'pid', 'value'),
+      correction: () => new Observable(observer => {
+        const listener = hub.on('pid/correction', (hub, data) => {
+          observer.next(data)
+        })
+        return () => {
+          listener.remove()
+        }
+      })
+    }),
 }
 
 const remoteControlDive = socket => Command()
@@ -130,10 +144,40 @@ const remoteControlTank = socket => Command()
       map(amount => system.tank.right(amount))
     )
   ))
+
+const imuPIDDrive = socket => Command()
+  .named('imu pid drive')
+  .require('tank')
+  .require('imu')
+  .makeCancelable()
+  .action(system =>  merge(
+    fromEvent(socket, 'pid/setpoint').pipe(
+      map(amount => system.pid.setpoint(amount))
+    ),
+    fromEvent(socket, 'pid/p').pipe(
+      map(amount => system.pid.p(amount))
+    ),
+    fromEvent(socket, 'pid/i').pipe(
+      map(amount => system.pid.i(amount))
+    ),
+    fromEvent(socket, 'pid/d').pipe(
+      map(amount => system.pid.d(amount))
+    ),
+    system.imu.rotation().pipe(
+      throttleTime(200),
+      map(data => {
+        let value = 0//TODO: convert data to value
+        system.pid.value(value)
+      })
+    ),
+    system.pid.correction.pipe(
+      map(amount => system.tank.steering(amount)))
+  ))
   
 const listenToRotation = socket => Command()
   .named('imu listen')
   .require('imu')
+  .require('pid')
   .makeCancelable()
   .action(system => {
     console.log('running imu')

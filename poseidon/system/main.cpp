@@ -4,8 +4,11 @@
 #include <Comm/TCP/FullStack.hpp>
 #include <Vision/Livestream.hpp>
 #include <Comm/tools.hpp>
+#include <Controller/Dive.hpp>
 #include <Subsystem/Dive.hpp>
 #include <Subsystem/Tank.hpp>
+#include <Subsystem/PID.hpp>
+#include <PID/Controller.hpp>
 
 #include <thread>
 #include <chrono>
@@ -29,10 +32,12 @@ int main(){
 
   int throttle = 90, steering = 90;//, dive = 90;
 
+
   //arduino.hub()->on(1,[&agent](std::vector<int> message){
   //  bool enable = message.size()>0&&message.at(0)==1;
   //  agent.hub()->emit("killswitch", std::vector<std::string>{(enable?"1":"0")});
   //});
+  
 
   arduino.hub()->on(42,[](std::vector<int> message){
     std::cout << "echo " << message[0] << std::endl;
@@ -40,6 +45,7 @@ int main(){
 
   Subsystem::Dive dive(arduino.hub(), 2, agent.hub(), "dive");
   Subsystem::Tank tank(arduino.hub(), 3, agent.hub(), "tank");
+  Subsystem::PID pid(arduino.hub(), 5, agent.hub(), "pid");
 
   arduino.hub()->on(4,[&agent](std::vector<int> message){
     //std::cout << "Got IMU" << std::endl;
