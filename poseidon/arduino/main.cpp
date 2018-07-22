@@ -1,5 +1,5 @@
 #include <Hub.hpp>
-#include <PinMap.hpp>
+#include <settings.hpp>
 #include <Arduino.h>
 
 #include <Components/Motors/BlueRoboticsR1Esc.hpp>

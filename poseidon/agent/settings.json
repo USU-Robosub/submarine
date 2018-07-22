@@ -1,0 +1,12 @@
+{
+  "system": {
+    "address": "localhost",
+    "port": 3001,
+    "separator": "|",
+    "retryDelay": 500,
+    "loopDelay": 1
+  },
+  "webApp": {
+    "port": 1234
+  }
+}
