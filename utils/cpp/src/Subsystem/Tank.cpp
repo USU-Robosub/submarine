@@ -1,6 +1,5 @@
 #include <Subsystem/Tank.hpp>
 #include <Comm/tools.hpp>
-#include <iostream>
 
 Subsystem::Tank::Tank(Comm::Hub<int>* arduino, int handler, Comm::Hub<std::string>* agent, std::string name)
   : Comm::Remote(agent, name),
@@ -17,7 +16,6 @@ Subsystem::Tank::Tank(Comm::Hub<int>* arduino, int handler, Comm::Hub<std::strin
 void Subsystem::Tank::throttle(std::vector<std::string> arguments){
   if(arguments.size() == 1){
     float amount = std::stof(arguments[0]);
-    std::cout << "Set throttle: " << amount << std::endl;
     this->throttlePower = amount;
     this->update();
   }
@@ -26,7 +24,6 @@ void Subsystem::Tank::throttle(std::vector<std::string> arguments){
 void Subsystem::Tank::steering(std::vector<std::string> arguments){
   if(arguments.size() == 1){
     float amount = std::stof(arguments[0]);
-    std::cout << "Set steering: " << amount << std::endl;
     this->steeringPower = amount;
     this->update();
   }
@@ -44,7 +41,6 @@ left - right = 2 * steering
 void Subsystem::Tank::left(std::vector<std::string> arguments){
   if(arguments.size() == 1){
     float left = std::stof(arguments[0]);
-    std::cout << "Set left: " << left << std::endl;
     float oldRight = this->throttlePower - this->steeringPower;
     this->throttlePower = (left + oldRight) / 2.0f;
     this->steeringPower = (left - oldRight) / 2.0f;
@@ -55,7 +51,6 @@ void Subsystem::Tank::left(std::vector<std::string> arguments){
 void Subsystem::Tank::right(std::vector<std::string> arguments){
   if(arguments.size() == 1){
     float right = std::stof(arguments[0]);
-    std::cout << "Set right: " << right << std::endl;
     float oldLeft = this->throttlePower + this->steeringPower;
     this->throttlePower = (oldLeft + right) / 2.0f;
     this->steeringPower = (oldLeft - right) / 2.0f;

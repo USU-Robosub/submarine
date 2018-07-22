@@ -52,7 +52,7 @@ void Comm::Mock::Hub<T>::poll(){
 
 template<class T>
 void Comm::Mock::Hub<T>::remove(Comm::HubBinding<T> binding){
-
+  (void) binding;
 }
 
 #endif

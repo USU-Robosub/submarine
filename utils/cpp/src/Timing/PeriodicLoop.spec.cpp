@@ -9,12 +9,13 @@ void pauseFor(double seconds){
 
 TEST_CASE("a periodic loop can be created", "[PeriodicLoop][.timing]"){
   double minDeltaTime = 10.5;
-  Timing::PeriodicLoop loop([](double deltaTime){ }, minDeltaTime);
+  Timing::PeriodicLoop loop([](double deltaTime){ (void)deltaTime; }, minDeltaTime);
 }
 
 TEST_CASE("calling start/stop enables/disables the loop", "[PeriodicLoop][.timing]"){
   unsigned int runCount = 0;
   Timing::PeriodicLoop loop([&runCount](double deltaTime){
+    (void)deltaTime;
     runCount++;
   }, 0.005);
 

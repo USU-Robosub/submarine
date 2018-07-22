@@ -7,7 +7,7 @@ find_package( OpenCV )
 option(tests "Build tests" OFF)
 option(coverage "Enable coverage output" OFF)
 
-set(CMAKE_CXX_CUSTOM_FLAGS "-std=gnu++11 -pthread")
+set(CMAKE_CXX_CUSTOM_FLAGS "-std=c++11 -pthread -O3 -Wall -Wextra")
 
 if(${coverage})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_CUSTOM_FLAGS} -coverage")

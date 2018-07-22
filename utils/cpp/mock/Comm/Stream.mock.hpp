@@ -24,7 +24,7 @@ public:
   std::vector<T> polled;
 
 private:
-  int pollIndex;
+  unsigned int pollIndex;
 };
 
 template<class T>

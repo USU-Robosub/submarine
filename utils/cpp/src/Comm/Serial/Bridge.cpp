@@ -54,6 +54,9 @@ std::queue<std::vector<int>> Comm::Serial::Bridge::receive(){
           this->state = Comm::MessageState::CHECK;
         }
         break;
+      case Comm::MessageState::ALIGNING:
+        this->state = Comm::MessageState::CHECK;
+        break;
     }
   }
   return messages;

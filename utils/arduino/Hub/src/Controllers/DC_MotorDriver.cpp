@@ -20,6 +20,7 @@ Controllers::DC_MotorDriver::DC_MotorDriver(int pinSpeedA, int pinForwardA, int 
 }
 
 void Controllers::DC_MotorDriver::execute(Emitter* hub, int32_t* data, int32_t length){
+  (void) hub;
   if(length == 2 && !stopped){
     int mixLeft =  map(data[0] + (data[1] - 90), 0, 180, -255, 255);
     int mixRight = map(data[0] - (data[1] - 90), 0, 180, -255, 255);

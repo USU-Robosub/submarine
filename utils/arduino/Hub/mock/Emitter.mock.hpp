@@ -13,11 +13,12 @@ public:
     : buffer(buffer) {}
 
   void emit(int32_t name, int32_t* data, int32_t length){
+    (void) name;
     for(int32_t i = 0; i < length; ++i){
       this->buffer[i] = data[i];
     }
   }
-  
+
 private:
   int32_t* buffer;
 };

@@ -58,7 +58,7 @@ void Threading::ProcessChild::childProcess(std::string command, std::vector<std:
   cArguments[0] = command.c_str();
   cArguments[arguments.size() + 1] = NULL;
   std::transform(arguments.begin(), arguments.end(), cArguments + 1, Threading::ProcessChild::convertArguments);
-  int result = execvp(command.c_str(), const_cast<char* const*>(cArguments));
+  (void) execvp(command.c_str(), const_cast<char* const*>(cArguments));
   std::perror(command.c_str());
   throw "Failed to execvp [command]";
 }

@@ -46,6 +46,9 @@ std::queue<std::vector<std::string>> Comm::TCP::Bridge::receive(){
           this->state = Comm::MessageState::CHECK;
         }
         break;
+      case Comm::MessageState::ALIGNING:
+        this->state = Comm::MessageState::CHECK;
+        break;
     }
   }
   return messages;

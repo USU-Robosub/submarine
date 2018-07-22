@@ -1,52 +1,70 @@
 #include <iostream>
 
 #include <Comm/Serial/FullStack.hpp>
+#include <Comm/Serial/PortFinder.hpp>
 #include <Comm/TCP/FullStack.hpp>
 #include <Vision/Livestream.hpp>
 #include <Comm/tools.hpp>
 #include <Subsystem/Dive.hpp>
 #include <Subsystem/Tank.hpp>
 
+#include "Settings.hpp"
+
 #include <thread>
 #include <chrono>
 #include <string>
 
+void createHubs();
+void createSubsystems();
+void runEventLoop();
+
+// hubs
+Comm::Serial::FullStack* arduino;
+Comm::TCP::FullStack* agent;
+
+// subsystems
+Subsystem::Dive* dive;
+Subsystem::Tank* tank;
+
+// event loop
+bool stopApp = false;
+
 int main(){
-  bool shouldExit = false;
-  //Vision::Livestream vision2("1-1.2",8082,100);
-  //Vision::Livestream vision3("1-1.3",8083,100);
-  //Vision::Livestream vision4("1-1.4",8084,100);
+  createHubs();
+  createSubsystems();
+  runEventLoop();
+  return 0;
+}
 
-///dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0
-//
+void createHubs(){
+  try{
+    arduino = new Comm::Serial::FullStack(Comm::Serial::PortFinder::findByPath(ARDUINO_PORT), ARDUINO_BAUD);
+  }catch(std::runtime_error e){
+    arduino = new Comm::Serial::FullStack(ARDUINO_PORT_EMULATED, ARDUINO_BAUD);
+  }
+  arduino->restartArduino();
+  agent = new Comm::TCP::FullStack(AGENT_PORT, AGENT_DELIMITER);
+  std::cout << "Created network" << std::endl;
+}
 
-  //Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.5"), B115200);
-  //Comm::Serial::FullStack arduino("/tmp/virtualcom1", B115200);
-  Comm::Serial::FullStack arduino(Comm::Serial::Port::portNameFromPath("1.4"), B115200);
-  arduino.restartArduino();
-  Comm::TCP::FullStack agent(3001, '|');
-
-  std::cout << "created network" << std::endl;
-
-  int throttle = 90, steering = 90;//, dive = 90;
-
+void createSubsystems(){
   //arduino.hub()->on(1,[&agent](std::vector<int> message){
   //  bool enable = message.size()>0&&message.at(0)==1;
   //  agent.hub()->emit("killswitch", std::vector<std::string>{(enable?"1":"0")});
   //});
 
-  arduino.hub()->on(42,[](std::vector<int> message){
-    std::cout << "echo " << message[0] << std::endl;
+  arduino->hub()->on(ECHO_PORT_NUM, [](std::vector<int> message){
+    std::cout << "Echo from arduino: " << message[0] << std::endl;
   });
 
-  Subsystem::Dive dive(arduino.hub(), 2, agent.hub(), "dive");
-  Subsystem::Tank tank(arduino.hub(), 3, agent.hub(), "tank");
+  dive = new Subsystem::Dive(arduino->hub(), DIVE_PORT_NUM, agent->hub(), DIVE_PORT_NAME);
+  tank = new Subsystem::Tank(arduino->hub(), TANK_PORT_NUM, agent->hub(), TANK_PORT_NAME);
+}
 
-  while(!shouldExit){
-    arduino.hub()->poll();
-    agent.hub()->poll();
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+void runEventLoop(){
+  while(!stopApp){
+    arduino->hub()->poll();
+    agent->hub()->poll();
+    std::this_thread::sleep_for(std::chrono::milliseconds(LOOP_DELAY));
   }
-
-  return 0;
 }
