@@ -30,8 +30,8 @@ ShiftRegister* shiftRegister;
 
 
 void createComponents(){
-  thrusters.front = new Motor({.pin=FRONT_MOTOR_PIN, .trim=MOTOR_DEFAULT_TRIM}),
-  thrusters.back = new Motor({.pin=BACK_MOTOR_PIN, .trim=MOTOR_DEFAULT_TRIM}),
+  thrusters.front = new Motor({.pin=FRONT_MOTOR_PIN, .trim={-MOTOR_REVERSE_MAX, -MOTOR_REVERSE_MIN, MOTOR_CENTER, -MOTOR_FORWARD_MIN, -MOTOR_FORWARD_MAX}}),
+  thrusters.back = new Motor({.pin=BACK_MOTOR_PIN, .trim={-MOTOR_REVERSE_MAX, -MOTOR_REVERSE_MIN, MOTOR_CENTER, -MOTOR_FORWARD_MIN, -MOTOR_FORWARD_MAX}}),
   thrusters.left = new Motor({.pin=LEFT_MOTOR_PIN, .trim=MOTOR_DEFAULT_TRIM}),
   thrusters.right = new Motor({.pin=RIGHT_MOTOR_PIN, .trim=MOTOR_DEFAULT_TRIM});
 }
@@ -75,12 +75,12 @@ void setup()
 }
 
 //bool state = false;
-int index = 0;
-unsigned long lastMillis = 0;
+// int index = 0;
+// unsigned long lastMillis = 0;
 
 void loop() {
-  if(lastMillis + 75 < millis()){
-    lastMillis = millis();
+  // if(lastMillis + 75 < millis()){
+  //   lastMillis = millis();
 
     // spin
     // shiftRegister->pin(index >= 4 ? 11 - index : index, LOW);
@@ -129,45 +129,45 @@ void loop() {
     //   shiftRegister->pin(3 + 4, HIGH);
     // }
 
-    shiftRegister->pin(0, LOW);
-    shiftRegister->pin(1 + 4, LOW);
-    shiftRegister->pin(2, LOW);
-    shiftRegister->pin(3 + 4, LOW);
+  //   shiftRegister->pin(0, LOW);
+  //   shiftRegister->pin(1 + 4, LOW);
+  //   shiftRegister->pin(2, LOW);
+  //   shiftRegister->pin(3 + 4, LOW);
 
-    shiftRegister->pin(0 + 4, LOW);
-    shiftRegister->pin(1, LOW);
-    shiftRegister->pin(2 + 4, LOW);
-    shiftRegister->pin(3, LOW);
+  //   shiftRegister->pin(0 + 4, LOW);
+  //   shiftRegister->pin(1, LOW);
+  //   shiftRegister->pin(2 + 4, LOW);
+  //   shiftRegister->pin(3, LOW);
 
-    index = (index + 1) % 26;
-    int pos = abs(-index + 13) - 3;
+  //   index = (index + 1) % 26;
+  //   int pos = abs(-index + 13) - 3;
 
-    if(abs(pos) < 2){
-      shiftRegister->pin(0, HIGH);
-    }
-    if(abs(pos - 1) < 2){
-      shiftRegister->pin(1, HIGH);
-    }
-    if(abs(pos - 2) < 2){
-      shiftRegister->pin(2, HIGH);
-    }
-    if(abs(pos - 3) < 2){
-      shiftRegister->pin(3, HIGH);
-    }
+  //   if(abs(pos) < 2){
+  //     shiftRegister->pin(0, HIGH);
+  //   }
+  //   if(abs(pos - 1) < 2){
+  //     shiftRegister->pin(1, HIGH);
+  //   }
+  //   if(abs(pos - 2) < 2){
+  //     shiftRegister->pin(2, HIGH);
+  //   }
+  //   if(abs(pos - 3) < 2){
+  //     shiftRegister->pin(3, HIGH);
+  //   }
 
-    if(abs(pos - 4) < 2){
-      shiftRegister->pin(7, HIGH);
-    }
-    if(abs(pos - 5) < 2){
-      shiftRegister->pin(6, HIGH);
-    }
-    if(abs(pos - 6) < 2){
-      shiftRegister->pin(5, HIGH);
-    }
-    if(abs(pos - 7) < 2){
-      shiftRegister->pin(4, HIGH);
-    }
-  }
+  //   if(abs(pos - 4) < 2){
+  //     shiftRegister->pin(7, HIGH);
+  //   }
+  //   if(abs(pos - 5) < 2){
+  //     shiftRegister->pin(6, HIGH);
+  //   }
+  //   if(abs(pos - 6) < 2){
+  //     shiftRegister->pin(5, HIGH);
+  //   }
+  //   if(abs(pos - 7) < 2){
+  //     shiftRegister->pin(4, HIGH);
+  //   }
+  // }
   // state = !state;
   // shiftRegister->pin(0, state);
   shiftRegister->update();

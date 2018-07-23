@@ -8,7 +8,7 @@
 #include <Subsystem/Dive.hpp>
 #include <Subsystem/Tank.hpp>
 
-#include "Settings.hpp"
+#include "settings.hpp"
 
 #include <thread>
 #include <chrono>
@@ -38,7 +38,9 @@ int main(){
 
 void createHubs(){
   try{
-    arduino = new Comm::Serial::FullStack(Comm::Serial::PortFinder::findByPath(ARDUINO_PORT), ARDUINO_BAUD);
+    std::cout << Comm::Serial::PortFinder::findByPath(ARDUINO_PORT) << std::endl;
+    arduino = new Comm::Serial::FullStack("/dev/serial/by-path/" + Comm::Serial::PortFinder::findByPath(ARDUINO_PORT), ARDUINO_BAUD);
+    std::cout << "test" << std::endl;
   }catch(std::runtime_error e){
     arduino = new Comm::Serial::FullStack(ARDUINO_PORT_EMULATED, ARDUINO_BAUD);
   }
