@@ -1,7 +1,8 @@
 #ifndef COMPONENTS_SENSORS_MAGNETOMETER
 #define COMPONENTS_SENSORS_MAGNETOMETER
 
-#include <Arduino.h>
+#include <Components/Sensors/ThreeAxisSensor.hpp>
+#include <Components/Sensors/units.hpp>
 
 namespace Components{
   namespace Sensors{
@@ -11,9 +12,7 @@ namespace Components{
 
 class Components::Sensors::Magnetometer{
 public:
-  virtual int32_t x() = 0;
-  virtual int32_t y() = 0;
-  virtual int32_t z() = 0;
+  virtual Components::Sensors::ThreeAxisMeasurement<Nanotesla> measureMagneticField() = 0;
 };
 
 #endif

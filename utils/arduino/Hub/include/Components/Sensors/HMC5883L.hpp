@@ -11,16 +11,17 @@ namespace Components{
 
 class Components::Sensors::HMC5883L : public Components::Sensors::Magnetometer{
 public:
-  HMC5883L();
-  int32_t x();
-  int32_t y();
-  int32_t z();
-  void update();
-  
+  HMC5883L(unsigned long minSampleTimeDelta);
+  Components::Sensors::ThreeAxisMeasurement<Nanotesla> measureMagneticField();
+
 private:
-  int32_t savedX;
-  int32_t savedY;
-  int32_t savedZ;
+  void measure();
+
+  unsigned long minSampleTimeDelta;
+  unsigned long lastSampleTime;
+  Nanotesla x;
+  Nanotesla y;
+  Nanotesla z;
 };
 
 #endif
