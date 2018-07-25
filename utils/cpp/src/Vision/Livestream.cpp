@@ -76,41 +76,15 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   // cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
 
   // Start
-  cv::Mat3b hsv;
-  cv::cvtColor(frame, hsv, COLOR_BGR2HSV);
+  // cv::Mat3b hsv;
+  // cv::cvtColor(frame, hsv, COLOR_BGR2HSV);
 
-  cv::Mat1b mask;
-  cv::inRange(hsv, cv::Scalar(90 - 45, 70, 50), cv::Scalar(90, 255, 255), mask);
+  //cv::Mat1b mask;
+  //cv::inRange(hsv, cv::Scalar(90 - 45, 70, 50), cv::Scalar(90, 255, 255), mask);
 
-  // cv::Mat match;
-  // int result_cols =  mask.cols - image.cols + 1;
-  // int result_rows = mask.rows - image.rows + 1;
 
-  // match.create( result_rows, result_cols, CV_32FC1 );
-
-  // cv::matchTemplate( mask, image, match, CV_TM_SQDIFF ); // < from website
-  // cv::normalize( match, match, 0, 225, cv::NORM_MINMAX, -1, cv::Mat() );
-
-  // /// Localizing the best match with minMaxLoc
-  // double minVal; double maxVal; cv::Point minLoc; cv::Point maxLoc;
-  // cv::Point matchLoc;
-
-  // cv::minMaxLoc( match, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat() );
-
-  // /// For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
-  // // if( match_method  == CV_TM_SQDIFF || match_method == CV_TM_SQDIFF_NORMED )
-  // //   { matchLoc = minLoc; }
-  // // else
-  // //   { matchLoc = maxLoc; }
-  // matchLoc = minLoc;
-
-  // /// Show me what you got
-  // //cv::rectangle( frame, matchLoc, cv::Point( matchLoc.x + image.cols , matchLoc.y + image.rows ), cv::Scalar::all(0), 2, 8, 0 );
-  // image.copyTo(mask(cv::Rect(matchLoc.x,matchLoc.y,image.cols, image.rows)));
-  // // end
-
-  cv::putText(hsv, std::to_string(1/deltaTime), cv::Point(30,30),    cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(0,0,0), 1, CV_AA);
-  imageStreamer.serveFrame(hsv);
+  cv::putText(frame, std::to_string(1/deltaTime), cv::Point(30,30),    cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(0,0,0), 1, CV_AA);
+  imageStreamer.serveFrame(frame);
 }
 
 #endif

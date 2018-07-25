@@ -32,6 +32,8 @@ namespace Mock{
         this->buffer[bufferWriteIndex++] = buffer[i];
       }
     }
+    
+    void flush() {}
 
     int16_t read() {
       if(this->read_itr != nullptr){
