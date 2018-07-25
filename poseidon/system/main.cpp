@@ -5,11 +5,8 @@
 #include <Comm/TCP/FullStack.hpp>
 #include <Vision/Livestream.hpp>
 #include <Comm/tools.hpp>
-#include <Controller/Dive.hpp>
 #include <Subsystem/Dive.hpp>
 #include <Subsystem/Tank.hpp>
-#include <Subsystem/PID.hpp>
-#include <PID/Controller.hpp>
 
 #include "settings.hpp"
 
@@ -64,22 +61,22 @@ void createHubs(){
 
 void createSubsystems(){
   std::cout << "Creating subsystems" << std::endl;
+  
   //arduino.hub()->on(1,[&agent](std::vector<int> message){
   //  bool enable = message.size()>0&&message.at(0)==1;
   //  agent.hub()->emit("killswitch", std::vector<std::string>{(enable?"1":"0")});
   //});
-
-
+  
   arduino->hub()->on(ECHO_PORT_NUM, [](std::vector<int> message){
     std::cout << "Echo from arduino: " << message[0] << std::endl;
   });
 
-  arduino->hub()->on(4,[](std::vector<int> message){
-    //std::cout << "Got IMU" << std::endl;
-    if(message.size() != 3)
-      return;
-    agent->hub()->emit("imu/rotation", std::vector<std::string>{std::to_string(message[0]),std::to_string(message[1]),std::to_string(message[2])});
-  });
+  // arduino->hub()->on(4,[](std::vector<int> message){
+  //   //std::cout << "Got IMU" << std::endl;
+  //   if(message.size() != 3)
+  //     return;
+  //   agent->hub()->emit("imu/rotation", std::vector<std::string>{std::to_string(message[0]),std::to_string(message[1]),std::to_string(message[2])});
+  // });
   
   arduino->hub()->emit(4, {1}); // enable imu output
   
