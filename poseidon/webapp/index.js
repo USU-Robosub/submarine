@@ -101,12 +101,29 @@ function setDive(x){
   }
 }
 
+let diveSteerTimeout = false;
+let curDiveSteer = 0;
+function setDiveSteer(x){
+  if(!killed) {
+    socket.emit('dive/steer', x)
+    document.getElementById("divesteerstatus").innerHTML = x;
+    curDiveSteer = x;
+    if(diveSteerTimeout!==false)
+      clearTimeout(diveSteerTimeout);
+    diveSteerTimeout = setTimeout(()=>setDiveSteer(curDiveSteer),250)
+  }
+}
+
 const delta = 0.05;
 
 let curDive = 0;
 let stopDive = function(){curDive = 0;setDive(curDive);};
 let downDive = function(){curDive -= delta;setDive(curDive);};
 let upDive = function(){curDive += delta;setDive(curDive);};
+
+let stopDiveSteer = function(){curDiveSteer = 0;setDiveSteer(curDiveSteer);};
+let downDiveSteer = function(){curDiveSteer -= delta;setDiveSteer(curDiveSteer);};
+let upDiveSteer = function(){curDiveSteer += delta;setDiveSteer(curDiveSteer);};
 
 let curSteer = 0;
 let stopSteer = function(){curSteer = 0;setSteering(curSteer);};

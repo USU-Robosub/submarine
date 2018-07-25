@@ -18,7 +18,7 @@ const dive = socket => Command()
       // ),
       map(amount => system.dive.power(amount))
     ),
-    fromEvent(socket, 'steering').pipe(
+    fromEvent(socket, 'dive/steer').pipe(
     // parallel(
     //   amount => amount,
     //   pipe(

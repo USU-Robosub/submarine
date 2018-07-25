@@ -55,6 +55,34 @@
                   </div>
                 </div>
               </div>
+                <div class="tile is-parent">
+                  <div class="tile is-child box">
+                    <h3 class="title is-3">Dive Steer</h3>
+                    <div>
+                        <div>
+                          <button  class="button is-primary is-large" onclick="leftDiveSteer();">
+                            <span class="icon is-small">
+                            <i class="fas fa-angle-double-left"></i>
+                          </span>
+                          </button>
+                          <button  class="button is-danger is-large" onclick="stopDiveSteer();">
+                            <span class="icon is-small">
+                            <i class="fas fa-stop"></i>
+                          </span>
+                          </button>
+                          <button  class="button is-primary is-large" onclick="rightDiveSteer();">
+                            <span class="icon is-small">
+                            <i class="fas fa-angle-double-right"></i>
+                          </span>
+                          </button>
+                        </div>
+                        <div>
+                          <h4 class="title is-4">Status</h4>
+                          <p id="divesteerstatus"></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
               <div class="tile is-parent">
                 <div class="tile is-child box">
                   <h3 class="title is-3">Thrust</h3>
