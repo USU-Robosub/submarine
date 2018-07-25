@@ -24,6 +24,12 @@
 #define IMU_SMAPLE_RATE 100 // ms
 #define IMU_HANDLER 10
 
+// kill switch
+#define KILL_SWITCH_CONTROL_PIN 16
+#define KILL_SWITCH_SENSE_PIN 17
+#define KILL_SWITCH_HANLDER 101
+#define KILL_SWITCH_DEBOUNCE_WAIT MILLI_SECONDS(200)
+
 // controllers
 #define HUB_ECHO_PORT 0
 #define HUB_KILL_SWITCH_PORT 1

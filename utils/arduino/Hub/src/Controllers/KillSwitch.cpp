@@ -11,12 +11,7 @@ Controllers::KillSwitch::KillSwitch(int pin, int32_t handler, int debounceDelay)
     freezable(nullptr),
     emitter(nullptr){
 
-  //#if !defined(TEENSY) || UNIT_TESTS \\ TODO remove this if it works without
   pinMode(pin, INPUT);
-  //#endif
-  #if defined(TEENSY) || UNIT_TESTS
-    *portConfigRegister(pin) = PORT_PCR_MUX(1) | PORT_PCR_PE; // pull input pin low on teensy
-  #endif
 
   MsTimer2::set(debounceDelay, Controllers::KillSwitch::debounce); // will ignore interupts for this ammount of us, and then check if the state is the same as the expected changed state
 

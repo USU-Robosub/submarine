@@ -72,12 +72,11 @@ void createSubsystems(){
     std::cout << "Echo from arduino: " << message[0] << std::endl;
   });
 
-  // arduino->hub()->on(4,[](std::vector<int> message){
-  //   //std::cout << "Got IMU" << std::endl;
-  //   if(message.size() != 3)
-  //     return;
-  //   agent->hub()->emit("imu/rotation", std::vector<std::string>{std::to_string(message[0]),std::to_string(message[1]),std::to_string(message[2])});
-  // });
+  arduino->hub()->on(101,[](std::vector<int> message){ // listen to kill switch
+    if(message.size() >= 1){
+      std::cout << "Kill swich: " << message[0] << std::endl;
+    }
+  });
   
   arduino->hub()->emit(4, {1}); // enable imu output
   

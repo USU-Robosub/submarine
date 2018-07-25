@@ -74,6 +74,9 @@ const tank = socket => Command()
     //   )
     // ),
       map(amount => system.tank.right(amount))
+    ),
+    fromEvent(socket, 'heading').pipe(
+      map(angle => system.tank.heading(angle))
     )
   ))
   

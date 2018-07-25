@@ -50,8 +50,7 @@ void createControllers(){
   controllers = new Controller*[CONTROLLER_COUNT];
 
   controllers[HUB_ECHO_PORT] = new Controllers::Echo(ECHO_RETURN);
-  controllers[HUB_KILL_SWITCH_PORT] = new Controllers::Empty();
-  //controllers[HUB_KILL_SWITCH_PORT] = new Controllers::KillSwitch(KILL_PIN, ECHO_RETURN, MILLI_SECONDS(200));
+  controllers[HUB_KILL_SWITCH_PORT] = new Controllers::KillSwitch(KILL_SWITCH_SENSE_PIN, KILL_SWITCH_HANLDER, KILL_SWITCH_DEBOUNCE_WAIT);
 
   controllers[HUB_DIVE_PORT] = new Controllers::Dive(thrusters.front, thrusters.back);
   controllers[HUB_TANK_PORT] = new Controllers::Tank(thrusters.left, thrusters.right);
@@ -61,9 +60,7 @@ void createControllers(){
 
 void setupControllers(){
   static_cast<Controllers::IMU*>(controllers[HUB_IMU_PORT])->use(hub);
-  //static_cast<Controllers::KillSwitch*>(controllers[HUB_KILL_SWITCH_PORT])->use(hub, hub);
-  static_cast<Controllers::Dive*>(controllers[HUB_DIVE_PORT])->unfreeze();
-  static_cast<Controllers::Tank*>(controllers[HUB_TANK_PORT])->unfreeze();
+  static_cast<Controllers::KillSwitch*>(controllers[HUB_KILL_SWITCH_PORT])->use(hub, hub);
 }
 
 void connectToSerial(){

@@ -9,6 +9,9 @@ const utils = {
   },
   commands: {
     ...require('../src/commands')
+  },
+  pid: {
+    ...require('../src/PID/pid.js')
   }
 }
 

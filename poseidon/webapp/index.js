@@ -64,6 +64,13 @@ function setSteering(x){
   }
 }
 
+function setHeading(x){
+  if(!killed) {
+    socket.emit('heading', x)
+    document.getElementById("steerstatus").innerHTML = x;
+  }
+}
+
 let curLeft = 0;
 let leftTimeout = false;
 function setLeft(x){
@@ -127,8 +134,8 @@ let rightDiveSteer = function(){curDiveSteer -= delta;setDiveSteer(curDiveSteer)
 
 let curSteer = 0;
 let stopSteer = function(){curSteer = 0;setSteering(curSteer);};
-let leftSteer = function(){curSteer -= delta;setSteering(curSteer);};
-let rightSteer = function(){curSteer += delta;setSteering(curSteer);};
+let leftSteer = function(){curSteer -= delta;setHeading(curSteer);};
+let rightSteer = function(){curSteer += delta;setHeading(curSteer);};
 
 let curThrottle = 0;
 let stopThrottle = function(){curThrottle = 0;setThrottle(curThrottle);};
