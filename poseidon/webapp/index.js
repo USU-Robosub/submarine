@@ -40,37 +40,77 @@ function setTank(left, right){
     socket.emit('steering', steering*90);
   }
 }
-
+let thrustTimeout = false;
 function setThrottle(x){
   if(!killed) {
     socket.emit('throttle', x)
     document.getElementById("thruststatus").innerHTML = x;
+    curThrottle = x;
+    if(thrustTimeout!==false)
+      clearTimeout(thrustTimeout);
+    thrustTimeout = setTimeout(()=>setThrottle(curThrottle),250)
   }
 }
 
+let steerTimeout = false;
 function setSteering(x){
   if(!killed) {
     socket.emit('steering', x)
     document.getElementById("steerstatus").innerHTML = x;
+    curSteer = x;
+    if(steerTimeout!==false)
+      clearTimeout(steerTimeout);
+    steerTimeout = setTimeout(()=>setSteering(curSteer),250)
   }
 }
 
+let curLeft = 0;
+let leftTimeout = false;
 function setLeft(x){
   if(!killed) {
     socket.emit('left', x)
+    curLeft = x;
+    if(leftTimeout!==false)
+      clearTimeout(leftTimeout);
+    leftTimeout = setTimeout(()=>setLeft(curLeft),250)
   }
 }
 
+let curRight = 0;
+let rightTimeout = false;
 function setRight(x){
   if(!killed) {
     socket.emit('right', x)
+    curRight = x;
+    if(rightTimeout!==false)
+      clearTimeout(rightTimeout);
+    rightTimeout = setTimeout(()=>setRight(curRight),250)
   }
 }
+
+let diveTimeout = false;
 
 function setDive(x){
   if(!killed) {
     socket.emit('dive', x)
     document.getElementById("divestatus").innerHTML = x;
+    curDive = x;
+    if(diveTimeout!==false)
+      clearTimeout(diveTimeout);
+    diveTimeout = setTimeout(()=>setDive(curDive),250)
+  }
+}
+
+let diveSteerTimeout = false;
+let curDiveSteer = 0;
+function setDiveSteer(x){
+  if(!killed) {
+    socket.emit('dive/steer', x)
+    document.getElementById("divesteerstatus").innerHTML = x;
+    curDiveSteer = x;
+    if(diveSteerTimeout!==false)
+      clearTimeout(diveSteerTimeout);
+    diveSteerTimeout = setTimeout(()=>setDiveSteer(curDiveSteer),250)
   }
 }
 
@@ -80,6 +120,10 @@ let curDive = 0;
 let stopDive = function(){curDive = 0;setDive(curDive);};
 let downDive = function(){curDive -= delta;setDive(curDive);};
 let upDive = function(){curDive += delta;setDive(curDive);};
+
+let stopDiveSteer = function(){curDiveSteer = 0;setDiveSteer(curDiveSteer);};
+let downDiveSteer = function(){curDiveSteer -= delta;setDiveSteer(curDiveSteer);};
+let upDiveSteer = function(){curDiveSteer += delta;setDiveSteer(curDiveSteer);};
 
 let curSteer = 0;
 let stopSteer = function(){curSteer = 0;setSteering(curSteer);};

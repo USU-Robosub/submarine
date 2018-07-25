@@ -13,6 +13,26 @@ TEST_CASE("dive sets both motors to same speed", "[dive]"){
   REQUIRE( back.$power == 0.78f );
 }
 
+TEST_CASE("dive going forward or backward sets both motors to opposite power", "[dive]"){
+  Mock::Components::Motors::Motor front, back;
+  Controllers::Dive dive(&front, &back);
+  int32_t data[2] = { floatAsInt32(0.0f), floatAsInt32(0.352f) };
+  dive.unfreeze();
+  dive.execute(nullptr, data, 2);
+  REQUIRE( front.$power == 0.352f );
+  REQUIRE( back.$power == -0.352f );
+}
+
+TEST_CASE("dive can mix directions", "[dive]"){
+  Mock::Components::Motors::Motor front, back;
+  Controllers::Dive dive(&front, &back);
+  int32_t data[2] = { floatAsInt32(1.0f), floatAsInt32(0.5f) };
+  dive.unfreeze();
+  dive.execute(nullptr, data, 2);
+  REQUIRE( front.$power == 1.5f );
+  REQUIRE( back.$power == 0.5f );
+}
+
 TEST_CASE("dive enables and disables motors when frozen", "[dive]"){
   Mock::Components::Motors::Motor front, back;
   Controllers::Dive dive(&front, &back);
