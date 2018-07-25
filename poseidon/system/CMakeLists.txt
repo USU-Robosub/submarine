@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8.12)
 set(PROJECT_NAME system)
 project (${PROJECT_NAME})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -O0 -g3 -Wall -Wextra")
 set(SOURCE_DIR ${${PROJECT_NAME}_SOURCE_DIR})
 
 include_directories(${SOURCE_DIR}/)

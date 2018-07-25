@@ -29,10 +29,10 @@ public:
     return stateChanges;
   }
 
-  int $makeUnfrozen(){
+  void $makeUnfrozen(){
     isFrozen = false;
   }
-  
+
 private:
   int stateChanges = 0;
   bool isFrozen = true;

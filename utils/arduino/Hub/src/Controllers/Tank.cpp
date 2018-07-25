@@ -8,6 +8,7 @@ Controllers::Tank::Tank(Components::Motors::Motor* left, Components::Motors::Mot
 }
 
 void Controllers::Tank::execute(Emitter* hub, int32_t* data, int32_t length){
+  (void) hub;
   if(length == 2){
     this->leftMotor->power(int32AsFloat(data[0]) + int32AsFloat(data[1]));
     this->rightMotor->power(int32AsFloat(data[0]) - int32AsFloat(data[1]));

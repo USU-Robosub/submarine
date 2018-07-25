@@ -20,6 +20,7 @@ Mock::Controller::Controller(int32_t* buffer)
   : buffer(buffer) {}
 
 void Mock::Controller::execute(Emitter* emitter, int32_t* data, int32_t length){
+  (void) emitter;
   for(int32_t i = 0; i < length; ++i){
     this->buffer[i] = data[i];
   }

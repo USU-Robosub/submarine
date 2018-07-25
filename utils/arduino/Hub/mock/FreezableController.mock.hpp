@@ -13,6 +13,7 @@ public:
     : buffer(buffer) {}
 
   void execute(Emitter* emitter, int32_t* data, int32_t length){
+    (void) emitter;
     for(int32_t i = 0; i < length; ++i){
       this->buffer[i] = data[i];
     }

@@ -8,6 +8,7 @@ Controllers::Dive::Dive(Components::Motors::Motor* front, Components::Motors::Mo
 }
 
 void Controllers::Dive::execute(Emitter* hub, int32_t* data, int32_t length){
+  (void) hub;
   if(length == 1){
     this->frontMotor->power(int32AsFloat(data[0]));
     this->backMotor->power(int32AsFloat(data[0]));

@@ -29,6 +29,7 @@ struct Comm::Message {
 template<class T>
 class Comm::Bridge{
 public:
+  virtual ~Bridge() {};
   virtual void send(std::vector<T> data) = 0;
   virtual std::queue<std::vector<T>> receive() = 0;
 };

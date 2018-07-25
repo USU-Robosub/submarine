@@ -81,7 +81,7 @@ TEST_CASE("can remove a handler", "[Hub]"){
     hub.on("test", [&receivedMessage](vectString message){
       receivedMessage = message;
     });
-    Comm::HubBinding<std::string> handler = hub.on("test", [&receivedMessage](vectString message){ });
+    Comm::HubBinding<std::string> handler = hub.on("test", [&receivedMessage](vectString message){ (void)message; });
     hub.remove(handler);
     bridge.received.push(vectString{"message", "test"});
     hub.poll();

@@ -36,7 +36,7 @@ int* portConfigRegister(int pin);
 int digitalPinToInterrupt(int pin);
 void attachInterrupt(int interrupt, void(func) (), int type);
 void delay(int ammount);
-long millis();
+unsigned long millis();
 void memcpy(void* dest, void* source, int size);
 
 #ifdef MOCK_INCLUDE_SOURCE
@@ -87,7 +87,7 @@ namespace Mock{
   }
 }
 
-long millis(){
+unsigned long millis(){
   if(Mock::Arduino::millisEnabled){
     auto now = std::chrono::system_clock::now();
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);

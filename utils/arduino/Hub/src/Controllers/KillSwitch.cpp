@@ -25,6 +25,9 @@ Controllers::KillSwitch::KillSwitch(int pin, int32_t handler, int debounceDelay)
 }
 
 void Controllers::KillSwitch::execute(Emitter* emitter, int32_t* data, int32_t length){
+  (void) emitter;
+  (void) data;
+  (void) length;
   // do nothing
 }
 

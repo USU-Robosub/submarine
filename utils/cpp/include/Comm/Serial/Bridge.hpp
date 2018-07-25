@@ -22,7 +22,7 @@ private:
   Comm::MessageState state;
   Comm::Message<int> currentMessage;
   int dataLeft;
-  int maxReads;
+  unsigned int maxReads;
 };
 
 #endif

@@ -4,6 +4,7 @@
 #define COLOR_BGR2HSV 40
 #include <cstdio>
 #include <fstream>
+#include <stdexcept>
 
 Vision::Livestream::Livestream(std::string path, int port, int quality)
   : imageStreamer(port, quality)
@@ -15,7 +16,7 @@ Vision::Livestream::Livestream(std::string path, int port, int quality)
   cv::Mat3b hsv;
   #define COLOR_BGR2HSV 40
   cv::cvtColor(original, hsv, CV_BGR2HSV);
-  
+
   cv::inRange(hsv, cv::Scalar(90 - 10, 70, 50), cv::Scalar(90 + 10, 255, 255), image);
   cameraId = Vision::Livestream::getVideoId(path);
   if(cameraId<0 || !webcam.open(cameraId))
@@ -32,7 +33,7 @@ Vision::Livestream::~Livestream(){
 
 int Vision::Livestream::getVideoId(std::string path){
   std::string filename = std::tmpnam(nullptr);
-  system((
+  int exitCode = system((
   "cams=\"$(ls /dev/video*)\";"
   "for camera in $cams; do"
   " path=\"$(udevadm info --query=all $camera | grep -m 1 'P:' | cut -c3-)\";"
@@ -40,6 +41,9 @@ int Vision::Livestream::getVideoId(std::string path){
   	"echo \"$id,$(basename $camera | cut -c6-)\";"
   "done > " + filename).c_str()
   );
+  if(exitCode != 0){
+    throw std::runtime_error("Failed to find video ID from path \"" + path + "\".");
+  }
   std::ifstream file ( filename.c_str() );
   std::string fpath;
   std::string fid;
@@ -74,10 +78,10 @@ void Vision::Livestream::doPeriodic(double deltaTime){
   // Start
   cv::Mat3b hsv;
   cv::cvtColor(frame, hsv, COLOR_BGR2HSV);
-  
-  cv::Mat1b mask; 
+
+  cv::Mat1b mask;
   cv::inRange(hsv, cv::Scalar(90 - 45, 70, 50), cv::Scalar(90, 255, 255), mask);
-  
+
   // cv::Mat match;
   // int result_cols =  mask.cols - image.cols + 1;
   // int result_rows = mask.rows - image.rows + 1;

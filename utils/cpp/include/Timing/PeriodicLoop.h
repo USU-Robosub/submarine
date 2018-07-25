@@ -10,10 +10,10 @@
 namespace Timing{
   class PeriodicLoop{
   public:
-    PeriodicLoop(std::function<void(double)> callback, double minDeltaTime) 
-	    : callback(callback)
-	    , minDeltaTime(std::chrono::duration<unsigned long long,std::nano>((unsigned long long)(minDeltaTime*1e9)))
-	    , isEnabled(false) {}
+    PeriodicLoop(std::function<void(double)> callback, double minDeltaTime)
+	    : isEnabled(false)
+      , callback(callback)
+	    , minDeltaTime(std::chrono::duration<unsigned long long,std::nano>((unsigned long long)(minDeltaTime*1e9))){}
     void start();
     void stop();
     void join();

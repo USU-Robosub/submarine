@@ -34,7 +34,7 @@ set(MockSrc # Source directories for arduino libraries
 # =                 C++ Flags
 # ===============================================
 add_definitions(-DUNIT_TESTS) # enable arduino mock files
-set(CMAKE_CXX_CUSTOM_FLAGS "-std=gnu++11")
+set(CMAKE_CXX_CUSTOM_FLAGS "-std=c++11 -O0 -g3 -Wall -Wextra")
 if(${coverage})
   message("=== Enabling Coverage for ${PROJECT_NAME}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_CUSTOM_FLAGS} -coverage")

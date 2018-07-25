@@ -1,6 +1,5 @@
 #include <Subsystem/Dive.hpp>
 #include <Comm/tools.hpp>
-#include <iostream>
 
 Subsystem::Dive::Dive(Comm::Hub<int>* arduino, int handler, Comm::Hub<std::string>* agent, std::string name)
   : Comm::Remote(agent, name),
@@ -12,7 +11,6 @@ Subsystem::Dive::Dive(Comm::Hub<int>* arduino, int handler, Comm::Hub<std::strin
 void Subsystem::Dive::power(std::vector<std::string> arguments){
   if(arguments.size() == 1){
     float amount = std::stof(arguments[0]);
-    std::cout << "Set dive: " << amount << std::endl;
     this->arduino->emit(this->handler, {Comm::floatAsInt32(amount)});
   }
 }

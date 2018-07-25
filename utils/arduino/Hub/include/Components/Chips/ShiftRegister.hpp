@@ -16,7 +16,7 @@ struct Components::Chips::ShiftRegisterConfig{
   int shiftClockPin;
   int storageClockPin;
   int dataPin;
-  int blinkDelay;
+  unsigned int blinkDelay;
 };
 
 class Components::Chips::ShiftRegister{

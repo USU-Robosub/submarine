@@ -36,31 +36,6 @@ SerialPort::~SerialPort(){
   close(this->fileDescriptor);
 }
 
-std::string SerialPort::portNameFromPath(std::string portPath) {
-  std::string filename = std::tmpnam(nullptr);
-  system((
-  "paths=\"$(ls /dev/serial/by-path)\";"
-  "for path in $paths; do"
-  " id=\"$(echo $path | cut -d: -f2)\";"
-  "echo \"$id,/dev/serial/by-path/$path\";"
-  "done > " + filename).c_str()
-  );
-  std::ifstream file ( filename.c_str() );
-  std::string fpath;
-  std::string fname;
-  while ( file.good() )
-  {
-   getline ( file, fpath, ',' );
-   getline ( file, fname );
-   std::cout << fpath << ":" << fname << std::endl;
-   if(fpath==portPath) {
-    std::cout << fname << std::endl;
-    return fname;
-   }
-  }
-  return "";
-}
-
 bool SerialPort::hasData(){
   struct timeval timeout;
   timeout.tv_sec = 0;
@@ -73,7 +48,7 @@ bool SerialPort::hasData(){
 }
 
 void SerialPort::push(const unsigned char* buffer, std::size_t length){
-  int total = 0;
+  unsigned int total = 0;
   int result;
   while(total < length)
   {
