@@ -19,6 +19,7 @@ TEST_CASE("hub can read and execute a controller", "[hub]"){
   Serial.$loadBuffer(765, 4);
   Serial.$loadBuffer(13, 5);
   Serial.$bufferLength(6);
+  Serial.flush();
   hub.poll();
   REQUIRE( buffer[0] == -40 );
   REQUIRE( buffer[1] == 765 );

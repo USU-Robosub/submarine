@@ -122,8 +122,8 @@ let downDive = function(){curDive -= delta;setDive(curDive);};
 let upDive = function(){curDive += delta;setDive(curDive);};
 
 let stopDiveSteer = function(){curDiveSteer = 0;setDiveSteer(curDiveSteer);};
-let downDiveSteer = function(){curDiveSteer -= delta;setDiveSteer(curDiveSteer);};
-let upDiveSteer = function(){curDiveSteer += delta;setDiveSteer(curDiveSteer);};
+let leftDiveSteer = function(){curDiveSteer += delta;setDiveSteer(curDiveSteer);};
+let rightDiveSteer = function(){curDiveSteer -= delta;setDiveSteer(curDiveSteer);};
 
 let curSteer = 0;
 let stopSteer = function(){curSteer = 0;setSteering(curSteer);};

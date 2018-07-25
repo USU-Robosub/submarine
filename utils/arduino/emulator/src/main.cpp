@@ -66,44 +66,47 @@ void readConsole(){
 }
 
 int main(int argc, char** args){
-  if(argc != 2){
-    //std::cout << "Use instead: command [path to serial port]";
-    return 1;
-  }
-  initScreen();
-  //std::thread charIn(readConsole);
-
-  serialPortPath = args[1];
-  Serial.$intercept(read, write, available, begin);
-
-  //std::cout << "Arduino Emulator v0.1" << std::endl;
-  Mock::Arduino::$reset();
-  Mock::Arduino::$enableMillis();
-  Mock::Device::ShiftRegister shiftRegister(10, 11, 12);
-  displayShiftRegister(&shiftRegister, 10, 11, 12);
-  //std::cout << "Running setup()" << std::endl;
-  setup();
-  //std::cout << "Starting loop()" << std::endl;
-  //bool quit = false;
-  while(!quit){
-    loop();
-    char c = getch();
-    if(c != ERR){
-      std::string s("Input Code: ");
-      s.push_back(c);
-      mvprintw(LINES - 2, 1, s.c_str());
-      if(c == 'q'){
-        quit = true;
-      }else if(c == 'p'){
-        mvprintw(10, COLS/2 - 8, "--Pin Set Mode--");
-        mvprintw(11, COLS/2 - 8, "Select pin to set");
-      }
+  try{
+    if(argc != 2){
+      //std::cout << "Use instead: command [path to serial port]";
+      return 1;
     }
-    //$printState();
-    updateBoard();
-    //std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    initScreen();
+    //std::thread charIn(readConsole);
+  
+    serialPortPath = args[1];
+    Serial.$intercept(read, write, available, begin);
+  
+    //std::cout << "Arduino Emulator v0.1" << std::endl;
+    Mock::Arduino::$reset();
+    Mock::Arduino::$enableMillis();
+    Mock::Device::ShiftRegister shiftRegister(10, 11, 12);
+    displayShiftRegister(&shiftRegister, 10, 11, 12);
+    //std::cout << "Running setup()" << std::endl;
+    setup();
+    //std::cout << "Starting loop()" << std::endl;
+    //bool quit = false;
+    while(!quit){
+      loop();
+      char c = getch();
+      if(c != ERR){
+        std::string s("Input Code: ");
+        s.push_back(c);
+        mvprintw(LINES - 2, 1, s.c_str());
+        if(c == 'q'){
+          quit = true;
+        }else if(c == 'p'){
+          mvprintw(10, COLS/2 - 8, "--Pin Set Mode--");
+          mvprintw(11, COLS/2 - 8, "Select pin to set");
+        }
+      }
+      //$printState();
+      updateBoard();
+      //std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+  } catch(...) {
+    closeScreen();
   }
-  closeScreen();
   //charIn.join();
   return 0;
 }

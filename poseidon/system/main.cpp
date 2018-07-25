@@ -26,6 +26,8 @@ Comm::TCP::FullStack* agent;
 Subsystem::Dive* dive;
 Subsystem::Tank* tank;
 
+Vision::Livestream* vision3;
+
 // event loop
 bool stopApp = false;
 
@@ -37,6 +39,13 @@ int main(){
 }
 
 void createHubs(){
+  std::cout << "Connecting to Vision" << std::endl;
+  try{
+    vision3 = new Vision::Livestream("1-1.3.3",8080,100);
+  }catch(...){
+    std::cerr << "Could not connect to camera." << std::endl;
+  }
+  std::cout << "Connecting to arduino" << std::endl;
   try{
     std::cout << Comm::Serial::PortFinder::findByPath(ARDUINO_PORT) << std::endl;
     arduino = new Comm::Serial::FullStack("/dev/serial/by-path/" + Comm::Serial::PortFinder::findByPath(ARDUINO_PORT), ARDUINO_BAUD);
@@ -45,11 +54,13 @@ void createHubs(){
     arduino = new Comm::Serial::FullStack(ARDUINO_PORT_EMULATED, ARDUINO_BAUD);
   }
   arduino->restartArduino();
+  std::cout << "Connecting to network" << std::endl;
   agent = new Comm::TCP::FullStack(AGENT_PORT, AGENT_DELIMITER);
-  std::cout << "Created network" << std::endl;
+  std::cout << "Created Hubs" << std::endl;
 }
 
 void createSubsystems(){
+  std::cout << "Creating subsystems" << std::endl;
   //arduino.hub()->on(1,[&agent](std::vector<int> message){
   //  bool enable = message.size()>0&&message.at(0)==1;
   //  agent.hub()->emit("killswitch", std::vector<std::string>{(enable?"1":"0")});
@@ -68,6 +79,7 @@ void createSubsystems(){
 
   dive = new Subsystem::Dive(arduino->hub(), DIVE_PORT_NUM, agent->hub(), DIVE_PORT_NAME);
   tank = new Subsystem::Tank(arduino->hub(), TANK_PORT_NUM, agent->hub(), TANK_PORT_NAME);
+  std::cout << "Created subsystems" << std::endl;
 }
 
 void runEventLoop(){
