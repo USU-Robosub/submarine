@@ -80,6 +80,18 @@ void createSubsystems(){
       return;
     agent->hub()->emit("imu/rotation", std::vector<std::string>{std::to_string(message[0]),std::to_string(message[1]),std::to_string(message[2])});
   });
+  
+  arduino->hub()->emit(4, {1}); // enable imu output
+  
+  arduino->hub()->on(10,[](std::vector<int> message){
+    std::cout << "Got IMU!" << std::endl;
+    if(message.size() != 9)
+      return;
+    std::cout << "gyro: " << message[0] << ", " << message[1] << ", " << message[2] << ", " << std::endl;
+    std::cout << "accel: " << message[3] << ", " << message[4] << ", " << message[5] << ", " << std::endl;
+    std::cout << "magnet: " << message[6] << ", " << message[7] << ", " << message[8] << ", " << std::endl;
+    //agent->hub()->emit("imu/rotation", std::vector<std::string>{std::to_string(message[0]),std::to_string(message[1]),std::to_string(message[2])});
+  });
 
   dive = new Subsystem::Dive(arduino->hub(), DIVE_PORT_NUM, agent->hub(), DIVE_PORT_NAME);
   tank = new Subsystem::Tank(arduino->hub(), TANK_PORT_NUM, agent->hub(), TANK_PORT_NAME);
