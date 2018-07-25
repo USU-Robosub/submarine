@@ -10,7 +10,6 @@ Components::Sensors::HMC5883L::HMC5883L(unsigned long minSampleTimeDelta)
     x(0),
     y(0),
     z(0){
-  Wire.begin();
   //Put the HMC5883 IC into the correct operating mode
   Wire.beginTransmission(CHIP_ADDRESS); //open communication with HMC5883
   Wire.send(0x02); //select mode register
@@ -19,6 +18,7 @@ Components::Sensors::HMC5883L::HMC5883L(unsigned long minSampleTimeDelta)
 }
 
 Components::Sensors::ThreeAxisMeasurement<Nanotesla> Components::Sensors::HMC5883L::measureMagneticField(){
+  this->measure();
   return {this->x, this->y, this->z};
 }
 

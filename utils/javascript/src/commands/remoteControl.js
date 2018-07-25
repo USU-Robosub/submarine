@@ -1,6 +1,6 @@
 const { Command } = require('../scheduler')
-const { map, debounceTime } = require('rxjs/operators')
-const { pipe, fromEvent, merge } = require('rxjs')
+const { map, debounceTime, tap } = require('rxjs/operators')
+const { pipe, fromEvent, merge, zip } = require('rxjs')
 const { parallel } = require('../scheduler/tools')
 
 const dive = socket => Command()
@@ -76,8 +76,42 @@ const tank = socket => Command()
       map(amount => system.tank.right(amount))
     )
   ))
+  
+const readPose = socket => Command()
+  .named('remote control read pos')
+  .require('pose')
+  .makeCancelable()
+  .action(system => {
+    return merge(
+      system.pose.yaw().pipe(
+        tap(angle => socket.emit('pose/yaw', angle))  
+      ),
+      system.pose.pitch().pipe(
+        tap(angle => socket.emit('pose/pitch', angle))  
+      ),
+      system.pose.roll().pipe(
+        tap(angle => socket.emit('pose/roll', angle))  
+      ),
+      
+      zip(
+        system.pose.yaw(),
+        system.pose.pitch(),
+        system.pose.roll()
+      ).pipe(
+        tap(angles => socket.emit('pose/all', angles))  
+      ),
+      
+      system.pose.north().pipe(
+        tap(angle => socket.emit('pose/north', angle))  
+      ),
+      system.pose.down().pipe(
+        tap(angle => socket.emit('pose/down', angle))  
+      )
+    )
+  })
 
 module.exports = {
   dive,
-  tank
+  tank,
+  readPose
 }

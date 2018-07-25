@@ -1,6 +1,7 @@
 #include <Hub.hpp>
 #include <settings.hpp>
 #include <Arduino.h>
+#include <Wire.h>
 
 #include <Components/Motors/BlueRoboticsR1Esc.hpp>
 #include <Components/Chips/ShiftRegister.hpp>
@@ -33,14 +34,16 @@ Thrusters thrusters;
 HMC5883L* magnetometer;
 MPU6050* gyroAndAccel;
 
-
 void createComponents(){
   thrusters.front = new Motor({.pin=FRONT_MOTOR_PIN, .trim={MOTOR_REVERSE_MAX, MOTOR_REVERSE_MIN, MOTOR_CENTER, MOTOR_FORWARD_MIN, MOTOR_FORWARD_MAX}}),
   thrusters.back = new Motor({.pin=BACK_MOTOR_PIN, .trim={-MOTOR_REVERSE_MAX, -MOTOR_REVERSE_MIN, MOTOR_CENTER, -MOTOR_FORWARD_MIN, -MOTOR_FORWARD_MAX}}),
   thrusters.left = new Motor({.pin=LEFT_MOTOR_PIN, .trim={MOTOR_REVERSE_MAX, MOTOR_REVERSE_MIN, MOTOR_CENTER, MOTOR_FORWARD_MIN, MOTOR_FORWARD_MAX}}),
   thrusters.right = new Motor({.pin=RIGHT_MOTOR_PIN, .trim={-MOTOR_REVERSE_MAX, -MOTOR_REVERSE_MIN, MOTOR_CENTER, -MOTOR_FORWARD_MIN, -MOTOR_FORWARD_MAX}});
+  Wire.begin(); // enable I2C
   magnetometer = new HMC5883L(IMU_ACCEL_MAX_SAMPLE_RATE);
   gyroAndAccel = new MPU6050(IMU_GYRO_MAX_SAMPLE_RATE);
+  gyroAndAccel->setGyroFullScaleRange(GYRO_FSR_250);
+  gyroAndAccel->setAccelFullScaleRange(ACCEL_FSR_2);
 }
 
 void createControllers(){

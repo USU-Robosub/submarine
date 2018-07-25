@@ -17,7 +17,7 @@ Controllers::IMU::IMU(unsigned long timeBetweenSamples,
 
 void Controllers::IMU::execute(Emitter* hub, int32_t* data, int32_t length){
   if(length == 1){
-    if(data[1] == 0){
+    if(data[0] == 0){
       this->enabled = false;
     }else{
       this->enabled = true;
@@ -41,7 +41,7 @@ void Controllers::IMU::update(){
         magnet.x, magnet.y, magnet.z
       };
 
-      this->emitter->emit(handler, data, 9);
+      this->emitter->emit(this->handler, data, 9);
     }
   }
 }

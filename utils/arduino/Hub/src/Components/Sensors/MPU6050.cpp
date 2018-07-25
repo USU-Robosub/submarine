@@ -24,14 +24,17 @@ Components::Sensors::MPU6050::MPU6050(unsigned long minSampleTimeDelta)
 }
 
 Components::Sensors::ThreeAxisMeasurement<MicroradianPerSecond> Components::Sensors::MPU6050::measureAngularVelocity(){
+  this->measure();
   return {this->gyroX, this->gyroY, this->gyroZ};
 }
 
 Components::Sensors::ThreeAxisMeasurement<MicrometerPerSecondSquared> Components::Sensors::MPU6050::measureLinearAcceleration(){
+  this->measure();
   return {this->accelX, this->accelY, this->accelZ};
 }
 
 Millicelcius Components::Sensors::MPU6050::measureTemperature(){
+  this->measure();
   return 0; // TODO ignore temp for now
 }
 
@@ -60,9 +63,9 @@ void Components::Sensors::MPU6050::measure(){
     this->gyroZ = static_cast<int32_t>(tmpGyroZ) * gyroScaleFactor;
     // convert from raw 16-bit accel sensor value in scaled g to micrometers per second
     int32_t accelScaleFactor = this->ACCEL_SSF_UMS2[this->accelScaleMode];
-    this->gyroX = static_cast<int32_t>(tmpAccelX) * accelScaleFactor;
-    this->gyroY = static_cast<int32_t>(tmpAccelY) * accelScaleFactor;
-    this->gyroZ = static_cast<int32_t>(tmpAccelZ) * accelScaleFactor;
+    this->accelX = static_cast<int32_t>(tmpAccelX) * accelScaleFactor;
+    this->accelY = static_cast<int32_t>(tmpAccelY) * accelScaleFactor;
+    this->accelZ = static_cast<int32_t>(tmpAccelZ) * accelScaleFactor;
     // TODO ignore temp for now
   }
 }

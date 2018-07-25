@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "express": "^4.16.2",
+    "mathjs": "^5.0.4",
     "rxjs": "^6.2.2",
     "socket.io": "^2.0.4",
     "three": "^0.94.0"

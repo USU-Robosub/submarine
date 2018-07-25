@@ -1,7 +1,7 @@
 const {
   comm,
   scheduler:{ Scheduler },
-  subsystems:{ dive, tank },
+  subsystems:{ dive, tank, imu, pose },
   commands:{ remoteControl }
 } = require('./utils')
 
@@ -27,6 +27,7 @@ http.listen(settings.webApp.port,
   () => console.log('Web app listening on port', settings.webApp.port)
 )
 
+var hasSystemFailed = false;
 function init(){
   comm.create({
     address: settings.system.address,
@@ -35,7 +36,9 @@ function init(){
   }).then(hub => {
     startAgent(hub)
   }).catch(error => {
-    console.log('Failed to connect to system.')
+    if(!hasSystemFailed)
+      console.error('Failed to connect to system.', error)
+    hasSystemFailed = true;
     setTimeout(init, settings.system.retryDelay) // try connecting again
   })
 }
@@ -45,7 +48,9 @@ function startAgent(hub){
 
   const scheduler = Scheduler([
     dive(hub),
-    tank(hub)
+    tank(hub),
+    imu(hub),
+    pose(hub)
   ])
 
   connectToWebApp(scheduler)
@@ -76,6 +81,11 @@ function setupWebAppClient(scheduler, socket){
   scheduler.run(remoteControl.tank(socket)).to.promise().then(() => {
     socket.emit('tank/lost')
     console.log('Tank remote control stopped for user')
+  })
+  
+  scheduler.run(remoteControl.readPose(socket)).to.promise().then(() => {
+    socket.emit('pose/lost')
+    console.log('Pose remote control stopped for user')
   })
 
   socket.on('disconnect', function(){

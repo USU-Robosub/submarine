@@ -35,9 +35,6 @@ scene.add( gridHelper );
 var worldAxis = new THREE.AxesHelper(20);
 scene.add(worldAxis);
 
-
-var arrowHelper = false;
-
 // Append Renderer to DOM
 document.getElementById("submodel").appendChild( renderer.domElement );
 
@@ -61,9 +58,6 @@ loader.load( '/rsapp/mini.stl', function ( geometry ) {
   var origin = new THREE.Vector3( 0, 0, 0 );
   var length = 2;
   var hex = 0xad42f4;
-  
-  arrowHelper = new THREE.ArrowHelper( new THREE.Vector3(0, 0, 1), origin, length, hex );
-  scene.add( arrowHelper );
 } );
 
 function addShadowedLight( x, y, z, color, intensity ) {
@@ -99,30 +93,10 @@ addShadowedLight( -10, -10, 10, 0xffffff, 0.5 );
 let targetQuat = false;
 
 /* global Quaternian, Vector3 */
-let setSubmarineVector = (vX, vY, vZ)=>{
-  
-  // if(vX > 32767){
-  //   vX = 32767 - vX
-  // }
-  // if(vY > 32767){
-  //   vY = vY % 32767
-  // }
-  // if(vZ > 32767){
-  //   vZ = 32767 - vZ
-  // }
-  
-  let vector = new THREE.Vector3(vX,vY,vZ);
-  vector.normalize(); 
-  console.log(vX, vY, vZ)
-  if(arrowHelper){
-    arrowHelper.setDirection(vector)
-  }
-  // if(submesh){
-  //   submesh.lookAt(vector)
-  // }
-  // const rotQuat = (new THREE.Quaternion()).setFromAxisAngle(vector, 1)
-  // targetQuat = new THREE.Quaternion();
-  // targetQuat.multiplyQuaternions(baseQuat,  rotQuat)
+let setSubmarineRotation = (yaw, pitch, roll)=>{
+  var a = new THREE.Euler( roll, pitch, yaw, 'ZYX' )
+  targetQuat = (new THREE.Quaternion()).setFromEuler(a)
+  // console.log(yaw, pitch, roll)
 };
 
 // Render Loop

@@ -28,8 +28,8 @@ socket.on('tank/lost', () => {
 })
 
 /*global setSubmarineRotation */
-socket.on('imu/rotation', ([ x, y, z ]) => {
-  setSubmarineVector(x,y,z);
+socket.on('pose/all', ([ yaw, pitch, roll ]) => {
+  setSubmarineRotation(yaw, 0, 0);
 })
 
 function setTank(left, right){
