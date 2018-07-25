@@ -4,6 +4,7 @@
 
 #include <Components/Motors/BlueRoboticsR1Esc.hpp>
 #include <Components/Chips/ShiftRegister.hpp>
+#include <Components/Sensors/MPU6050.hpp>
 #include <Components/Sensors/HMC5883L.hpp>
 
 #include <Controllers/Empty.hpp>
@@ -11,10 +12,12 @@
 #include <Controllers/KillSwitch.hpp>
 #include <Controllers/Dive.hpp>
 #include <Controllers/Tank.hpp>
+#include <Controllers/IMU.hpp>
 
 typedef Components::Motors::BlueRoboticsR1Esc Motor;
 typedef Components::Chips::ShiftRegister ShiftRegister;
-typedef Components::Sensors::HMC5883L Magnetometer;
+typedef Components::Sensors::HMC5883L HMC5883L;
+typedef Components::Sensors::MPU6050 MPU6050;
 
 struct Thrusters{
   Motor* front;
@@ -23,13 +26,12 @@ struct Thrusters{
   Motor* right;
 };
 
-#define CONTROLLER_COUNT 4
-
 Hub* hub;
 Controller** controllers;
+
 Thrusters thrusters;
-ShiftRegister* shiftRegister;
-Magnetometer* magnetometer;
+HMC5883L* magnetometer;
+MPU6050* gyroAndAccel;
 
 
 void createComponents(){
@@ -37,41 +39,36 @@ void createComponents(){
   thrusters.back = new Motor({.pin=BACK_MOTOR_PIN, .trim={-MOTOR_REVERSE_MAX, -MOTOR_REVERSE_MIN, MOTOR_CENTER, -MOTOR_FORWARD_MIN, -MOTOR_FORWARD_MAX}}),
   thrusters.left = new Motor({.pin=LEFT_MOTOR_PIN, .trim={MOTOR_REVERSE_MAX, MOTOR_REVERSE_MIN, MOTOR_CENTER, MOTOR_FORWARD_MIN, MOTOR_FORWARD_MAX}}),
   thrusters.right = new Motor({.pin=RIGHT_MOTOR_PIN, .trim={-MOTOR_REVERSE_MAX, -MOTOR_REVERSE_MIN, MOTOR_CENTER, -MOTOR_FORWARD_MIN, -MOTOR_FORWARD_MAX}});
+  magnetometer = new HMC5883L(IMU_ACCEL_MAX_SAMPLE_RATE);
+  gyroAndAccel = new MPU6050(IMU_GYRO_MAX_SAMPLE_RATE);
 }
 
 void createControllers(){
   controllers = new Controller*[CONTROLLER_COUNT];
 
-  controllers[0] = new Controllers::Echo(ECHO_RETURN);
-  controllers[1] = new Controllers::Empty();
-  //controllers[1] = new Controllers::KillSwitch(KILL_PIN, ECHO_RETURN, MILLI_SECONDS(200));
+  controllers[HUB_ECHO_PORT] = new Controllers::Echo(ECHO_RETURN);
+  controllers[HUB_KILL_SWITCH_PORT] = new Controllers::Empty();
+  //controllers[HUB_KILL_SWITCH_PORT] = new Controllers::KillSwitch(KILL_PIN, ECHO_RETURN, MILLI_SECONDS(200));
 
-  controllers[2] = new Controllers::Dive(thrusters.front, thrusters.back);
-  controllers[3] = new Controllers::Tank(thrusters.left, thrusters.right);
+  controllers[HUB_DIVE_PORT] = new Controllers::Dive(thrusters.front, thrusters.back);
+  controllers[HUB_TANK_PORT] = new Controllers::Tank(thrusters.left, thrusters.right);
+
+  controllers[HUB_IMU_PORT] = new Controllers::IMU(IMU_SMAPLE_RATE, IMU_HANDLER, magnetometer, gyroAndAccel, gyroAndAccel);
 }
 
 void setupControllers(){
-  //static_cast<Controllers::KillSwitch*>(controllers[1])->use(hub, hub);
-  static_cast<Controllers::Dive*>(controllers[2])->unfreeze();
-  static_cast<Controllers::Tank*>(controllers[3])->unfreeze();
+  static_cast<Controllers::IMU*>(controllers[HUB_IMU_PORT])->use(hub);
+  //static_cast<Controllers::KillSwitch*>(controllers[HUB_KILL_SWITCH_PORT])->use(hub, hub);
+  static_cast<Controllers::Dive*>(controllers[HUB_DIVE_PORT])->unfreeze();
+  static_cast<Controllers::Tank*>(controllers[HUB_TANK_PORT])->unfreeze();
 }
 
 void connectToSerial(){
   hub = new Hub(controllers, CONTROLLER_COUNT);
 }
 
-void pollSerialData(){
-  hub->poll();
-}
-
 void setup()
 {
-  magnetometer = new Magnetometer();
-  shiftRegister = new ShiftRegister({.shiftClockPin=10, .storageClockPin=11, .dataPin=12, .blinkDelay=500});
-  // shiftRegister->blinkPin(0);
-  // shiftRegister->blinkPin(2);
-  // shiftRegister->blinkPin(5);
-  // shiftRegister->blinkPin(7);
   createComponents();
   createControllers();
   connectToSerial();
@@ -80,20 +77,24 @@ void setup()
   pinMode(13, OUTPUT);
 }
 
+void pollSerialData(){
+  hub->poll();
+}
+
+void updateControllers(){
+  static_cast<Controllers::IMU*>(controllers[HUB_IMU_PORT])->update();
+}
+
 unsigned long lastMillis = 0;
 bool state = false;
 
 void loop() {
-  // magnetometer->update();
-  // int32_t data[3] = {magnetometer->x(), magnetometer->y(), magnetometer->z()};
-  // hub->emit(4, data, 3);
-
   if(lastMillis + 200 < millis()){
     lastMillis = millis();
     state = !state;
     digitalWrite(13, state);
   }
-  shiftRegister->update();
+  updateControllers();
   pollSerialData();
   Serial.flush();
   delay(LOOP_DELAY);

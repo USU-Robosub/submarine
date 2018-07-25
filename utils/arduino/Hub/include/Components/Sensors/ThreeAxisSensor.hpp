@@ -5,6 +5,7 @@
 
 namespace Components{
   namespace Sensors{
+    template <typename T>
     struct ThreeAxisMeasurement;
   }
 }

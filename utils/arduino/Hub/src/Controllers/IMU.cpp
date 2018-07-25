@@ -38,7 +38,7 @@ void Controllers::IMU::update(){
       int32_t data[9] = {
         gyro.x, gyro.y, gyro.z,
         accel.x, accel.y, accel.z,
-        magent.x, magnet.y, magnet.z
+        magnet.x, magnet.y, magnet.z
       };
 
       this->emitter->emit(handler, data, 9);

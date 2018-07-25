@@ -7,7 +7,7 @@
 
 namespace Components{
   namespace Sensors{
-    class HMC5883L;
+    class MPU6050;
   }
 }
 

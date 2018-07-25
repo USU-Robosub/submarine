@@ -30,7 +30,7 @@ private:
   Components::Sensors::Magnetometer* magnetometer;
   Components::Sensors::Gyroscope* gyroscope;
   Components::Sensors::Accelerometer* accelerometer;
-  Emitter* emitter
+  Emitter* emitter;
 };
 
 #endif

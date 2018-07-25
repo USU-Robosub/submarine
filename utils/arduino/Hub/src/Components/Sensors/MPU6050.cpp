@@ -5,8 +5,6 @@
 
 #define CHIP_ADDRESS 0x68
 
-#define
-
 Components::Sensors::MPU6050::MPU6050(unsigned long minSampleTimeDelta)
   : minSampleTimeDelta(minSampleTimeDelta),
     lastSampleTime(0),
@@ -25,15 +23,15 @@ Components::Sensors::MPU6050::MPU6050(unsigned long minSampleTimeDelta)
   Wire.endTransmission(true);
 }
 
-Components::Sensors::ThreeAxisMeasurement<RadianPerSecond> Components::Sensors::MPU6050::measureAngularVelocity(){
+Components::Sensors::ThreeAxisMeasurement<MicroradianPerSecond> Components::Sensors::MPU6050::measureAngularVelocity(){
   return {this->gyroX, this->gyroY, this->gyroZ};
 }
 
-Components::Sensors::ThreeAxisMeasurement<MeterPerSecondSquared> Components::Sensors::MPU6050::measureLinearAcceleration(){
+Components::Sensors::ThreeAxisMeasurement<MicrometerPerSecondSquared> Components::Sensors::MPU6050::measureLinearAcceleration(){
   return {this->accelX, this->accelY, this->accelZ};
 }
 
-Celcius Components::Sensors::MPU6050::measureTemperature(){
+Millicelcius Components::Sensors::MPU6050::measureTemperature(){
   return 0; // TODO ignore temp for now
 }
 
@@ -56,7 +54,7 @@ void Components::Sensors::MPU6050::measure(){
     int16_t tmpGyroZ = Wire.read() << 8 | Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
     // convert units
     // convert from raw 16-bit gyro sensor value in scaled degrees per second to microradians per second
-    int32_t gyroScaleFactor = this->GYRO_SSF_MRAD[this->gyroScaleMode];
+    int32_t gyroScaleFactor = this->GYRO_SSF_URAD[this->gyroScaleMode];
     this->gyroX = static_cast<int32_t>(tmpGyroX) * gyroScaleFactor;
     this->gyroY = static_cast<int32_t>(tmpGyroY) * gyroScaleFactor;
     this->gyroZ = static_cast<int32_t>(tmpGyroZ) * gyroScaleFactor;
@@ -77,10 +75,10 @@ void Components::Sensors::MPU6050::setGyroFullScaleRange(uint8_t mode){
   Wire.endTransmission(true);
 }
 
-  void Components::Sensors::MPU6050::setAccelFullScaleRange(uint8_t mode){
-    this->accelScaleMode = mode;
-    Wire.beginTransmission(CHIP_ADDRESS);
-    Wire.write(ACCEL_CONFIG);
-    Wire.write(mode << 3);
-    Wire.endTransmission(true);
-  }
+void Components::Sensors::MPU6050::setAccelFullScaleRange(uint8_t mode){
+  this->accelScaleMode = mode;
+  Wire.beginTransmission(CHIP_ADDRESS);
+  Wire.write(ACCEL_CONFIG);
+  Wire.write(mode << 3);
+  Wire.endTransmission(true);
+}
