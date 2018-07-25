@@ -1,7 +1,7 @@
 const {
   comm,
-  scheduler:{ Scheduler },
-  subsystems:{ dive, tank, imu, pose },
+  scheduler:{ Scheduler, Command },
+  subsystems:{ dive, tank, imu, pose, killswitch },
   commands:{ remoteControl }
 } = require('./utils')
 
@@ -12,6 +12,8 @@ const express = require('express')
 const app = express();
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
+const { map, buffer, debounceTime, filter, tap } = require('rxjs/operators')
+const { merge } = require('rxjs')
 
 
 app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.html')))
@@ -50,8 +52,44 @@ function startAgent(hub){
     dive(hub),
     tank(hub),
     imu(hub),
-    pose(hub)
+    pose(hub),
+    killswitch(hub)
   ])
+  
+  scheduler.run(
+    Command()
+      .named('ai')
+      .require('killSwitch')
+      .action(system => {
+        console.log('AI script ready')
+        const killswitchStatus = system.killSwitch.status()
+        const killSwitchOn = killswitchStatus.pipe(
+          tap(status => console.log('killswitch', status)),
+          filter(status => status == true)  
+        )
+        const aiEnable = killSwitchOn.pipe(
+          buffer(killSwitchOn.pipe(
+            debounceTime(2000)  
+          )),
+          map(list => list.length),
+          filter(x => x >= 2),
+          map(status => {
+            console.log('Enabled AI')
+            return true
+          })
+        )
+        const aiDisable = killswitchStatus.pipe(
+          filter(status => status == false),
+          tap(() => 
+            console.log('Disable AI'))
+        )
+        const aiControl = merge(aiEnable, aiDisable)
+        // ============== AI SCRIPT ============
+        
+        // ============== AI SCRIPT ============
+        return aiControl
+      })
+  )
 
   connectToWebApp(scheduler)
 

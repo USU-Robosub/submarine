@@ -74,7 +74,8 @@ void createSubsystems(){
 
   arduino->hub()->on(101,[](std::vector<int> message){ // listen to kill switch
     if(message.size() >= 1){
-      std::cout << "Kill swich: " << message[0] << std::endl;
+      std::cout << "Kill swich: " << (message[0] == 1 ? "on" : "off") << std::endl;
+      agent->hub()->emit("killSwitch/status", std::vector<std::string>{std::to_string(message[0])});
     }
   });
   

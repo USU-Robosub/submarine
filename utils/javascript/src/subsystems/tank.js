@@ -2,6 +2,14 @@ const { Subsystem, Command } = require('../scheduler')
 const { map, timeInterval } = require('rxjs/operators')
 const pid = require('../PID/pid')
 
+function absMod(x, n){
+  return x - Math.floor(x/n) * n
+}
+
+function angleBetween(a, b){
+  return absMod((a - b) + 180, 360) - 180
+}
+
 module.exports = (hub, handlerName="tank") => {
   
   let headingCorrectionEnabled = false
@@ -43,7 +51,7 @@ module.exports = (hub, handlerName="tank") => {
           return system.pose.yaw().pipe(
             timeInterval(),
             map(({ value:angle, interval:deltaTime }) => {
-              hub.emit(handlerName + '/steering', pid.correctFor(angle, headingTarget, deltaTime / 1000.0))
+              hub.emit(handlerName + '/steering', pid.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0) * (0.5 / 180))
             })
           )
         })
