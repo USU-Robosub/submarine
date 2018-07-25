@@ -6,6 +6,11 @@ const hub = bridge => {
         handlers[name] = []
       }
       handlers[name].push(handler)
+      return {
+        remove: () => {
+          handlers[name].splice(handlers[name].findIndex(otherHandler => otherHandler == handler), 1)
+        }
+      }
     },
     poll: () => {
       const messages = bridge.receive()
@@ -15,7 +20,7 @@ const hub = bridge => {
         if(handlers[name]){
           handlers[name].forEach(handler => handler(hub, message))
         }else{
-          console.log('Received event with no listener', name, message)
+          //console.log('Received event with no listener', name, message)
         }
       })
     },

@@ -12,6 +12,9 @@ void Controllers::Dive::execute(Emitter* hub, int32_t* data, int32_t length){
   if(length == 1){
     this->frontMotor->power(int32AsFloat(data[0]));
     this->backMotor->power(int32AsFloat(data[0]));
+  } else if(length == 2){
+    this->frontMotor->power(int32AsFloat(data[0]) + int32AsFloat(data[1]));
+    this->backMotor->power(int32AsFloat(data[0]) - int32AsFloat(data[1]));
   }
 }
 

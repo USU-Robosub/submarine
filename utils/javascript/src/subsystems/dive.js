@@ -6,4 +6,7 @@ module.exports = (hub, handlerName="dive") => Subsystem()
     power: amount => {
       hub.emit(handlerName + '/power', [amount])
     },
+    steering: amount => {
+      hub.emit(handlerName + '/steering', [amount])
+    },
   })

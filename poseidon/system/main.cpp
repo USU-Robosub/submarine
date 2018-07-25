@@ -58,6 +58,13 @@ void createSubsystems(){
   arduino->hub()->on(ECHO_PORT_NUM, [](std::vector<int> message){
     std::cout << "Echo from arduino: " << message[0] << std::endl;
   });
+  
+  arduino->hub()->on(4,[](std::vector<int> message){
+    //std::cout << "Got IMU" << std::endl;
+    if(message.size() != 3)
+      return;
+    agent->hub()->emit("imu/rotation", std::vector<std::string>{std::to_string(message[0]),std::to_string(message[1]),std::to_string(message[2])});
+  });
 
   dive = new Subsystem::Dive(arduino->hub(), DIVE_PORT_NUM, agent->hub(), DIVE_PORT_NAME);
   tank = new Subsystem::Tank(arduino->hub(), TANK_PORT_NUM, agent->hub(), TANK_PORT_NAME);

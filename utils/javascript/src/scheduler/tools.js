@@ -75,6 +75,15 @@ const repeat = action => system => repeatWithDelay(action, 1)(system)
 
 const fromPromise = action => system => from(action(system))
 
+const count = () => {
+  let counter = 0
+  return map(() => counter++)
+}
+
+const parallel = (...pipes) => source =>
+  merge(...pipes.map(pipe => source.pipe(pipe)))
+
+
 module.exports = {
   sequential,
   concurrent,
@@ -84,15 +93,8 @@ module.exports = {
   repeat,
   repeatWithDelay,
   fromPromise,
+  parallel
 }
-
-const count = () => {
-  let counter = 0
-  return map(() => counter++)
-}
-
-const parallel = (...pipes) => source =>
-  merge(...pipes.map(pipe => source.pipe(pipe)))
 
 const takeWhileInclusive = predicate => source => new Observable(observer => {
   return source.subscribe({

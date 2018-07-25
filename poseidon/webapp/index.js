@@ -27,6 +27,11 @@ socket.on('tank/lost', () => {
   console.log('Lost control over tank subsystem')
 })
 
+/*global setSubmarineRotation */
+socket.on('imu/rotation', ([ x, y, z ]) => {
+  setSubmarineVector(x,y,z);
+})
+
 function setTank(left, right){
   if(!killed) {
     let throttle = 2 - (left + right)/2;
@@ -35,42 +40,83 @@ function setTank(left, right){
     socket.emit('steering', steering*90);
   }
 }
-
+let thrustTimeout = false;
 function setThrottle(x){
   if(!killed) {
     socket.emit('throttle', x)
-    //socket.emit('steering', x)
+    document.getElementById("thruststatus").innerHTML = x;
+    curThrottle = x;
+    if(thrustTimeout!==false)
+      clearTimeout(thrustTimeout);
+    thrustTimeout = setTimeout(()=>setThrottle(curThrottle),250)
   }
 }
 
+let steerTimeout = false;
 function setSteering(x){
   if(!killed) {
     socket.emit('steering', x)
+    document.getElementById("steerstatus").innerHTML = x;
+    curSteer = x;
+    if(steerTimeout!==false)
+      clearTimeout(steerTimeout);
+    steerTimeout = setTimeout(()=>setSteering(curSteer),250)
   }
 }
 
+let curLeft = 0;
+let leftTimeout = false;
 function setLeft(x){
   if(!killed) {
     socket.emit('left', x)
+    curLeft = x;
+    if(leftTimeout!==false)
+      clearTimeout(leftTimeout);
+    leftTimeout = setTimeout(()=>setLeft(curLeft),250)
   }
 }
 
+let curRight = 0;
+let rightTimeout = false;
 function setRight(x){
   if(!killed) {
     socket.emit('right', x)
+    curRight = x;
+    if(rightTimeout!==false)
+      clearTimeout(rightTimeout);
+    rightTimeout = setTimeout(()=>setRight(curRight),250)
   }
 }
+
+let diveTimeout = false;
 
 function setDive(x){
   if(!killed) {
     socket.emit('dive', x)
-    document.getElemnt.ById("divestatus").innerHTML = x;
+    document.getElementById("divestatus").innerHTML = x;
+    curDive = x;
+    if(diveTimeout!==false)
+      clearTimeout(diveTimeout);
+    diveTimeout = setTimeout(()=>setDive(curDive),250)
   }
 }
-let curDive = 90;
-let stop = function(){curDive = 90;setDive(curDive);};
-let downDive = function(){setDive(--curDive);};
-let upDive = function(){setDive(++curDive);};
+
+const delta = 0.05;
+
+let curDive = 0;
+let stopDive = function(){curDive = 0;setDive(curDive);};
+let downDive = function(){curDive -= delta;setDive(curDive);};
+let upDive = function(){curDive += delta;setDive(curDive);};
+
+let curSteer = 0;
+let stopSteer = function(){curSteer = 0;setSteering(curSteer);};
+let leftSteer = function(){curSteer -= delta;setSteering(curSteer);};
+let rightSteer = function(){curSteer += delta;setSteering(curSteer);};
+
+let curThrottle = 0;
+let stopThrottle = function(){curThrottle = 0;setThrottle(curThrottle);};
+let downThrottle = function(){curThrottle -= delta;setThrottle(curThrottle);};
+let upThrottle = function(){curThrottle += delta;setThrottle(curThrottle);};
 
 let mode = "single";
 let leftAxis = 0;

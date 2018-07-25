@@ -7,3 +7,4 @@
 #include <Serial.mock.hpp>
 #include <Servo.mock.hpp>
 #include <TimerTwo.mock.hpp>
+#include <Wire.mock.hpp>
