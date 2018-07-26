@@ -12,8 +12,8 @@ const express = require('express')
 const app = express();
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
-const { map, buffer, debounceTime, filter, tap } = require('rxjs/operators')
-const { merge } = require('rxjs')
+const { map, buffer, debounceTime, filter, tap, withLatestFrom, takeUntil } = require('rxjs/operators')
+const { merge, interval } = require('rxjs')
 
 
 app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.html')))
@@ -48,18 +48,23 @@ function init(){
 function startAgent(hub){
   console.log('Connected to system')
 
+  let tankObj = tank(hub);
+
   const scheduler = Scheduler([
     dive(hub),
-    tank(hub),
+    tankObj.subsystem,
     imu(hub),
     pose(hub),
     killswitch(hub)
   ])
   
-  scheduler.run(
+  tankObj.defaultCommand(scheduler)
+  
+  scheduler.build(
     Command()
       .named('ai')
-      .require('killSwitch')
+      .require('killSwitch','dive','tank')
+      .makeCancelable()
       .action(system => {
         console.log('AI script ready')
         const killswitchStatus = system.killSwitch.status()
@@ -86,17 +91,39 @@ function startAgent(hub){
         const aiControl = merge(aiEnable, aiDisable)
         // ============== AI SCRIPT ============
         
+        let count = 0;
+        const ai = interval(10).pipe(
+          withLatestFrom(aiControl),
+          map(([index, enabled]) => {
+          if(enabled && count < 1000) {
+            system.dive.power(-0.7)
+            system.tank.throttle(0.5)
+            system.tank.steering(0.3)
+            system.dive.steering(0.1)
+            count++;
+          } else {
+            if(!enabled)
+              count = 0;
+            system.dive.power(0)
+            system.dive.steering(0)
+            system.tank.throttle(0)
+            system.tank.steering(0)
+          }
+          }))
+        
         // ============== AI SCRIPT ============
-        return aiControl
+        return ai
       })
-  )
+  ).then().run().to.promise().then(() => {}).catch(e => {
+    console.error(e);
+  })
 
-  connectToWebApp(scheduler)
+  connectToWebApp(scheduler, hub)
 
   setInterval(hub.poll, settings.system.loopDelay) // start listening to system
 }
 
-function connectToWebApp(scheduler){
+function connectToWebApp(scheduler, hub){
   // setup clients already connected
   Object.values(io.sockets.sockets).forEach(socket => {
     setupWebAppClient(scheduler, socket)
@@ -104,6 +131,15 @@ function connectToWebApp(scheduler){
 
   // setup new clients
   io.on('connection', socket => {
+    hub.on('echo/arduino', (hub, data) => {
+      socket.emit('echo/arduino', data)
+    })
+    
+    hub.on('imu/data', (hub, data) => {
+      //console.log(data)
+      socket.emit('imu/raw_large', data.map(str => parseFloat(str)))
+    })
+    
     setupWebAppClient(scheduler, socket)
   })
 }

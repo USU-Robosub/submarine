@@ -3,6 +3,7 @@ const pid = (p, i, d) => {
   const lastError = 0
   return {
     correctFor: (error, deltaTime) => {
+      console.log("Correct for", error, deltaTime)
       errorIntegral = errorIntegral + error * deltaTime
       const derivative = (deltaTime == 0 ? 0 : (error - lastError) / deltaTime)
       lastError = error

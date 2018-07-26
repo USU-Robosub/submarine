@@ -6,6 +6,7 @@
 #include <Components/Sensors/Magnetometer.hpp>
 #include <Components/Sensors/Gyroscope.hpp>
 #include <Components/Sensors/Accelerometer.hpp>
+#include <Calibration/Magnetic.hpp>
 
 namespace Controllers{
   class IMU;
@@ -19,7 +20,7 @@ public:
     Components::Sensors::Gyroscope* gyroscope,
     Components::Sensors::Accelerometer* accelerometer);
   void execute(Emitter* hub, int32_t* data, int32_t length);
-  void update();
+  void update(Calibration::Magnetic::Model model);
   void use(Emitter* emitter);
 
 private:

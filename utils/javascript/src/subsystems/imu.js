@@ -39,10 +39,10 @@ module.exports = (hub, handlerName="imu") => Subsystem()
         z: parseFloat(data[8])
       }))
     ),
-    pressure: () => attachToHubEvent(hub, handlerName + '/data').pipe(
-      map(data => parseFloat(data[9]))
-    ),
-    temperature: () => attachToHubEvent(hub, handlerName + '/data').pipe(
-      map(data => parseFloat(data[10]))
-    )
+    // pressure: () => attachToHubEvent(hub, handlerName + '/data').pipe(
+    //   map(data => parseFloat(data[9]))
+    // ),
+    // temperature: () => attachToHubEvent(hub, handlerName + '/data').pipe(
+    //   map(data => parseFloat(data[10]))
+    // ),
   })

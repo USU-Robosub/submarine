@@ -1,11 +1,11 @@
 var socket = io();
 
 socket.on('disconnect', () => {
-  console.error('server disconnected')
+  screen.error('server disconnected')
 });
 
 socket.on('connect', () => {
-  console.error('server connected')
+  screen.error('server connected')
 });
 
 var killed = false;
@@ -20,16 +20,95 @@ socket.on("killswitch", ( hub, message )=>{
 });
 
 socket.on('dive/lost', () => {
-  console.log('Lost control over dive subsystem')
+  screen.log('Lost control over dive subsystem')
+})
+
+let scrolllock = false;
+let consolelog = "";
+let lines = 0;
+function logConsole(source, message) {
+  let level = message.shift();
+  let icon, color;
+  switch(level) {
+    case "0":
+      icon = 'fa-info-circle';
+      color = 'success';
+      break;
+    case "1":
+      icon = 'fa-exclamation-circle';
+      color = 'warn';
+      break;
+    default:
+      icon = 'fa-times-circle';
+      color = 'danger';
+      break;
+  }
+  let newline =  "<span class='has-text-"+color+"'><i class='fas "+icon+"'></i> ["+source+"] </span> "+message.join(" ")+"\r\n";
+  if(lines == 0) {
+    document.getElementById("console").innerHTML = "";
+  }
+  if(lines>1000) {
+    document.getElementById("console").innerHTML = document.getElementById("console").innerHTML.substring(document.getElementById("console").innerHTML.indexOf("\n") + 1)
+    if(scrolllock) {
+      let scrollHeight = document.getElementById("console").getElementsByTagName("span")[0].offsetHeight;
+      let newScroll = document.getElementById("console").scrollTop - scrollHeight;
+      if(newScroll < 0)
+        newScroll = 0;
+      document.getElementById("console").scrollTop = newScroll;
+    }
+  }
+  else
+  {
+    lines++;
+  }
+  document.getElementById("console").innerHTML+=newline;
+  if(!scrolllock)
+    document.getElementById("console").scrollTop = document.getElementById("console").scrollHeight;
+    
+  console.log("%c["+source+"] "+message.join(" "), "color: "+(level=="0"?'darkgreen':level=="1"?'#a79100':'darkred'));
+}
+
+
+
+let screen = {
+  log : (...args) => {
+    logConsole("Local",["0",args.join(" ")]);
+  },
+  warn : (...args) => {
+    logConsole("Local",["1",args.join(" ")]);
+  },
+  error : (...args) => {
+    logConsole("Local",["2",args.join(" ")]);
+  },
+}
+
+socket.on('echo/arduino', (message) => {
+  logConsole("Arduino", message);
+})
+
+socket.on('echo/system', (message) => {
+  logConsole("System", message);
+})
+
+socket.on('echo/agent', (message) => {
+  logConsole("Agent", message);
 })
 
 socket.on('tank/lost', () => {
-  console.log('Lost control over tank subsystem')
+  screen.log('Lost control over tank subsystem')
 })
 
 /*global setSubmarineRotation */
 socket.on('pose/all', ([ yaw, pitch, roll ]) => {
   setSubmarineRotation(yaw, 0, 0);
+})
+
+socket.on('pose/down', (args) => {
+  setDownDirection(args[0], args[1], args[2])
+})
+
+socket.on('imu/raw_large', data => {
+  setMagnetFieldDirection(data[3 * 3], data[3 * 3 + 1], data[3 * 3 + 2]);
 })
 
 function setTank(left, right){
@@ -52,22 +131,20 @@ function setThrottle(x){
   }
 }
 
-let steerTimeout = false;
 function setSteering(x){
   if(!killed) {
     socket.emit('steering', x)
     document.getElementById("steerstatus").innerHTML = x;
+    document.getElementById("headingstatus").innerHTML = 'Stopped';
     curSteer = x;
-    if(steerTimeout!==false)
-      clearTimeout(steerTimeout);
-    steerTimeout = setTimeout(()=>setSteering(curSteer),250)
   }
 }
 
 function setHeading(x){
   if(!killed) {
     socket.emit('heading', x)
-    document.getElementById("steerstatus").innerHTML = x;
+    document.getElementById("steerstatus").innerHTML = 0;
+    document.getElementById("headingstatus").innerHTML = x;
   }
 }
 
@@ -134,8 +211,13 @@ let rightDiveSteer = function(){curDiveSteer -= delta;setDiveSteer(curDiveSteer)
 
 let curSteer = 0;
 let stopSteer = function(){curSteer = 0;setSteering(curSteer);};
-let leftSteer = function(){curSteer -= delta;setHeading(curSteer);};
-let rightSteer = function(){curSteer += delta;setHeading(curSteer);};
+let leftSteer = function(){curSteer -= delta;setSteering(curSteer);};
+let rightSteer = function(){curSteer += delta;setSteering(curSteer);};
+
+let curHeading = 0;
+let stopHeading = function(){curHeading = 0;stopSteer();};
+let leftHeading = function(){curHeading -= delta;setHeading(curHeading);};
+let rightHeading = function(){curHeading += delta;setHeading(curHeading);};
 
 let curThrottle = 0;
 let stopThrottle = function(){curThrottle = 0;setThrottle(curThrottle);};
@@ -150,9 +232,9 @@ let rightAxis = 0;
 
 let gamepadIndex = -1;
 
-console.log('app started')
+screen.log('app started')
 window.addEventListener("gamepadconnected", function(e) {
-  console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+  screen.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
     e.gamepad.index, e.gamepad.id,
     e.gamepad.buttons.length, e.gamepad.axes.length);
   gamepadIndex = e.gamepad.index
@@ -175,7 +257,7 @@ const filteredButtons = index => gamepad.map(button(index)).distinctUntilChanged
 filteredButtons(6).subscribe(pressed => {
   if(pressed)
   {
-    console.log("mode: single")
+    screen.log("mode: single")
     mode="single"
   }
 })
@@ -183,7 +265,7 @@ filteredButtons(6).subscribe(pressed => {
 filteredButtons(5).subscribe(pressed => {
   if(pressed)
   {
-    console.log("mode: dual")
+    screen.log("mode: dual")
     mode="dual"
   }
 })
@@ -191,7 +273,7 @@ filteredButtons(5).subscribe(pressed => {
 filteredButtons(7).subscribe(pressed => {
   if(pressed)
   {
-    console.log("mode: tank")
+    screen.log("mode: tank")
     mode="tank"
   }
 })
@@ -199,13 +281,13 @@ filteredButtons(7).subscribe(pressed => {
 filteredButtons(4).subscribe(pressed => {
   if(pressed)
   {
-    console.log("mode: single")
+    screen.log("mode: single")
     mode="single"
   }
 })
 
 filteredAxis(0).subscribe(axis => {
-  console.log("axis", 0, axis)
+  screen.log("axis", 0, axis)
   if(mode=="tank")
   {}
   else if(mode=="dual")
@@ -218,7 +300,7 @@ filteredAxis(0).subscribe(axis => {
 })
 
 filteredAxis(1).subscribe(axis => {
-  console.log("axis", 1, axis)
+  screen.log("axis", 1, axis)
   if(mode=="tank")
   {
     leftAxis = axis+1;
@@ -232,7 +314,7 @@ filteredAxis(1).subscribe(axis => {
 })
 
 filteredAxis(2).subscribe(axis => {
-  console.log("axis", 2, axis)
+  screen.log("axis", 2, axis)
   if(mode=="tank")
   {}
   else if(mode=="dual")
@@ -246,7 +328,7 @@ filteredAxis(2).subscribe(axis => {
 })
 
 filteredAxis(3).subscribe(axis => {
-  console.log("axis", 3, axis)
+  screen.log("axis", 3, axis)
   if(mode=="tank")
   {
     rightAxis = axis+1

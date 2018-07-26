@@ -1,0 +1,86 @@
+.console {
+    max-height: 250px;
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+.consolewrap {
+    position: relative;
+}
+
+.consolewrap.active {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color:rgba(0,0,0,0.5);
+    border-radius: 0;
+    z-index: 2;
+}
+
+.consolewrap > .console-fullscreen {
+    color: gray;
+    z-index: 3;
+    position: absolute;
+    top: 10px;
+    right: 30px;
+}
+
+.consolewrap > .console-fullscreen {
+    color: gray;
+    z-index: 3;
+    position: absolute;
+    top: 10px;
+    right: 30px;
+}
+
+.consolewrap.active > .console-fullscreen{
+    position: fixed;
+    top: calc(4vh + 10px);
+    right: calc(4vh + 30px);
+}
+
+.consolewrap > .console-scrolllock {
+    color: gray;
+    z-index: 3;
+    position: absolute;
+    top: calc(10px + 1.5em);
+    right: 30px;
+}
+
+.consolewrap > .console-scrolllock.fa-unlock-alt {
+    display:none;
+}
+
+.consolewrap.scrolllock > .console-scrolllock.fa-unlock-alt {
+    display:block;
+}
+
+.consolewrap.scrolllock > .console-scrolllock.fa-lock {
+    display:none;
+}
+
+.consolewrap.active > .console-scrolllock {
+    position: fixed;
+    top: calc(4vh + 10px + 1.5em);
+    right: calc(4vh + 30px);
+}
+
+.consolewrap > i:hover {
+    color:lightgray;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+.consolewrap.active .console{
+    position: fixed;
+    top: 4vh;
+    left: 4vh;
+    right: 4vh;
+    bottom: 4vh;
+    width: auto !important;
+    height: auto !important;
+    max-height: 100%;
+}

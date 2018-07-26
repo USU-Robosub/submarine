@@ -7,6 +7,8 @@
 #include <Comm/tools.hpp>
 #include <Subsystem/Dive.hpp>
 #include <Subsystem/Tank.hpp>
+#include <Comm/tools.hpp>
+#include <sstream>
 
 #include "settings.hpp"
 
@@ -69,7 +71,37 @@ void createSubsystems(){
   //});
   
   arduino->hub()->on(ECHO_PORT_NUM, [](std::vector<int> message){
-    std::cout << "Echo from arduino: " << message[0] << std::endl;
+    if(message.size() >= 8 && message[0] == 0 && message[1] == 1 && message[2] == 2 && message[3] == 3 && message[4] == 4){
+      unsigned int level = message[5];
+      unsigned int compressedMessageLength = message[6];
+      unsigned int messageLength = message[7];
+      
+      std::stringstream ss;
+      for(unsigned int i = 0; i < messageLength; i++){
+        char c = 0xFF & (message[8 + (i / 4)] >> ((i % 4) * 8));
+        ss << c;
+      }
+      
+      std::vector<std::string> stringMessage;
+      stringMessage.push_back(std::to_string(level));
+      stringMessage.push_back(ss.str());
+      for(unsigned int i = (8 + compressedMessageLength); i < message.size(); i++){
+        stringMessage.push_back(std::to_string(message[i]));
+      }
+      std::cout << "Log: ";
+      for(unsigned int i = 0; i < stringMessage.size(); i++){
+        std::cout << stringMessage[i] << ", ";
+      }
+      std::cout << std::endl;
+      
+      agent->hub()->emit("echo/arduino", stringMessage);
+    }else{
+      std::cout << "Echo from arduino: ";
+      for(unsigned int i = 0; i < message.size(); i++){
+        std::cout << message[i] << ", ";
+      }
+      std::cout << std::endl;
+    }
   });
 
   arduino->hub()->on(101,[](std::vector<int> message){ // listen to kill switch
@@ -83,7 +115,7 @@ void createSubsystems(){
   
   arduino->hub()->on(10,[](std::vector<int> message){
     //std::cout << "Got IMU!" << std::endl;
-    if(message.size() != 9)
+    if(message.size() != 18)
       return;
     // double gyro = std::sqrt(std::pow(message[0], 2) + std::pow(message[1], 2) + std::pow(message[2], 2)) / 1000000.0;
     // double accel = std::sqrt(std::pow(message[3], 2) + std::pow(message[4], 2) + std::pow(message[5], 2)) / 1000000.0;
@@ -93,8 +125,19 @@ void createSubsystems(){
     agent->hub()->emit("imu/data", std::vector<std::string>{
       std::to_string(message[0]),std::to_string(message[1]),std::to_string(message[2]),
       std::to_string(message[3]),std::to_string(message[4]),std::to_string(message[5]),
-      std::to_string(message[6]),std::to_string(message[7]),std::to_string(message[9])
+      std::to_string(message[6]),std::to_string(message[7]),std::to_string(message[8]),
+      std::to_string(message[9]),std::to_string(message[11]),std::to_string(message[12]),
+      std::to_string(message[12]),std::to_string(message[13]),std::to_string(message[14]),
+      std::to_string(message[15]),std::to_string(message[16]),std::to_string(message[17])
     });
+  });
+  
+  arduino->hub()->on(1000,[](std::vector<int> message){
+    std::cout << "Got Magnetic Calibration!" << std::endl;
+    if(message.size() != 6)
+      return;
+    std::cout << "offset: " << message[0] << ", " << message[1] << ", " << message[2] << std::endl;
+    std::cout << "scale: " << Comm::int32AsFloat(message[3]) << ", " << Comm::int32AsFloat(message[4]) << ", " << Comm::int32AsFloat(message[5]) << std::endl;
   });
 
   dive = new Subsystem::Dive(arduino->hub(), DIVE_PORT_NUM, agent->hub(), DIVE_PORT_NAME);

@@ -16,7 +16,7 @@ module.exports = (hub, handlerName="tank") => {
   let headingPidController = pid(1, 0, 0)
   let headingTarget = 0
   
-  return Subsystem()
+  return { subsystem: Subsystem()
     .named('tank')
     .raw({
       throttle: amount => {
@@ -41,9 +41,9 @@ module.exports = (hub, handlerName="tank") => {
         headingCorrectionEnabled = true
         headingTarget = angle
       }
-    })
-    .whenIdleRun(
-      Command()
+    }),
+    defaultCommand: (scheduler => {
+      scheduler.run(Command()
         .named('tank heading correction')
         .makeCancelable()
         .require('pose')
@@ -51,9 +51,12 @@ module.exports = (hub, handlerName="tank") => {
           return system.pose.yaw().pipe(
             timeInterval(),
             map(({ value:angle, interval:deltaTime }) => {
-              hub.emit(handlerName + '/steering', pid.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0) * (0.5 / 180))
+              let correction = -pid.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0) * (0.5 / Math.PI)
+              console.log("Tank Pose Data", angle, headingTarget, angleBetween(angle, headingTarget), deltaTime,  correction)
+              hub.emit(handlerName + '/steering', correction)
             })
           )
-        })
-    )
+        }))
+    })
+  }
 }

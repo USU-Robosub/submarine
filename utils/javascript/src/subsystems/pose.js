@@ -81,21 +81,21 @@ module.exports = (hub, handlerName="pose") => {
         return downNorthObservable.pipe(
           map(([ down, north ]) => {
             return findAngleInPlane(down, north, [1, 0, 0])
-            //return findAngleInPlane([0, 0, 1], north, [1, 0, 0])
+            //return findAngleInPlane([0, 1, 0], north, [1, 0, 0])
           })
         )
       },
       pitch: () => {
         return downNorthObservable.pipe(
           map(([ down, north ]) => {
-            return findAngleInPlane([0, 1, 0], [0, 0, 1], down)
+            return findAngleInPlane([0, 0, 1], [1, 0, 0], down)
           })
         )
       },
       roll: () => {
         return downNorthObservable.pipe(
           map(([ down, north ]) => {
-            return findAngleInPlane([1, 0, 0], [0, 0, 1], down)
+            return findAngleInPlane([0, 1, 0], [1, 0, 0], down)
           })
         )
       },

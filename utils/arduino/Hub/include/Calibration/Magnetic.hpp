@@ -49,6 +49,8 @@ public:
   void addSample(Sample sample);
   Model generateModel();
   float getCoverage();
+  
+  Sample applyCalibration(Model model, Sample sample);
 
   int32_t(*samples())[VECTOR3][MAX_SAMPLES_PER_BIN][MESH_PHI_RESOLUTION][MESH_THETA_RESOLUTION];
 

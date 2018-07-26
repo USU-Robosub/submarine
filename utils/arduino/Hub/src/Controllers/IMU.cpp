@@ -1,4 +1,5 @@
 #include <Controllers/IMU.hpp>
+#include <Calibration/Magnetic.hpp>
 
 Controllers::IMU::IMU(unsigned long timeBetweenSamples,
   int32_t handler,
@@ -25,7 +26,7 @@ void Controllers::IMU::execute(Emitter* hub, int32_t* data, int32_t length){
   }
 }
 
-void Controllers::IMU::update(){
+void Controllers::IMU::update(Calibration::Magnetic::Model model){
   if(this->enabled){
     unsigned long now = millis();
     if(this->lastSampleTime + this->timeBetweenSamples < now){
@@ -35,13 +36,20 @@ void Controllers::IMU::update(){
       auto accel = this->accelerometer->measureLinearAcceleration();
       auto magnet = this->magnetometer->measureMagneticField();
 
-      int32_t data[9] = {
+      Calibration::Magnetic magnetCalibration;
+
+      auto fixedMagnet = magnetCalibration.applyCalibration(model, {magnet.z, magnet.y, magnet.z});
+
+      int32_t data[18] = {
         gyro.x, gyro.y, gyro.z,
         accel.x, accel.y, accel.z,
-        magnet.x, magnet.y, magnet.z
+        fixedMagnet.x, fixedMagnet.y, fixedMagnet.z,
+        magnet.x, magnet.y, magnet.z,
+        model.hardIronOffset[0], model.hardIronOffset[1], model.hardIronOffset[2],
+        model.scale[0], model.scale[1], model.scale[2]
       };
 
-      this->emitter->emit(this->handler, data, 9);
+      this->emitter->emit(this->handler, data, 18);
     }
   }
 }

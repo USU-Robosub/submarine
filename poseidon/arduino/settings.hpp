@@ -5,10 +5,10 @@
 #define ECHO_RETURN 42
 
 // motor pins
-#define FRONT_MOTOR_PIN 5
-#define BACK_MOTOR_PIN 4
+#define FRONT_MOTOR_PIN 6
+#define BACK_MOTOR_PIN 5
 #define LEFT_MOTOR_PIN 3
-#define RIGHT_MOTOR_PIN 6
+#define RIGHT_MOTOR_PIN 4
 
 // motor trims
 #define MOTOR_REVERSE_MAX -0.9

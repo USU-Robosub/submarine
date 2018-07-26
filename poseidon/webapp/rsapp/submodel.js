@@ -52,7 +52,7 @@ loader.load( '/rsapp/mini.stl', function ( geometry ) {
 
   mesh.castShadow = true;
   mesh.receiveShadow = true;
-  scene.add( mesh );
+  // scene.add( mesh );
   submesh = mesh;
   
   var origin = new THREE.Vector3( 0, 0, 0 );
@@ -99,6 +99,52 @@ let setSubmarineRotation = (yaw, pitch, roll)=>{
   // console.log(yaw, pitch, roll)
 };
 
+let lastArrow = null
+let setMagnetFieldDirection = (x, y, z)=>{
+  var dir = new THREE.Vector3( x, y, -z );
+
+  console.log(x, y, z)
+
+  //normalize the direction vector (convert to vector of length 1)
+  dir.normalize();
+  
+  var origin = new THREE.Vector3( 0, 0, 0 );
+  var length = 2;
+  var hex = 0x7923db;
+  
+  if(lastArrow != null){
+    scene.remove(lastArrow)
+  }
+  
+  var arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+  scene.add( arrowHelper );
+  // console.log('after', scene)
+  lastArrow = arrowHelper
+};
+
+let lastDownArrow = null
+let setDownDirection = (x, y, z)=>{
+  var dir = new THREE.Vector3( x, z, y );
+
+  console.log(x, y, z)
+
+  //normalize the direction vector (convert to vector of length 1)
+  dir.normalize();
+  
+  var origin = new THREE.Vector3( 0, 0, 0 );
+  var length = 2;
+  var hex = 0xe24a09;
+  
+  if(lastDownArrow != null){
+    scene.remove(lastDownArrow)
+  }
+  
+  var arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+  scene.add( arrowHelper );
+  // console.log('after', scene)
+  lastDownArrow = arrowHelper
+};
+
 // Render Loop
 var render = function () {
   requestAnimationFrame( render );
@@ -106,6 +152,15 @@ var render = function () {
   if(targetQuat && submesh){
     //console.log('lerp', targetQuat, submesh.quaternion)
     const newQuat = submesh.quaternion.slerp(targetQuat, 0.1)
+    submesh.setRotationFromQuaternion(newQuat);
+  }
+  
+  // Render the scene
+  renderer.render(scene, camera);
+};
+
+render();
+nion.slerp(targetQuat, 0.1)
     submesh.setRotationFromQuaternion(newQuat);
   }
   
