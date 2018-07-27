@@ -1,5 +1,6 @@
 #include <Controllers/IMU.hpp>
 #include <Calibration/Magnetic.hpp>
+#include <Log.hpp>
 
 Controllers::IMU::IMU(unsigned long timeBetweenSamples,
   int32_t handler,
@@ -35,6 +36,9 @@ void Controllers::IMU::update(Calibration::Magnetic::Model model){
       auto gyro = this->gyroscope->measureAngularVelocity();
       auto accel = this->accelerometer->measureLinearAcceleration();
       auto magnet = this->magnetometer->measureMagneticField();
+
+      // int32_t magnetData[3] = {magnet.x, magnet.y, magnet.z};
+      // LOG("Field", magnetData, 3, INFO);
 
       Calibration::Magnetic magnetCalibration;
 

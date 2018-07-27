@@ -36,7 +36,8 @@ function toRotMatrix(angularVelocityVector, deltaTime){
 }
 
 const getMinimumAngle = (normal, v, w) => {
-  const angle = math.acos(math.dot(v,w)/(math.norm(v)*math.norm(w)))
+  const angle = math.acos(math.dot(math.divide(v, math.norm(v, 3)), math.divide(w, math.norm(w, 3))))
+  // console.log(angle)
   const cross = math.cross(v, w)
   if(math.dot(normal, cross) < 0){
     return -angle
@@ -46,6 +47,9 @@ const getMinimumAngle = (normal, v, w) => {
 }
 
 const projectOntoPlane = (normal, vector) => 
+  // math.subtract(vector, math.multiply(math.divide(
+  //   math.dot(normal, vector), math.pow(math.norm(normal, 3), 2)
+  // ), normal))
   math.subtract(vector, math.multiply(math.divide(
     math.dot(normal, vector), math.pow(math.norm(normal, 3), 2)
   ), normal))
@@ -60,6 +64,8 @@ module.exports = (hub, handlerName="pose") => {
   let magnetLerpAmount = 0.1;
   
   let downNorthObservable = empty()
+  
+  let downCalibratedNorthObservable = empty()
   
   return Subsystem()
     .named('pose')
@@ -80,22 +86,32 @@ module.exports = (hub, handlerName="pose") => {
       yaw: () => {
         return downNorthObservable.pipe(
           map(([ down, north ]) => {
+            // console.log(down, north)
             return findAngleInPlane(down, north, [1, 0, 0])
-            //return findAngleInPlane([0, 1, 0], north, [1, 0, 0])
+            //return findAngleInPlane([0, 0, 1], north, [1, 0, 0])
+          })
+        )
+      },
+      calibratedYaw: () => {
+        return downCalibratedNorthObservable.pipe(
+          map(([ down, north ]) => {
+            // console.log(down, north)
+            return findAngleInPlane(down, north, [1, 0, 0])
+            //return findAngleInPlane([0, 0, 1], north, [1, 0, 0])
           })
         )
       },
       pitch: () => {
         return downNorthObservable.pipe(
           map(([ down, north ]) => {
-            return findAngleInPlane([0, 0, 1], [1, 0, 0], down)
+            return findAngleInPlane([0, 1, 0], [0, 0, 1], down)
           })
         )
       },
       roll: () => {
         return downNorthObservable.pipe(
           map(([ down, north ]) => {
-            return findAngleInPlane([0, 1, 0], [1, 0, 0], down)
+            return findAngleInPlane([1, 0, 0], [0, 0, 1], down)
           })
         )
       },
@@ -103,6 +119,13 @@ module.exports = (hub, handlerName="pose") => {
       depth: () => {},
       north: () => {
         return downNorthObservable.pipe(
+          map(([ down, north ]) => {
+            return north
+          })
+        )
+      },
+      calibratedNorth: () => {
+        return downCalibratedNorthObservable.pipe(
           map(([ down, north ]) => {
             return north
           })
@@ -116,6 +139,33 @@ module.exports = (hub, handlerName="pose") => {
         )
       },
       sensorToSubTransform: () => {},
+      flatNorth: () => {
+        return downNorthObservable.pipe(
+          map(([ down, north ]) => {
+            // console.log(down, north)
+            return projectOntoPlane(down, north)
+            //return findAngleInPlane([0, 0, 1], north, [1, 0, 0])
+          })
+        )
+      },
+      flatForward: () => {
+        return downNorthObservable.pipe(
+          map(([ down, north ]) => {
+            // console.log(down, north)
+            return projectOntoPlane(down, [1, 0, 0])
+            //return findAngleInPlane([0, 0, 1], north, [1, 0, 0])
+          })
+        )
+      },
+      flatCalibratedNorth: () => {
+        return downCalibratedNorthObservable.pipe(
+          map(([ down, north ]) => {
+            // console.log(down, north)
+            return projectOntoPlane(down, north)
+            //return findAngleInPlane([0, 0, 1], north, [1, 0, 0])
+          })
+        )
+      }
     })
     .whenIdleRun(
       Command()
@@ -129,7 +179,8 @@ module.exports = (hub, handlerName="pose") => {
             map(([ x, y, z]) => ([-x / 10, -y / 10, -z / 10]))
           )
           const linearAccelerationObservable = system.imu.linearAcceleration().pipe(map(vectorToArray))
-          const magneticFieldObservable = system.imu.megneticField().pipe(map(vectorToArray))
+          const magneticFieldObservable = system.imu.magneticField().pipe(map(vectorToArray))
+          const calibratedMagneticFieldObservable = system.imu.calibratedMagneticField().pipe(map(vectorToArray))
           
           const gyroRotationMatrixObservable = angularVelocityObservable.pipe(
             timeInterval(),
@@ -182,8 +233,43 @@ module.exports = (hub, handlerName="pose") => {
               // lerp between gyro prediction and magnet data
               const filteredNorth = normalizeVector(lerpVectors(normalizeVector(gyroNorthVector), normalizeVector(accelNorthVector), magnetLerpAmount))
               lastNorthSubject.next(filteredNorth)
-              return filteredNorth
+              return accelNorthVector // TODO change back
             })
+          )
+          
+          
+          let startedCalibratedNorth = false
+          const lastCalibratedNorthSubject = new Subject()
+          const filteredCalibratedNorthObservable = gyroRotationMatrixObservable.pipe(
+            tap(() => {
+              if(!startedCalibratedNorth){
+                startedCalibratedNorth = true
+                lastCalibratedNorthSubject.next([1, 0, 0]);
+              }
+            }),
+            withLatestFrom(lastCalibratedNorthSubject),
+            map(([ gyroRotationMatrix, lastCalibratedNorthVector ]) => {
+              // rotate last north by gyro amount
+              const newCalibratedNorthVector = math.multiply(gyroRotationMatrix, lastCalibratedNorthVector)
+              return newCalibratedNorthVector
+            }),
+            withLatestFrom(calibratedMagneticFieldObservable),
+            map(([ gyroCalibratedNorthVector, accelCalibratedNorthVector ]) => {
+              // lerp between gyro prediction and magnet data
+              const filteredCalibratedNorth = normalizeVector(lerpVectors(normalizeVector(gyroCalibratedNorthVector), normalizeVector(accelCalibratedNorthVector), magnetLerpAmount))
+              lastCalibratedNorthSubject.next(filteredCalibratedNorth)
+              return filteredCalibratedNorth
+            })
+          )
+          
+          downCalibratedNorthObservable = zip(filteredDownObservable, filteredCalibratedNorthObservable).pipe(
+            map(args => {
+              //console.log('zip:', args)
+              if(isNaN(args[0][0])){
+                throw Error('became NaN')
+              }
+              return args
+            })  
           )
           
           downNorthObservable = zip(filteredDownObservable, filteredNorthObservable).pipe(

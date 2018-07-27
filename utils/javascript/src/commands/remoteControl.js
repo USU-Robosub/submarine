@@ -87,6 +87,9 @@ const readPose = socket => Command()
   .action(system => {
     return merge(
       system.pose.yaw().pipe(
+        tap(angle => socket.emit('pose/calibratedYaw', angle))  
+      ),
+      system.pose.calibratedYaw().pipe(
         tap(angle => socket.emit('pose/yaw', angle))  
       ),
       system.pose.pitch().pipe(
@@ -99,16 +102,36 @@ const readPose = socket => Command()
       zip(
         system.pose.yaw(),
         system.pose.pitch(),
-        system.pose.roll()
+        system.pose.roll(),
       ).pipe(
         tap(angles => socket.emit('pose/all', angles))  
+      ),
+      
+      zip(
+        system.pose.calibratedYaw(),
+        system.pose.pitch(),
+        system.pose.roll(),
+      ).pipe(
+        tap(angles => socket.emit('pose/calibratedAll', angles))  
       ),
       
       system.pose.north().pipe(
         tap(angle => socket.emit('pose/north', angle))  
       ),
+      system.pose.calibratedNorth().pipe(
+        tap(angle => socket.emit('pose/calibratednorth', angle))  
+      ),
       system.pose.down().pipe(
         tap(angle => socket.emit('pose/down', angle))  
+      ),
+      system.pose.flatNorth().pipe(
+        tap(angle => socket.emit('pose/flatNorth', angle))  
+      ),
+      system.pose.flatForward().pipe(
+        tap(angle => socket.emit('pose/flatForward', angle))  
+      ),
+      system.pose.flatCalibratedNorth().pipe(
+        tap(angle => socket.emit('pose/flatCalibratedNorth', angle))  
       )
     )
   })

@@ -32,8 +32,21 @@ module.exports = (hub, handlerName="imu") => Subsystem()
         z: parseFloat(data[5]) / micro
       }))
     ),
-    megneticField: () => attachToHubEvent(hub, handlerName + '/data').pipe(
+    magneticField: () => attachToHubEvent(hub, handlerName + '/data').pipe(
       map(data => ({
+        // x: parseFloat(data[9]),
+        // y: parseFloat(data[10]),
+        // z: parseFloat(data[11])
+        x: parseFloat(data[9]),
+        y: parseFloat(data[10]),
+        z: parseFloat(data[11])
+      }))
+    ),
+    calibratedMagneticField: () => attachToHubEvent(hub, handlerName + '/data').pipe(
+      map(data => ({
+        // x: parseFloat(data[9]),
+        // y: parseFloat(data[10]),
+        // z: parseFloat(data[11])
         x: parseFloat(data[6]),
         y: parseFloat(data[7]),
         z: parseFloat(data[8])

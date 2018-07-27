@@ -103,13 +103,34 @@ socket.on('pose/all', ([ yaw, pitch, roll ]) => {
   setSubmarineRotation(yaw, 0, 0);
 })
 
-socket.on('pose/down', (args) => {
-  setDownDirection(args[0], args[1], args[2])
+socket.on('pose/yaw', (angle) => {
+  console.log('angle', angle * (180 / Math.PI), angle)
+  // setYawDirection(Math.cos(angle), 0, Math.sin(angle))
 })
 
-socket.on('imu/raw_large', data => {
-  setMagnetFieldDirection(data[3 * 3], data[3 * 3 + 1], data[3 * 3 + 2]);
+socket.on('pose/flatNorth', (args) => {
+  //console.log(args)
+  setYawDirection(args[0], args[1], args[2])
 })
+
+socket.on('pose/down', (args) => {
+  setDownDirection(args[0], args[1], args[2])
+  setDownPlane(args[0], args[1], args[2])
+})
+
+
+socket.on('pose/north', (args) => {
+  // console.log(args)
+  setMagnetFieldDirection(args[0], args[1], args[2])
+})
+
+socket.on('pose/flatForward', (args) => {
+  //console.log(args)
+  setForwardDirection(args[0], args[1], args[2])
+})
+// socket.on('imu/raw_large', data => {
+//   setMagnetFieldDirection(data[3 * 3], data[3 * 3 + 1], data[3 * 3 + 2]);
+// })
 
 function setTank(left, right){
   if(!killed) {

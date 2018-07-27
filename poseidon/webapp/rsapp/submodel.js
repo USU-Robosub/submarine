@@ -1,7 +1,14 @@
 // ------------------------------------------------
 // BASIC SETUP
 // ------------------------------------------------
-
+//   ___             //////
+//   (__|_______--/| /  ////
+// ___/  +--+| |-\| (>   )//
+// |_|ooo+--+|_|    /_    //
+//   '-------'       |_,   /
+//                    [___/
+// 
+// ------------------------------------------------
 // Create an empty scene
 var scene = new THREE.Scene();
 
@@ -11,10 +18,10 @@ camera.position.x = 3;
 camera.position.y = 0.5;
 camera.position.z = 1;
 camera.lookAt(0,0,0);
-camera.rotateZ(Math.PI/2);
 // Create a renderer with Antialiasing
 var renderer = new THREE.WebGLRenderer({antialias:true});
 
+var controls = new THREE.OrbitControls(camera, renderer.domElement);
 // Configure renderer clear color
 renderer.setClearColor("#ffffff");
 let submodel = document.getElementById("submodel");
@@ -28,15 +35,27 @@ var circles = 12;
 var divisions = 64;
 
 var gridHelper = new THREE.PolarGridHelper( radius, radials, circles, divisions, "#777777", "#bbbbbb" );
-gridHelper.rotateZ(Math.PI/2);
-gridHelper.rotateX(Math.PI/2);
-scene.add( gridHelper );
+//scene.add( gridHelper );
 
 var worldAxis = new THREE.AxesHelper(20);
 scene.add(worldAxis);
 
 // Append Renderer to DOM
 document.getElementById("submodel").appendChild( renderer.domElement );
+
+// ------------------------------------------------
+// Load Submarine Model
+// ------------------------------------------------
+// 
+// 
+//                ___________
+//                | .   '   |
+//            __  |   ___'  |     ____
+//           ():) | . | ;|  |    ():__)
+//     ________|__|_________|______|_|____
+// 
+// ------------------------------------------------
+
 
 let submesh;
 let baseQuat = (new THREE.Quaternion(0,0,0,0)).setFromEuler(new THREE.Euler( 0, 0, Math.PI/2, 'XYZ' ));
@@ -99,18 +118,33 @@ let setSubmarineRotation = (yaw, pitch, roll)=>{
   // console.log(yaw, pitch, roll)
 };
 
+
+// ---------------------------------------
+// Magnetic Field Vector
+// ---------------------------------------
+//     ......
+//     ;;;:;
+//     ;::;;;.
+//     ' ':;;;;.
+//         ':;;;;
+//           ':;
+// 
+// ---------------------------------------
+
 let lastArrow = null
 let setMagnetFieldDirection = (x, y, z)=>{
-  var dir = new THREE.Vector3( x, y, -z );
+  var dir = new THREE.Vector3( x, y, z );
 
-  console.log(x, y, z)
+  // screen.log(x, y, z)
 
   //normalize the direction vector (convert to vector of length 1)
-  dir.normalize();
   
   var origin = new THREE.Vector3( 0, 0, 0 );
-  var length = 2;
+  var length = 2//dir.length();
   var hex = 0x7923db;
+  
+  
+  dir.normalize();
   
   if(lastArrow != null){
     scene.remove(lastArrow)
@@ -122,18 +156,37 @@ let setMagnetFieldDirection = (x, y, z)=>{
   lastArrow = arrowHelper
 };
 
+
+// ---------------------------------------
+// Down Vector
+// ---------------------------------------
+//           . ;.
+//             .;
+//             ;;.
+//           ;.;;
+//           ;;;;.
+//           ;;;;;
+//           ;;;;;
+//           ;;;;;
+//         ..;;;;;..
+//           ':::::'
+//             ':`
+
+// ---------------------------------------
 let lastDownArrow = null
 let setDownDirection = (x, y, z)=>{
-  var dir = new THREE.Vector3( x, z, y );
+  var dir = new THREE.Vector3( -x, -y, -z );
 
-  console.log(x, y, z)
+  // console.log(x, y, z)
 
   //normalize the direction vector (convert to vector of length 1)
-  dir.normalize();
+  
   
   var origin = new THREE.Vector3( 0, 0, 0 );
-  var length = 2;
+  var length = 2 //dir.length();
   var hex = 0xe24a09;
+  
+  dir.normalize();
   
   if(lastDownArrow != null){
     scene.remove(lastDownArrow)
@@ -144,6 +197,131 @@ let setDownDirection = (x, y, z)=>{
   // console.log('after', scene)
   lastDownArrow = arrowHelper
 };
+// ---------------------------------------
+// Yaw Vector
+// ---------------------------------------
+//     ......
+//     ;;;:;
+//     ;::;;;.
+//     ' ':;;;;.
+//         ':;;;;
+//           ':;
+//
+// 
+// ---------------------------------------
+let lastYawArrow = null
+let setYawDirection = (x, y, z)=>{
+  var dir = new THREE.Vector3( x, y, z );
+
+  // console.log(x, y, z)
+
+  //normalize the direction vector (convert to vector of length 1)
+  
+  var origin = new THREE.Vector3( 0, 0, 0 );
+  var length = 2//dir.length();
+  var hex = 0x0887e2;
+  
+  dir.normalize();
+  
+  if(lastYawArrow != null){
+    scene.remove(lastYawArrow)
+  }
+  
+  var arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+  scene.add( arrowHelper );
+  // console.log('after', scene)
+  lastYawArrow = arrowHelper
+};
+
+// ---------------------------------------
+// Forward Vector
+// ---------------------------------------
+//                  .
+//   .. ............;;.
+//     ..::::::::::::;;;;.
+//  . . ::::::::::::;;:'
+//                  :'
+// 
+// ---------------------------------------
+
+
+let lastForwardArrow = null
+let setForwardDirection = (x, y, z)=>{
+  var dir = new THREE.Vector3( x, y, z );
+
+  // console.log(x, y, z)
+
+  //normalize the direction vector (convert to vector of length 1)
+  
+  var origin = new THREE.Vector3( 0, 0, 0 );
+  var length = dir.length();
+  var hex = 0xf4b642;
+  
+  dir.normalize();
+  
+  if(lastForwardArrow != null){
+    scene.remove(lastForwardArrow)
+  }
+  
+  var arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+  scene.add( arrowHelper );
+  // console.log('after', scene)
+  lastForwardArrow = arrowHelper
+};
+
+
+// ------------------------------------------------------------------------------
+// Down Plane
+// ------------------------------------------------------------------------------
+//                              __,:,__
+//                           ,ad88P`Y88ba,
+//                         ad88888' `88888ba
+//                       ,d88888P'   `Y88888b,
+//                      ,d888P"'       `"Y888b,
+//                   __,:(["               "]):,__
+//                ,ad88P`Y88ba,         ,ad88P`Y88ba,
+//              ad88888' `88888ba     ad88888' `88888ba
+//            ,d88888P'   `Y88888b, ,d88888P'   `Y88888b,
+//           ,d888P"'       `"Y888b,d888P"'       `"Y888b,
+//        __,:(["               "]):(["               "]):,__
+//     ,ad88P`Y88ba,         ,ad88P`Y88ba,         ,ad88P`Y88ba,
+//   ad88888' `88888ba     ad88888' `88888ba     ad88888' `88888ba
+// ,d88888P'   `Y88888b, ,d88888P'   `Y88888b, ,d88888P'   `Y88888b,
+// ,d888P"'       `"Y888b,d888P"'       `"Y888b,d888P"'       `"Y888b,
+// :(["               "]):(["               "]):(["               "]):
+// `Y88ba,         ,ad88P`Y88ba,         ,ad88P`Y88ba,         ,ad88P'
+// `88888ba     ad88888' `88888ba     ad88888' `88888ba     ad88888'
+//   `Y88888b, ,d88888P'   `Y88888b, ,d88888P'   `Y88888b, ,d88888P'
+//     `"Y888b,d888P"'       `"Y888b,d888P"'       `"Y888b,d888P"'
+//         ``":(["               "]):(["               "]):"''
+//           `Y88ba,         ,ad88P'Y88ba,         ,ad88P'
+//             `88888ba     ad88888' `88888ba     ad88888'
+//             `Y88888b, ,d88888P'   `Y88888b, ,d88888P'
+//               `"Y888b,d888P"'       `"Y888b,d888P"'
+//                   ``":(["               "]):"''
+//                       `Y88ba,         ,ad88P'   
+//                       `88888ba     ad88888'  
+//                         `Y88888b, ,d88888P'
+//                           `"Y888b,d888P"'
+//                               ``":"''
+// ------------------------------------------------------------------------------
+
+
+let lastDownPlane = null
+let setDownPlane = (x, y, z)=>{
+  if(lastDownPlane != null){
+    scene.remove(lastDownPlane)
+  }
+  
+  var plane = new THREE.Plane( new THREE.Vector3( -x, -y, -z ), 0 );
+  var helper = new THREE.PlaneHelper( plane, 3, 0x30a858 );
+  scene.add( helper );
+  // console.log('after', scene)
+  
+  lastDownPlane = helper
+};
+
+
 
 // Render Loop
 var render = function () {
@@ -160,12 +338,4 @@ var render = function () {
 };
 
 render();
-nion.slerp(targetQuat, 0.1)
-    submesh.setRotationFromQuaternion(newQuat);
-  }
-  
-  // Render the scene
-  renderer.render(scene, camera);
-};
 
-render();
