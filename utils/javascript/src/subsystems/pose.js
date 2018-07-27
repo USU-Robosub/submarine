@@ -7,13 +7,13 @@ const x = 0, y = 1, z = 2
 
 const vectorToArray = vector => [vector.x, vector.y, vector.z]
 
-const normalizeVector = vector => math.divide(vector, math.norm(vector, 3))
+const normalizeVector = vector => math.divide(vector, math.norm(vector))
 
 const lerpVectors = (start, target, amount) => 
   math.add(math.multiply(target, amount), math.multiply(start, 1 - amount))
 
 function toRotMatrix(angularVelocityVector, deltaTime){
-  const magnitude = math.norm(angularVelocityVector, 3)
+  const magnitude = math.norm(angularVelocityVector)
   const v = math.divide(angularVelocityVector, magnitude)
   const phi = magnitude * deltaTime
   const s = math.sin(phi)
@@ -36,8 +36,7 @@ function toRotMatrix(angularVelocityVector, deltaTime){
 }
 
 const getMinimumAngle = (normal, v, w) => {
-  const angle = math.acos(math.dot(math.divide(v, math.norm(v, 3)), math.divide(w, math.norm(w, 3))))
-  // console.log(angle)
+  const angle = math.acos(math.dot(math.divide(v, math.norm(v)), math.divide(w, math.norm(w))))
   const cross = math.cross(v, w)
   if(math.dot(normal, cross) < 0){
     return -angle
@@ -51,7 +50,7 @@ const projectOntoPlane = (normal, vector) =>
   //   math.dot(normal, vector), math.pow(math.norm(normal, 3), 2)
   // ), normal))
   math.subtract(vector, math.multiply(math.divide(
-    math.dot(normal, vector), math.pow(math.norm(normal, 3), 2)
+    math.dot(normal, vector), math.pow(math.norm(normal), 2)
   ), normal))
 
 const findAngleInPlane = (normal, v, w) => 
@@ -60,7 +59,7 @@ const findAngleInPlane = (normal, v, w) =>
 module.exports = (hub, handlerName="pose") => {
   
   let enabled = false;
-  let accelLerpAmount = 0.1;
+  let accelLerpAmount = 0.01;
   let magnetLerpAmount = 0.1;
   
   let downNorthObservable = empty()
@@ -233,7 +232,7 @@ module.exports = (hub, handlerName="pose") => {
               // lerp between gyro prediction and magnet data
               const filteredNorth = normalizeVector(lerpVectors(normalizeVector(gyroNorthVector), normalizeVector(accelNorthVector), magnetLerpAmount))
               lastNorthSubject.next(filteredNorth)
-              return accelNorthVector // TODO change back
+              return filteredNorth
             })
           )
           

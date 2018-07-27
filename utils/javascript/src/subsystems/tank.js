@@ -7,7 +7,7 @@ function absMod(x, n){
 }
 
 function angleBetween(a, b){
-  return absMod((a - b) + 180, 360) - 180
+  return absMod((a - b) + Math.PI, Math.PI * 2) - Math.PI
 }
 
 module.exports = (hub, handlerName="tank") => {

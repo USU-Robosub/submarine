@@ -87,10 +87,10 @@ const readPose = socket => Command()
   .action(system => {
     return merge(
       system.pose.yaw().pipe(
-        tap(angle => socket.emit('pose/calibratedYaw', angle))  
+        tap(angle => socket.emit('pose/yaw', angle))  
       ),
       system.pose.calibratedYaw().pipe(
-        tap(angle => socket.emit('pose/yaw', angle))  
+        tap(angle => socket.emit('pose/calibratedYaw', angle))  
       ),
       system.pose.pitch().pipe(
         tap(angle => socket.emit('pose/pitch', angle))  
