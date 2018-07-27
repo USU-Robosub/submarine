@@ -1,5 +1,5 @@
 const { Subsystem, Command } = require('../scheduler')
-const { map, timeInterval } = require('rxjs/operators')
+const { map, timeInterval, tap } = require('rxjs/operators')
 const pid = require('../PID/pid')
 
 function absMod(x, n){
@@ -13,7 +13,9 @@ function angleBetween(a, b){
 module.exports = (hub, handlerName="tank") => {
   
   let headingCorrectionEnabled = false
-  let headingPidController = pid(1, 0, 0)
+  const P = 5;
+  const T = 4/0.2;
+  let headingPidController = pid(0.6*P, 2*P/T, P*T/8)
   let headingTarget = 0
   
   return { subsystem: Subsystem()
@@ -38,12 +40,13 @@ module.exports = (hub, handlerName="tank") => {
         headingPidController = pid(p, i, d)
       },
       heading: angle => {
+        console.log('set heading', angle)
         headingCorrectionEnabled = true
         headingTarget = angle
       }
     }),
     defaultCommand: (scheduler => {
-      scheduler.run(Command()
+      scheduler.build(Command()
         .named('tank heading correction')
         .makeCancelable()
         .require('pose')
@@ -51,12 +54,15 @@ module.exports = (hub, handlerName="tank") => {
           return system.pose.yaw().pipe(
             timeInterval(),
             map(({ value:angle, interval:deltaTime }) => {
-              let correction = -pid.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0) * (0.5 / Math.PI)
-              console.log("Tank Pose Data", angle, headingTarget, angleBetween(angle, headingTarget), deltaTime,  correction)
-              hub.emit(handlerName + '/steering', correction)
+              if(headingCorrectionEnabled){
+                let correction = headingPidController.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0) * (0.5 / Math.PI)
+                // console.log("Tank Pose Data", angle, headingTarget, angleBetween(angle, headingTarget), deltaTime,  correction)
+                hub.emit(handlerName + '/steering', correction)
+                // console.log('correction', correction, angle, headingTarget, angleBetween(angle, headingTarget))
+              }
             })
           )
-        }))
+        })).then().run().to.promise().catch(e => console.error(e))
     })
   }
 }

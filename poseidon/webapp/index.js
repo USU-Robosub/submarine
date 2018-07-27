@@ -104,7 +104,7 @@ socket.on('pose/all', ([ yaw, pitch, roll ]) => {
 })
 
 socket.on('pose/yaw', (angle) => {
-  console.log('angle', angle * (180 / Math.PI), angle)
+  // console.log('angle', angle * (180 / Math.PI), angle)
   // setYawDirection(Math.cos(angle), 0, Math.sin(angle))
 })
 

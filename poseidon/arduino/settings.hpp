@@ -5,8 +5,8 @@
 #define ECHO_RETURN 42
 
 // motor pins
-#define FRONT_MOTOR_PIN 6
-#define BACK_MOTOR_PIN 5
+#define FRONT_MOTOR_PIN 5
+#define BACK_MOTOR_PIN 6
 #define LEFT_MOTOR_PIN 3
 #define RIGHT_MOTOR_PIN 4
 
@@ -21,7 +21,7 @@
 // IMU
 #define IMU_ACCEL_MAX_SAMPLE_RATE 10 // ms
 #define IMU_GYRO_MAX_SAMPLE_RATE 10 // ms
-#define IMU_SMAPLE_RATE 100 // ms
+#define IMU_SMAPLE_RATE 200 // ms
 #define IMU_HANDLER 10
 
 // kill switch
