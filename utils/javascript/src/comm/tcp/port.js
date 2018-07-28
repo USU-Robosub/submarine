@@ -5,7 +5,9 @@ const createClientPort = (address, port) => {
   const buffer = []
   const connectPromise = new Promise((resolve, reject) => {
     let wasConnected = false;
-    client.on('error', error => reject(error))
+    client.on('error', error => {
+      reject(error)
+    })
     client.on('connect', () => {
       wasConnected = true
       resolve({

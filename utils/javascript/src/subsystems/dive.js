@@ -1,4 +1,6 @@
-const { Subsystem } = require('../scheduler')
+const { Subsystem, Command } = require('../scheduler')
+const { merge } = require('rxjs')
+const { map, timeInterval } = require('rxjs/operators')
 const pid = require('../PID/pid')
 
 module.exports = (hub, handlerName="dive") => {
@@ -21,7 +23,7 @@ module.exports = (hub, handlerName="dive") => {
         },
         trim: amount => {
           pitchEnable = false
-          hub.emit(handlerName + '/trim', [amount])
+          hub.emit(handlerName + '/steering', [amount])
         },
         depth: amount => {
           depthEnable = !!amount
@@ -37,8 +39,8 @@ module.exports = (hub, handlerName="dive") => {
         setPitchPidGains: (p, i, d) => {
           pitchPidController = pid(p, i, d)
         }
-      })
-    defaultCommand: (scheduler => {
+      }),
+    defaultCommand: scheduler => {
       scheduler.build(Command()
         .named('dive depth correction')
         .makeCancelable()
@@ -64,5 +66,6 @@ module.exports = (hub, handlerName="dive") => {
           )
         })
       )
-    })
+    }
+  }
 }

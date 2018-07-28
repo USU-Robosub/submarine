@@ -25,7 +25,7 @@ app.get('/rsapp/riot-compiler.min.js', (req, res) => res.sendFile(path.resolve(_
 app.use(express.static(path.resolve(__dirname + '/../webapp')))
 app.use(express.static(path.resolve(__dirname + '/node_modules/riotgear')))
 
-//init()
+init()
 
 http.listen(settings.webApp.port,
   () => console.log('Web app listening on port', settings.webApp.port)
@@ -57,7 +57,11 @@ function init(){
     port: settings.system.port,
     separator: settings.system.separator
   }).then(hub => {
-    startAgent(hub)
+    try{
+      startAgent(hub)
+    }catch(e){
+      console.log('Failed to run agent', e)
+    }
   }).catch(error => {
     if(!hasSystemFailed)
       console.error('Failed to connect to system.', error)

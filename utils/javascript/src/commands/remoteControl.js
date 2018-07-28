@@ -12,7 +12,9 @@ const dive = socket => Command()
       map(amount => system.dive.power(amount ? amount : 0))
     ),
     fromEvent(socket, 'dive/trim').pipe(
-      map(amount => system.dive.trim(amount ? amount : 0))
+      map(amount => {
+        system.dive.trim(amount ? amount : 0)
+      })
     ),
     fromEvent(socket, 'dive/depth').pipe(
       map(amount => system.dive.depth(amount))
@@ -21,10 +23,10 @@ const dive = socket => Command()
       map(angle => system.dive.pitch(angle))
     ),
     fromEvent(socket, 'dive/pitch/pid').pipe(
-      map(p, i, d => system.dive.setPitchPidGains(p, i, d))
+      map((p, i, d) => system.dive.setPitchPidGains(p, i, d))
     ),
     fromEvent(socket, 'dive/depth/pid').pipe(
-      map(p, i, d => system.dive.setDepthPidGains(p, i, d))
+      map((p, i, d )=> system.dive.setDepthPidGains(p, i, d))
     )
   ))
 
@@ -49,10 +51,10 @@ const tank = socket => Command()
       map(angle => system.tank.heading(angle))
     ),
     fromEvent(socket, 'tank/heading/pid/angle').pipe(
-      map(p, i, d => system.tank.setHeadingPidGains(p, i, d))
+      map((p, i, d) => system.tank.setHeadingPidGains(p, i, d))
     ),
     fromEvent(socket, 'tank/heading/pid/velocity').pipe(
-      map(p, i, d => system.tank.setHeadingVelocityPidGains(p, i, d))
+      map((p, i, d) => system.tank.setHeadingVelocityPidGains(p, i, d))
     )
   ))
 
