@@ -21,6 +21,7 @@
 // IMU
 #define IMU_ACCEL_MAX_SAMPLE_RATE 10 // ms
 #define IMU_GYRO_MAX_SAMPLE_RATE 10 // ms
+#define IMU_PRESSURE_MAX_SAMPLE_RATE 10 //ms
 #define IMU_SMAPLE_RATE 100 // ms
 #define IMU_HANDLER 10
 

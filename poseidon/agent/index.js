@@ -19,9 +19,11 @@ const { merge, interval } = require('rxjs')
 app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.html')))
 app.get('/rsapp/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/socketio/socket.io.min.js')))
 app.get('/rsapp/three.js', (req, res) => res.sendFile(path.resolve(__dirname + '/node_modules/three/build/three.min.js')))
+app.get('/rsapp/chart.min.js', (req, res) => res.sendFile(path.resolve(__dirname + '/node_modules/chart.js/dist/Chart.min.js')))
 app.get('/rsapp/rx.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/rxjs/rx.min.js')))
 app.get('/rsapp/riot-compiler.min.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/riot/riot+compiler.min.js')))
 app.use(express.static(path.resolve(__dirname + '/../webapp')))
+app.use(express.static(path.resolve(__dirname + '/node_modules/riotgear')))
 
 init()
 

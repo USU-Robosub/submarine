@@ -15,6 +15,8 @@ module.exports = (hub, handlerName="pose") => {
   
   let downNorthObservable = empty()
   
+  let lastYawVelocity = 0;
+  
   return Subsystem()
     .named('pose')
     .makeShared()
@@ -43,10 +45,11 @@ module.exports = (hub, handlerName="pose") => {
           pairwise(),
           timeInterval(),
           map(({ value: [[ lastDown, lastNorth ], [ down, north ]], interval: deltaTime }) => {
-            const lastYaw = geometry.findAngleInPlane(down, north, [1, 0, 0])
+            const lastYaw = geometry.findAngleInPlane(lastDown, lastNorth, [1, 0, 0])
             const yaw = geometry.findAngleInPlane(down, north, [1, 0, 0])
-            return (yaw - lastYaw) / (deltaTime * 0.001);
-          })
+            lastYawVelocity = ((yaw - lastYaw) / (deltaTime * 0.001))*0.4 + lastYawVelocity*0.6
+            return lastYawVelocity
+          }),
         )
       },
       pitch: () => {
@@ -97,16 +100,16 @@ module.exports = (hub, handlerName="pose") => {
           console.log('started pose calc')
           
           const angularVelocityObservable = system.imu.angularVelocity().pipe(map(geometry.vectorToArray)).pipe(
-            map(([ x, y, z]) => ([-x / 5, -y / 5, -z / 5]))
+            map(([ x, y, z]) => ([-x / 2, -y / 2, -z / 2]))
           )
           const linearAccelerationObservable = system.imu.linearAcceleration().pipe(map(geometry.vectorToArray))
           const magneticFieldObservable = system.imu.magneticField().pipe(map(geometry.vectorToArray))
           
-          let count = 0
+          // let count = 0
           const gyroRotationMatrixObservable = angularVelocityObservable.pipe(
             timeInterval(),
             map(({ value:angularVelocityVector, interval:deltaTime }) => {
-              console.log('toRotMatrix', count++)
+              // console.log('toRotMatrix', count++)
               return toRotMatrix(angularVelocityVector, deltaTime / 1000.0)
             }),
             publish(),

@@ -6,14 +6,18 @@ Controllers::IMU::IMU(unsigned long timeBetweenSamples,
   int32_t handler,
   Components::Sensors::Magnetometer* magnetometer,
   Components::Sensors::Gyroscope* gyroscope,
-  Components::Sensors::Accelerometer* accelerometer)
+  Components::Sensors::Accelerometer* accelerometer,
+  Components::Sensors::Piezometer* piezometer,
+  Components::Sensors::Thermometer* thermometer)
   : enabled(false),
     handler(handler),
     timeBetweenSamples(timeBetweenSamples),
     lastSampleTime(0),
     magnetometer(magnetometer),
     gyroscope(gyroscope),
-    accelerometer(accelerometer){
+    accelerometer(accelerometer),
+    piezometer(piezometer),
+    thermometer(thermometer){
 
 }
 
@@ -27,7 +31,7 @@ void Controllers::IMU::execute(Emitter* hub, int32_t* data, int32_t length){
   }
 }
 
-void Controllers::IMU::update(Calibration::Magnetic::Model model){
+void Controllers::IMU::update(){
   if(this->enabled){
     unsigned long now = millis();
     if(this->lastSampleTime + this->timeBetweenSamples < now){
@@ -36,24 +40,18 @@ void Controllers::IMU::update(Calibration::Magnetic::Model model){
       auto gyro = this->gyroscope->measureAngularVelocity();
       auto accel = this->accelerometer->measureLinearAcceleration();
       auto magnet = this->magnetometer->measureMagneticField();
+      auto pressure = this->piezometer->measurePressure();
+      auto temp = this->thermometer->measureTemperature();
 
-      // int32_t magnetData[3] = {magnet.x, magnet.y, magnet.z};
-      // LOG("Field", magnetData, 3, INFO);
-
-      Calibration::Magnetic magnetCalibration;
-
-      auto fixedMagnet = magnetCalibration.applyCalibration(model, {magnet.z, magnet.y, magnet.z});
-
-      int32_t data[18] = {
+      int32_t data[11] = {
         gyro.x, gyro.y, gyro.z,
         accel.x, accel.y, accel.z,
-        fixedMagnet.x, fixedMagnet.y, fixedMagnet.z,
         magnet.x, magnet.y, magnet.z,
-        model.hardIronOffset[0], model.hardIronOffset[1], model.hardIronOffset[2],
-        model.scale[0], model.scale[1], model.scale[2]
+        pressure,
+        temp
       };
 
-      this->emitter->emit(this->handler, data, 18);
+      this->emitter->emit(this->handler, data, 11);
     }
   }
 }

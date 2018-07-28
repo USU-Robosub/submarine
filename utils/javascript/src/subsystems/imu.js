@@ -30,22 +30,22 @@ module.exports = (hub, handlerName="imu") => {
       ),
       magneticField: () => imuDataObservable.pipe(
         map(data => ({
-          x: parseFloat(data[9]),
-          y: parseFloat(data[10]),
-          z: parseFloat(data[11])
+          x: parseFloat(data[6]),
+          y: parseFloat(data[7]),
+          z: parseFloat(data[8])
         })),
         publish(),
         refCount()
       ),
-      // pressure: () => listenToHub(hub, handlerName + '/data').pipe(
-      //   map(data => parseFloat(data[9])),
-        // publish(),
-        // refCount()
-      // ),
-      // temperature: () => listenToHub(hub, handlerName + '/data').pipe(
-      //   map(data => parseFloat(data[10])),
-        // publish(),
-        // refCount()
-      // ),
+      pressure: () => listenToHub(hub, handlerName + '/data').pipe(
+        map(data => parseFloat(data[9])),
+        publish(),
+        refCount()
+      ),
+      temperature: () => listenToHub(hub, handlerName + '/data').pipe(
+        map(data => parseFloat(data[10])),
+        publish(),
+        refCount()
+      ),
     })
 }

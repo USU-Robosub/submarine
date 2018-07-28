@@ -117,20 +117,14 @@ void createSubsystems(){
   
   arduino->hub()->on(10,[](std::vector<int> message){
     //std::cout << "Got IMU!" << std::endl;
-    if(message.size() != 18)
+    if(message.size() != 11)
       return;
-    // double gyro = std::sqrt(std::pow(message[0], 2) + std::pow(message[1], 2) + std::pow(message[2], 2)) / 1000000.0;
-    // double accel = std::sqrt(std::pow(message[3], 2) + std::pow(message[4], 2) + std::pow(message[5], 2)) / 1000000.0;
-    // std::cout << "gyro: " << message[0] << ", " << message[1] << ", " << message[2] << " -> " << gyro << std::endl;
-    // std::cout << "accel: " << message[3] << ", " << message[4] << ", " << message[5] << " -> " << accel << std::endl;
-    // std::cout << "magnet: " << message[6] << ", " << message[7] << ", " << message[8] << ", " << std::endl;
     agent->hub()->emit("imu/data", std::vector<std::string>{
       std::to_string(message[0]),std::to_string(message[1]),std::to_string(message[2]),
       std::to_string(message[3]),std::to_string(message[4]),std::to_string(message[5]),
       std::to_string(message[6]),std::to_string(message[7]),std::to_string(message[8]),
-      std::to_string(message[9]),std::to_string(message[10]),std::to_string(message[11]),
-      std::to_string(message[12]),std::to_string(message[13]),std::to_string(message[14]),
-      std::to_string(message[15]),std::to_string(message[16]),std::to_string(message[17])
+      std::to_string(message[9]),
+      std::to_string(message[10])
     });
   });
   

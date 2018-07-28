@@ -47,6 +47,9 @@ const readPose = socket => Command()
       system.pose.yaw().pipe(
         tap(angle => socket.emit('pose/yaw', angle))  
       ),
+      system.pose.yawVelocity().pipe(
+        tap(angle => socket.emit('pose/yawVelocity', angle))  
+      ),
       system.pose.pitch().pipe(
         tap(angle => socket.emit('pose/pitch', angle))  
       ),

@@ -7,6 +7,7 @@
 #include <Components/Chips/ShiftRegister.hpp>
 #include <Components/Sensors/MPU6050.hpp>
 #include <Components/Sensors/HMC5883L.hpp>
+#include <Components/Sensors/BMP085.hpp>
 #include <Calibration/Magnetic.hpp>
 
 #include <Controllers/Empty.hpp>
@@ -22,6 +23,7 @@ typedef Components::Motors::BlueRoboticsR1Esc Motor;
 typedef Components::Chips::ShiftRegister ShiftRegister;
 typedef Components::Sensors::HMC5883L HMC5883L;
 typedef Components::Sensors::MPU6050 MPU6050;
+typedef Components::Sensors::BMP085 BMP085;
 
 struct Thrusters{
   Motor* front;
@@ -36,6 +38,7 @@ Controller** controllers;
 Thrusters thrusters;
 HMC5883L* magnetometer;
 MPU6050* gyroAndAccel;
+BMP085* pressureAndTemp;
 
 void createComponents(){
   thrusters.front = new Motor({.pin=FRONT_MOTOR_PIN, .trim={MOTOR_REVERSE_MAX, MOTOR_REVERSE_MIN, MOTOR_CENTER, MOTOR_FORWARD_MIN, MOTOR_FORWARD_MAX}}),
@@ -45,6 +48,7 @@ void createComponents(){
   Wire.begin(); // enable I2C
   magnetometer = new HMC5883L(IMU_ACCEL_MAX_SAMPLE_RATE);
   gyroAndAccel = new MPU6050(IMU_GYRO_MAX_SAMPLE_RATE);
+  pressureAndTemp = new BMP085(IMU_PRESSURE_MAX_SAMPLE_RATE);
   gyroAndAccel->setGyroFullScaleRange(GYRO_FSR_250);
   gyroAndAccel->setAccelFullScaleRange(ACCEL_FSR_2);
 }
@@ -58,7 +62,7 @@ void createControllers(){
   controllers[HUB_DIVE_PORT] = new Controllers::Dive(thrusters.front, thrusters.back);
   controllers[HUB_TANK_PORT] = new Controllers::Tank(thrusters.left, thrusters.right);
 
-  controllers[HUB_IMU_PORT] = new Controllers::IMU(IMU_SMAPLE_RATE, IMU_HANDLER, magnetometer, gyroAndAccel, gyroAndAccel);
+  controllers[HUB_IMU_PORT] = new Controllers::IMU(IMU_SMAPLE_RATE, IMU_HANDLER, magnetometer, gyroAndAccel, gyroAndAccel, pressureAndTemp, pressureAndTemp);
 }
 
 void setupControllers(){
@@ -130,7 +134,7 @@ void loop() {
     digitalWrite(13, state);
   }
   
-  static_cast<Controllers::IMU*>(controllers[HUB_IMU_PORT])->update(savedModel);
+  static_cast<Controllers::IMU*>(controllers[HUB_IMU_PORT])->update();
   updateControllers();
   pollSerialData();
   Serial.flush();

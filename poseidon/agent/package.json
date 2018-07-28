@@ -16,8 +16,10 @@
     "url": "https://github.com/USU-Robosub/submarine/issues"
   },
   "dependencies": {
+    "chart.js": "^2.7.2",
     "express": "^4.16.2",
     "mathjs": "^5.0.4",
+    "riotgear": "^3.5.0",
     "rxjs": "^6.2.2",
     "socket.io": "^2.0.4",
     "three": "^0.94.0"

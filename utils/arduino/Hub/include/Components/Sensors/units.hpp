@@ -5,7 +5,7 @@
 
 typedef int32_t Millicelcius;
 
-typedef int32_t Kilopascal;
+typedef int32_t Pascal;
 
 typedef int32_t MicroradianPerSecond;
 

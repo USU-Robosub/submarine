@@ -11,7 +11,7 @@ namespace Components{
 
 class Components::Sensors::Piezometer{
 public:
-  virtual Kilopascal measurePressure() = 0;
+  virtual Pascal measurePressure() = 0;
 };
 
 #endif

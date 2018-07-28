@@ -40,8 +40,10 @@
               </div>
             </div>
             <div class="tile is-parent">
-              <div class="tile is-child" id="submodel">
+              <div class="tile is-child is-hidden" id="submodel">
               </div>
+              <canvas id="chartcanvas"></canvas>
+              <rg-chart></rg-chart>
             </div>
           </div>
         </div>
@@ -58,6 +60,8 @@
     <!-- Riot Tags -->
     <script src="/rsapp/tags/directioncontrol.tag" type="riot/tag"></script>
     <script src="/rsapp/tags/controls.tag" type="riot/tag"></script>
+    <script src="/rsapp/chart.min.js"></script>
+    <script src="/rsapp/imucharts.js"></script>
     <script>
     /* global riot, setThrottle, setSteering, setHeading, setDive, setDepth, setDiveTrim, setPitch  */
       riot.mount('controls', 
@@ -102,6 +106,7 @@
           ],
         ]
       })
+      
     </script>
   </body>
 
