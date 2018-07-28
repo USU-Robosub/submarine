@@ -8,12 +8,24 @@ const dive = socket => Command()
   .require('dive')
   .makeCancelable()
   .action(system => merge(
-    fromEvent(socket, 'dive').pipe(
+    fromEvent(socket, 'dive/power').pipe(
       map(amount => system.dive.power(amount ? amount : 0))
     ),
-    fromEvent(socket, 'dive/steer').pipe(
-      map(amount => system.dive.steering(amount ? amount : 0))
+    fromEvent(socket, 'dive/trim').pipe(
+      map(amount => system.dive.trim(amount ? amount : 0))
     ),
+    fromEvent(socket, 'dive/depth').pipe(
+      map(amount => system.dive.depth(amount))
+    ),
+    fromEvent(socket, 'dive/pitch').pipe(
+      map(angle => system.dive.pitch(angle))
+    ),
+    fromEvent(socket, 'dive/pitch/pid').pipe(
+      map(p, i, d => system.dive.setPitchPidGains(p, i, d))
+    ),
+    fromEvent(socket, 'dive/depth/pid').pipe(
+      map(p, i, d => system.dive.setDepthPidGains(p, i, d))
+    )
   ))
 
 const tank = socket => Command()
@@ -21,23 +33,29 @@ const tank = socket => Command()
   .require('tank')
   .makeCancelable()
   .action(system => merge(
-    fromEvent(socket, 'throttle').pipe(
+    fromEvent(socket, 'tank/throttle').pipe(
       map(amount => system.tank.throttle(amount ? amount : 0))
     ),
-    fromEvent(socket, 'steering').pipe(
+    fromEvent(socket, 'tank/steering').pipe(
       map(amount => system.tank.steering(amount ? amount : 0))
     ),
-    fromEvent(socket, 'left').pipe(
+    fromEvent(socket, 'tank/left').pipe(
       map(amount => system.tank.left(amount ? amount : 0))
     ),
-    fromEvent(socket, 'right').pipe(
+    fromEvent(socket, 'tank/right').pipe(
       map(amount => system.tank.right(amount ? amount : 0))
     ),
-    fromEvent(socket, 'heading').pipe(
+    fromEvent(socket, 'tank/heading').pipe(
       map(angle => system.tank.heading(angle))
+    ),
+    fromEvent(socket, 'tank/heading/pid/angle').pipe(
+      map(p, i, d => system.tank.setHeadingPidGains(p, i, d))
+    ),
+    fromEvent(socket, 'tank/heading/pid/velocity').pipe(
+      map(p, i, d => system.tank.setHeadingVelocityPidGains(p, i, d))
     )
   ))
-  
+
 const readPose = socket => Command()
   .named('remote control read pos')
   .require('pose')
@@ -45,34 +63,34 @@ const readPose = socket => Command()
   .action(system => {
     return merge(
       system.pose.yaw().pipe(
-        tap(angle => socket.emit('pose/yaw', angle))  
+        tap(angle => socket.emit('pose/yaw', angle))
       ),
       system.pose.yawVelocity().pipe(
-        tap(angle => socket.emit('pose/yawVelocity', angle))  
+        tap(angle => socket.emit('pose/yawVelocity', angle))
       ),
       system.pose.pitch().pipe(
-        tap(angle => socket.emit('pose/pitch', angle))  
+        tap(angle => socket.emit('pose/pitch', angle))
       ),
       system.pose.roll().pipe(
-        tap(angle => socket.emit('pose/roll', angle))  
+        tap(angle => socket.emit('pose/roll', angle))
       ),
-      
+
       zip(
         system.pose.yaw(),
         system.pose.pitch(),
         system.pose.roll(),
       ).pipe(
-        tap(angles => socket.emit('pose/all', angles))  
+        tap(angles => socket.emit('pose/all', angles))
       ),
-      
+
       system.pose.north().pipe(
-        tap(angle => socket.emit('pose/north', angle))  
+        tap(angle => socket.emit('pose/north', angle))
       ),
       system.pose.down().pipe(
-        tap(angle => socket.emit('pose/down', angle))  
+        tap(angle => socket.emit('pose/down', angle))
       ),
       system.pose.flatNorth().pipe(
-        tap(angle => socket.emit('pose/flatNorth', angle))  
+        tap(angle => socket.emit('pose/flatNorth', angle))
       ),
     )
   })

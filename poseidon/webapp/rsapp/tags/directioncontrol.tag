@@ -25,37 +25,51 @@
     </div>
     <script>
         /*global opts */
-        opts.initial = opts.initial || 0
-        opts.delta = (opts.horizontal?-1:1)*(opts.delta || 0.05);
-        opts.maxRange = opts.maxRange || 1
-        opts.minRange = opts.minRange || -1
-        let precision = Math.pow(10, opts.precision || 2)
-        opts.update = opts.update || ((val) => console.log(opts.title, val))
-        this.curPower = opts.initial
+        let range = opts.range || {}
+        range.initial = opts.range.initial || 0
+        range.delta = (opts.horizontal?-1:1)*(opts.range.delta || 0.05) || 0.05;
+        range.max = opts.range.max || 1
+        range.min = opts.range.min || -1
+        range.wrapAround = opts.range.wrapAround || false
+        let precision = Math.pow(10, opts.range.precision || 2)
+        let update = opts.update || ((val) => console.log(opts.title, val))
+        this.curPower = range.initial
 
-        increase() {
-            this.curPower = Math.round((this.curPower + opts.delta) * precision) / precision
-            if (this.curPower > opts.maxRange)
-                this.curPower = opts.minRange
-            if(isNaN(this.curPower)) {
-                this.curPower = opts.delta
-            }
-            opts.update(this.curPower)
+        increase(){
+          this.change(1)
         }
 
-        decrease() {
-            this.curPower = Math.round((this.curPower - opts.delta) * precision) / precision
-            if (this.curPower < opts.minRange)
-                this.curPower = opts.maxRange
-            if(isNaN(this.curPower)) {
-                this.curPower = -opts.delta
+        decrease(){
+          this.change(-1)
+        }
+
+        change(multiplier) {
+          let delta = range.delta * multiplier;
+          let curPower = this.curPower + delta
+          if (curPower > range.max) {
+            if( range.wrapAround ) {
+              curPower = range.min
+            } else {
+              curPower = range.max
             }
-            opts.update(this.curPower)
+          }
+          if (curPower < range.min) {
+            if( range.wrapAround ) {
+              curPower = range.max
+            } else {
+              curPower = range.min
+            }
+          }
+          if(isNaN(curPower)) {
+              curPower = delta
+          }
+          this.curPower = Math.round(curPower*precision)/precision
+          update(this.curPower)
         }
 
         stop() {
             this.curPower = 'Stopped'
-            opts.update(false)
+            update(false)
         }
     </script>
 </directioncontrol>

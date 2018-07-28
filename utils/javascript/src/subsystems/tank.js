@@ -11,15 +11,15 @@ function angleBetween(a, b){
 }
 
 module.exports = (hub, handlerName="tank") => {
-  
+
   let headingCorrectionEnabled = false
   const P = 5;
   const T = 4/0.2;
   let headingPidController = pid(0.6*P, 2*P/T, P*T/8)
   let headingTarget = 0
-  
+
   let headingVelocityPidController = pid(1, 0, 0)
-  
+
   return { subsystem: Subsystem()
     .named('tank')
     .raw({
@@ -41,10 +41,12 @@ module.exports = (hub, handlerName="tank") => {
       setHeadingPidGains: (p, i, d) => {
         headingPidController = pid(p, i, d)
       },
+      setHeadinVelocitygVelocityPidGains: (p, i, d) => {
+        headingPidController = pid(p, i, d)
+      },
       heading: angle => {
-        console.log('set heading', angle)
-        headingCorrectionEnabled = true
-        headingTarget = angle
+        headingCorrectionEnabled = !!angle
+        headingTarget = angle?angle:0
       },
     }),
     defaultCommand: (scheduler => {
@@ -59,7 +61,7 @@ module.exports = (hub, handlerName="tank") => {
             map(({ value:[ angle, angleVelocity ], interval:deltaTime }) => {
               if(headingCorrectionEnabled){
                 let headingCorrection = headingPidController.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0)
-                
+
                 let headingVelocityCorrection = headingPidController.correctFor(angleBetween(angleVelocity, headingCorrection), deltaTime / 1000.0)
                 hub.emit(handlerName + '/steering', headingVelocityCorrection)
               }

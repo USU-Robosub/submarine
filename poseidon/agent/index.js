@@ -25,7 +25,7 @@ app.get('/rsapp/riot-compiler.min.js', (req, res) => res.sendFile(path.resolve(_
 app.use(express.static(path.resolve(__dirname + '/../webapp')))
 app.use(express.static(path.resolve(__dirname + '/node_modules/riotgear')))
 
-init()
+//init()
 
 http.listen(settings.webApp.port,
   () => console.log('Web app listening on port', settings.webApp.port)
@@ -70,19 +70,21 @@ function startAgent(hub){
   console.log('Connected to system')
 
   let tankObj = tank(hub);
+  let diveObj = dive(hub);
 
   const scheduler = Scheduler([
-    dive(hub),
+    diveObj.subsystem,
     tankObj.subsystem,
     imu(hub),
     pose(hub),
     killswitch(hub)
   ])
-  
+
   // setInterval(() => browser.log('Commands', scheduler.runningByName()), 2000)
-  
+
   tankObj.defaultCommand(scheduler)
-  
+  diveObj.defaultCommand(scheduler)
+
   scheduler.build(
     Command()
       .named('ai')
@@ -93,11 +95,11 @@ function startAgent(hub){
         const killswitchStatus = system.killSwitch.status()
         const killSwitchOn = killswitchStatus.pipe(
           tap(status => console.log('killswitch', status)),
-          filter(status => status == true)  
+          filter(status => status == true)
         )
         const aiEnable = killSwitchOn.pipe(
           buffer(killSwitchOn.pipe(
-            debounceTime(2000)  
+            debounceTime(2000)
           )),
           map(list => list.length),
           filter(x => x >= 2),
@@ -108,12 +110,12 @@ function startAgent(hub){
         )
         const aiDisable = killswitchStatus.pipe(
           filter(status => status == false),
-          tap(() => 
+          tap(() =>
             console.log('Disable AI'))
         )
         const aiControl = merge(aiEnable, aiDisable)
         // ============== AI SCRIPT ============
-        
+
         let count = 0;
         const ai = interval(10).pipe(
           withLatestFrom(aiControl),
@@ -133,7 +135,7 @@ function startAgent(hub){
             system.tank.steering(0)
           }
           }))
-        
+
         // ============== AI SCRIPT ============
         return ai
       })
@@ -155,20 +157,20 @@ function connectToWebApp(scheduler, hub){
   // setup new clients
   io.on('connection', socket => {
     browser.info('Client Connected')
-    
+
     hub.on('echo/arduino', (hub, data) => {
       socket.emit('echo/arduino', data)
     })
-    
+
     hub.on('echo/system', (hub, data) => {
       socket.emit('echo/system', data)
     })
-    
+
     hub.on('imu/data', (hub, data) => {
       //console.log(data)
       socket.emit('imu/raw_large', data.map(str => parseFloat(str)))
     })
-    
+
     setupWebAppClient(scheduler, socket)
   })
 }
@@ -188,7 +190,7 @@ function setupWebAppClient(scheduler, socket){
             }else{
               socket.emit('killswitch/off')
             }
-          })  
+          })
         )
       })
   )
@@ -202,7 +204,7 @@ function setupWebAppClient(scheduler, socket){
     socket.emit('tank/lost')
     console.log('Tank remote control stopped for user')
   })
-  
+
   scheduler.run(remoteControl.readPose(socket)).to.promise().then(() => {
     socket.emit('pose/lost')
     console.log('Pose remote control stopped for user')

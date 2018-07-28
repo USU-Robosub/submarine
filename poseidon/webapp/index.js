@@ -30,6 +30,12 @@ socket.on('tank/lost', () => {
   Array.from(document.getElementsByTagName('button')).forEach(function(elm){elm.disabled = true;});
 })
 
+
+function emit(command, ...message) {
+  socket.emit(command, ...message)
+  screen.log(command, ...message)
+}
+
 let scrolllock = false;
 let lines = 0;
 function logConsole(source, message) {
@@ -57,12 +63,12 @@ function logConsole(source, message) {
   let timeString = time.toLocaleTimeString();
 
   let newline =  "<span class='log-line'><span class='icon is-small has-text-"+color+"' title='"+timeString+"'><i class='fas "+icon+"'></i></span><span class='source has-text-"+color+"'>["+source+"]</span><span class='log-content'> "+message.join(" ")+"</span></span>\r\n";
-  let console = document.getElementById("console").innerHTML
+  let terminal = document.getElementById("console").innerHTML
   if(lines == 0) {
-     console = "";
+     terminal = "";
   }
   if(lines>1000) {
-    console = console.substring(console.indexOf("\n") + 1)
+    terminal = terminal.substring(terminal.indexOf("\n") + 1)
     if(scrolllock) {
       let scrollHeight = document.getElementById("console").getElementsByTagName("span")[0].offsetHeight;
       let newScroll = document.getElementById("console").scrollTop - scrollHeight;
@@ -70,7 +76,7 @@ function logConsole(source, message) {
         newScroll = 0;
       document.getElementById("console").scrollTop = newScroll;
     }
-    document.getElementById("console").innerHTML = console;
+    document.getElementById("console").innerHTML = terminal;
   }
   else
   {
@@ -79,8 +85,8 @@ function logConsole(source, message) {
   document.getElementById("console").innerHTML+=newline;
   if(!scrolllock)
     document.getElementById("console").scrollTop = document.getElementById("console").scrollHeight;
-    
-  //console.log("%c["+source+"] "+message.join(" "), "color: "+(level=="0"?'darkgreen':level=="1"?'#a79100':'darkred'));
+
+  console.log("%c["+source+"] "+message.join(" "), "color: "+(level=="0"?'darkgreen':level=="1"?'#a79100':'darkred'));
 }
 
 

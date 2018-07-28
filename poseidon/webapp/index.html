@@ -17,12 +17,12 @@
 
   <body>
     <section class="section">
-      <div class="container">
+      <!-- <div class="container"> -->
         <div class="tile is-ancestor is-vertical">
-          <!-- 
-          
+          <!--
+
           Header Row
-          
+
           -->
           <div class="tile">
             <div class="tile is-parent is-vertical is-7">
@@ -48,7 +48,7 @@
           </div>
         </div>
         <controls></controls>
-      </div>
+      <!-- </div> -->
     </section>
     <!--<img src="http://192.168.1.101:8082" class="shrinkToFit" width="500">-->
     <!--<img src="http://192.168.1.101:8083" class="shrinkToFit" width="500">-->
@@ -59,54 +59,116 @@
     <script src="/rsapp/submodel.js"></script>
     <!-- Riot Tags -->
     <script src="/rsapp/tags/directioncontrol.tag" type="riot/tag"></script>
+    <script src="/rsapp/tags/pidcontrol.tag" type="riot/tag"></script>
     <script src="/rsapp/tags/controls.tag" type="riot/tag"></script>
     <script src="/rsapp/chart.min.js"></script>
     <script src="/rsapp/imucharts.js"></script>
     <script>
     /* global riot, setThrottle, setSteering, setHeading, setDive, setDepth, setDiveTrim, setPitch  */
-      riot.mount('controls', 
+      riot.mount('controls',
       {
         controls: [
           [
             {
               title: "Thruster",
-              update: setThrottle,
+              update: (amount) => emit('tank/throttle', amount),
+              range: {
+                maxRange: 1,
+                minRange: -1,
+                wrapAround: false
+              }
             },
             {
               title: "Steering",
-              update: setSteering,
+              update: (amount) => emit('tank/steering', amount),
               horizontal: true,
+              range: {
+                maxRange: 1,
+                minRange: -1,
+                wrapAround: false
+              }
             },
             {
               title: "Heading",
-              update: setHeading,
+              update: (target) => emit('tank/heading', target),
               horizontal: true,
+              range: {
+                maxRange: 3.10,
+                minRange: -3.10,
+                wrapAround: true
+              }
             },
           ],
           [
             {
               title: "Dive",
-              update: setDive,
+              update: (amount) => emit('dive/power', amount),
+              range: {
+                maxRange: 1,
+                minRange: -1,
+                wrapAround: false
+              }
             },
-            // {
-            //   title: "Depth",
-            //   slider: true,
-            //   update: setDepth,
-            // },
+            {
+              title: "Depth",
+              slider: true,
+              update: (target) => emit('dive/depth', target),
+              range: {
+                initial: 85784,
+                delta: -1,
+                maxRange: 85884,
+                minRange: 85684,
+                wrapAround: false
+              }
+            },
             {
               title: "Dive Trim",
-              update: setDiveTrim,
+              update: (amount) => emit('dive/trim', amount),
               horizontal: true,
+              range: {
+                maxRange: 1,
+                minRange: -1,
+                wrapAround: false
+              }
             },
-            // {
-            //   title: "Pitch",
-            //   update: setPitch,
-            //   horizontal: true,
-            // },
+            {
+              title: "Pitch",
+              update: (target) => emit('dive/pitch', target),
+              horizontal: true,
+              range: {
+                maxRange: 3.10,
+                minRange: -3.10,
+                wrapAround: true
+              }
+            },
           ],
+          [
+            {
+              title: "Heading PID Gains",
+              update: (p, i, d) => emit('tank/heading/pid/angle', p, i, d),
+              type: "pidcontrol"
+            },
+            {
+              title: "Heading Velocity PID Gains",
+              update: (p, i, d) => emit('tank/heading/pid/velocity', p, i, d),
+              type: "pidcontrol"
+            },
+          ],
+          [
+            {
+              title: "Depth PID Gains",
+              update: (p, i, d) => emit('dive/depth/pid', p, i, d),
+              type: "pidcontrol"
+            },
+            {
+              title: "Pitch PID Gains",
+              update: (p, i, d) => emit('dive/pitch/pid', p, i, d),
+              type: "pidcontrol"
+            },
+          ]
         ]
       })
-      
+
     </script>
   </body>
 
