@@ -12,7 +12,8 @@ const utils = {
   },
   pid: {
     ...require('../src/PID/pid.js')
-  }
+  },
+  math: require('../src/math')
 }
 
 module.exports = utils

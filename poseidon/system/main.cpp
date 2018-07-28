@@ -8,6 +8,7 @@
 #include <Subsystem/Dive.hpp>
 #include <Subsystem/Tank.hpp>
 #include <Comm/tools.hpp>
+#include <Log.hpp>
 #include <sstream>
 
 #include "settings.hpp"
@@ -60,6 +61,7 @@ void createHubs(){
   std::cout << "Connecting to network" << std::endl;
   agent = new Comm::TCP::FullStack(AGENT_PORT, AGENT_DELIMITER);
   std::cout << "Created Hubs" << std::endl;
+  setEmitterForLogging(agent->hub(), "echo/system");
 }
 
 void createSubsystems(){
@@ -72,7 +74,7 @@ void createSubsystems(){
   
   arduino->hub()->on(ECHO_PORT_NUM, [](std::vector<int> message){
     if(message.size() >= 8 && message[0] == 0 && message[1] == 1 && message[2] == 2 && message[3] == 3 && message[4] == 4){
-      unsigned int level = message[5];
+      int level = message[5];
       unsigned int compressedMessageLength = message[6];
       unsigned int messageLength = message[7];
       
@@ -88,11 +90,11 @@ void createSubsystems(){
       for(unsigned int i = (8 + compressedMessageLength); i < message.size(); i++){
         stringMessage.push_back(std::to_string(message[i]));
       }
-      std::cout << "Log: ";
-      for(unsigned int i = 0; i < stringMessage.size(); i++){
-        std::cout << stringMessage[i] << ", ";
-      }
-      std::cout << std::endl;
+      // std::cout << "Log: ";
+      // for(unsigned int i = 0; i < stringMessage.size(); i++){
+      //   std::cout << stringMessage[i] << ", ";
+      // }
+      // std::cout << std::endl;
       
       agent->hub()->emit("echo/arduino", stringMessage);
     }else{

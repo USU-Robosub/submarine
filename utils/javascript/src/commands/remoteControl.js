@@ -9,24 +9,10 @@ const dive = socket => Command()
   .makeCancelable()
   .action(system => merge(
     fromEvent(socket, 'dive').pipe(
-      // parallel(
-      //   amount => amount,
-      //   pipe(
-      //     debounceTime(2000),
-      //     map(amount => 0)
-      //   )
-      // ),
-      map(amount => system.dive.power(amount))
+      map(amount => system.dive.power(amount ? amount : 0))
     ),
     fromEvent(socket, 'dive/steer').pipe(
-    // parallel(
-    //   amount => amount,
-    //   pipe(
-    //     debounceTime(2000),
-    //     map(amount => 0)
-    //   )
-    // ),
-      map(amount => system.dive.steering(amount))
+      map(amount => system.dive.steering(amount ? amount : 0))
     ),
   ))
 
@@ -36,44 +22,16 @@ const tank = socket => Command()
   .makeCancelable()
   .action(system => merge(
     fromEvent(socket, 'throttle').pipe(
-    // parallel(
-    //   amount => amount,
-    //   pipe(
-    //     debounceTime(2000),
-    //     map(amount => 0)
-    //   )
-    // ),
-      map(amount => system.tank.throttle(amount))
+      map(amount => system.tank.throttle(amount ? amount : 0))
     ),
     fromEvent(socket, 'steering').pipe(
-    // parallel(
-    //   amount => amount,
-    //   pipe(
-    //     debounceTime(2000),
-    //     map(amount => 0)
-    //   )
-    // ),
-      map(amount => system.tank.steering(amount))
+      map(amount => system.tank.steering(amount ? amount : 0))
     ),
     fromEvent(socket, 'left').pipe(
-    // parallel(
-    //   amount => amount,
-    //   pipe(
-    //     debounceTime(2000),
-    //     map(amount => 0)
-    //   )
-    // ),
-      map(amount => system.tank.left(amount))
+      map(amount => system.tank.left(amount ? amount : 0))
     ),
     fromEvent(socket, 'right').pipe(
-    // parallel(
-    //   amount => amount,
-    //   pipe(
-    //     debounceTime(2000),
-    //     map(amount => 0)
-    //   )
-    // ),
-      map(amount => system.tank.right(amount))
+      map(amount => system.tank.right(amount ? amount : 0))
     ),
     fromEvent(socket, 'heading').pipe(
       map(angle => system.tank.heading(angle))
@@ -88,9 +46,6 @@ const readPose = socket => Command()
     return merge(
       system.pose.yaw().pipe(
         tap(angle => socket.emit('pose/yaw', angle))  
-      ),
-      system.pose.calibratedYaw().pipe(
-        tap(angle => socket.emit('pose/calibratedYaw', angle))  
       ),
       system.pose.pitch().pipe(
         tap(angle => socket.emit('pose/pitch', angle))  
@@ -107,19 +62,8 @@ const readPose = socket => Command()
         tap(angles => socket.emit('pose/all', angles))  
       ),
       
-      zip(
-        system.pose.calibratedYaw(),
-        system.pose.pitch(),
-        system.pose.roll(),
-      ).pipe(
-        tap(angles => socket.emit('pose/calibratedAll', angles))  
-      ),
-      
       system.pose.north().pipe(
         tap(angle => socket.emit('pose/north', angle))  
-      ),
-      system.pose.calibratedNorth().pipe(
-        tap(angle => socket.emit('pose/calibratednorth', angle))  
       ),
       system.pose.down().pipe(
         tap(angle => socket.emit('pose/down', angle))  
@@ -127,12 +71,6 @@ const readPose = socket => Command()
       system.pose.flatNorth().pipe(
         tap(angle => socket.emit('pose/flatNorth', angle))  
       ),
-      system.pose.flatForward().pipe(
-        tap(angle => socket.emit('pose/flatForward', angle))  
-      ),
-      system.pose.flatCalibratedNorth().pipe(
-        tap(angle => socket.emit('pose/flatCalibratedNorth', angle))  
-      )
     )
   })
 

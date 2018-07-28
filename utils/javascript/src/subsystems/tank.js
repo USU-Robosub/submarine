@@ -1,5 +1,5 @@
 const { Subsystem, Command } = require('../scheduler')
-const { map, timeInterval, tap } = require('rxjs/operators')
+const { map, timeInterval, tap, withLatestFrom } = require('rxjs/operators')
 const pid = require('../PID/pid')
 
 function absMod(x, n){
@@ -17,6 +17,8 @@ module.exports = (hub, handlerName="tank") => {
   const T = 4/0.2;
   let headingPidController = pid(0.6*P, 2*P/T, P*T/8)
   let headingTarget = 0
+  
+  let headingVelocityPidController = pid(1, 0, 0)
   
   return { subsystem: Subsystem()
     .named('tank')
@@ -43,7 +45,7 @@ module.exports = (hub, handlerName="tank") => {
         console.log('set heading', angle)
         headingCorrectionEnabled = true
         headingTarget = angle
-      }
+      },
     }),
     defaultCommand: (scheduler => {
       scheduler.build(Command()
@@ -52,13 +54,14 @@ module.exports = (hub, handlerName="tank") => {
         .require('pose')
         .action(system => {
           return system.pose.yaw().pipe(
+            withLatestFrom(system.pose.yawVelocity()),
             timeInterval(),
-            map(({ value:angle, interval:deltaTime }) => {
+            map(({ value:[ angle, angleVelocity ], interval:deltaTime }) => {
               if(headingCorrectionEnabled){
-                let correction = headingPidController.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0) * (0.5 / Math.PI)
-                // console.log("Tank Pose Data", angle, headingTarget, angleBetween(angle, headingTarget), deltaTime,  correction)
-                hub.emit(handlerName + '/steering', correction)
-                // console.log('correction', correction, angle, headingTarget, angleBetween(angle, headingTarget))
+                let headingCorrection = headingPidController.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0)
+                
+                let headingVelocityCorrection = headingPidController.correctFor(angleBetween(angleVelocity, headingCorrection), deltaTime / 1000.0)
+                hub.emit(handlerName + '/steering', headingVelocityCorrection)
               }
             })
           )

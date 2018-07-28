@@ -5,50 +5,64 @@ socket.on('disconnect', () => {
 });
 
 socket.on('connect', () => {
-  screen.error('server connected')
+  screen.good('server connected')
 });
 
-var killed = false;
-
-socket.on("killswitch", ( hub, message )=>{
-  killed = (message.length < 1 || message[0]!=="1");
-  if(killed) {
-    document.getElementById("killswitch").style.display = "block";
-  } else {
-    document.getElementById("killswitch").style.display = "none";
+let disabled = false;
+socket.on("killswitch/on", ()=>{
+  screen.good("submarine enabled")
+  disabled = false;
   }
-});
+);
+socket.on("killswitch/off", ()=>{
+  screen.warn("submarine disabled")
+  disabled = true;
+  }
+);
 
 socket.on('dive/lost', () => {
   screen.log('Lost control over dive subsystem')
+  Array.from(document.getElementsByTagName('button')).forEach(function(elm){elm.disabled = true;});
+})
+
+socket.on('tank/lost', () => {
+  screen.log('Lost control over tank subsystem')
+  Array.from(document.getElementsByTagName('button')).forEach(function(elm){elm.disabled = true;});
 })
 
 let scrolllock = false;
-let consolelog = "";
 let lines = 0;
 function logConsole(source, message) {
   let level = message.shift();
   let icon, color;
   switch(level) {
-    case "0":
-      icon = 'fa-info-circle';
+    case "-1":
+      icon = 'fa-check-circle ';
       color = 'success';
       break;
     case "1":
-      icon = 'fa-exclamation-circle';
-      color = 'warn';
+      icon = 'fa-exclamation-triangle';
+      color = 'warning';
       break;
-    default:
+    case "2":
       icon = 'fa-times-circle';
       color = 'danger';
       break;
+    default:
+      icon = 'fa-info';
+      color = 'info';
+      break;
   }
-  let newline =  "<span class='has-text-"+color+"'><i class='fas "+icon+"'></i> ["+source+"] </span> "+message.join(" ")+"\r\n";
+  let time  = new Date();
+  let timeString = time.toLocaleTimeString();
+
+  let newline =  "<span class='log-line'><span class='icon is-small has-text-"+color+"' title='"+timeString+"'><i class='fas "+icon+"'></i></span><span class='source has-text-"+color+"'>["+source+"]</span><span class='log-content'> "+message.join(" ")+"</span></span>\r\n";
+  let console = document.getElementById("console").innerHTML
   if(lines == 0) {
-    document.getElementById("console").innerHTML = "";
+     console = "";
   }
   if(lines>1000) {
-    document.getElementById("console").innerHTML = document.getElementById("console").innerHTML.substring(document.getElementById("console").innerHTML.indexOf("\n") + 1)
+    console = console.substring(console.indexOf("\n") + 1)
     if(scrolllock) {
       let scrollHeight = document.getElementById("console").getElementsByTagName("span")[0].offsetHeight;
       let newScroll = document.getElementById("console").scrollTop - scrollHeight;
@@ -56,6 +70,7 @@ function logConsole(source, message) {
         newScroll = 0;
       document.getElementById("console").scrollTop = newScroll;
     }
+    document.getElementById("console").innerHTML = console;
   }
   else
   {
@@ -65,12 +80,15 @@ function logConsole(source, message) {
   if(!scrolllock)
     document.getElementById("console").scrollTop = document.getElementById("console").scrollHeight;
     
-  console.log("%c["+source+"] "+message.join(" "), "color: "+(level=="0"?'darkgreen':level=="1"?'#a79100':'darkred'));
+  //console.log("%c["+source+"] "+message.join(" "), "color: "+(level=="0"?'darkgreen':level=="1"?'#a79100':'darkred'));
 }
 
 
 
 let screen = {
+  good : (...args) => {
+    logConsole("Local",["-1",args.join(" ")]);
+  },
   log : (...args) => {
     logConsole("Local",["0",args.join(" ")]);
   },
@@ -92,10 +110,6 @@ socket.on('echo/system', (message) => {
 
 socket.on('echo/agent', (message) => {
   logConsole("Agent", message);
-})
-
-socket.on('tank/lost', () => {
-  screen.log('Lost control over tank subsystem')
 })
 
 /*global setSubmarineRotation */
@@ -132,235 +146,61 @@ socket.on('pose/flatForward', (args) => {
 //   setMagnetFieldDirection(data[3 * 3], data[3 * 3 + 1], data[3 * 3 + 2]);
 // })
 
-function setTank(left, right){
-  if(!killed) {
-    let throttle = 2 - (left + right)/2;
-    let steering = (right-left)/2+1;
-    socket.emit('throttle', throttle*90);
-    socket.emit('steering', steering*90);
-  }
-}
-let thrustTimeout = false;
 function setThrottle(x){
-  if(!killed) {
+  if(!disabled) {
     socket.emit('throttle', x)
-    document.getElementById("thruststatus").innerHTML = x;
-    curThrottle = x;
-    if(thrustTimeout!==false)
-      clearTimeout(thrustTimeout);
-    thrustTimeout = setTimeout(()=>setThrottle(curThrottle),250)
+    screen.log('throttle', x);
   }
 }
 
 function setSteering(x){
-  if(!killed) {
+  if(!disabled) {
     socket.emit('steering', x)
-    document.getElementById("steerstatus").innerHTML = x;
-    document.getElementById("headingstatus").innerHTML = 'Stopped';
-    curSteer = x;
   }
 }
 
 function setHeading(x){
-  if(!killed) {
+  if(!disabled) {
     socket.emit('heading', x)
-    document.getElementById("steerstatus").innerHTML = 0;
-    document.getElementById("headingstatus").innerHTML = x;
   }
 }
 
-let curLeft = 0;
-let leftTimeout = false;
 function setLeft(x){
-  if(!killed) {
+  if(!disabled) {
     socket.emit('left', x)
-    curLeft = x;
-    if(leftTimeout!==false)
-      clearTimeout(leftTimeout);
-    leftTimeout = setTimeout(()=>setLeft(curLeft),250)
   }
 }
 
-let curRight = 0;
-let rightTimeout = false;
 function setRight(x){
-  if(!killed) {
+  if(!disabled) {
     socket.emit('right', x)
-    curRight = x;
-    if(rightTimeout!==false)
-      clearTimeout(rightTimeout);
-    rightTimeout = setTimeout(()=>setRight(curRight),250)
   }
 }
-
-let diveTimeout = false;
 
 function setDive(x){
-  if(!killed) {
+  if(!disabled) {
     socket.emit('dive', x)
-    document.getElementById("divestatus").innerHTML = x;
-    curDive = x;
-    if(diveTimeout!==false)
-      clearTimeout(diveTimeout);
-    diveTimeout = setTimeout(()=>setDive(curDive),250)
+    screen.log('dive',x)
   }
 }
 
-let diveSteerTimeout = false;
-let curDiveSteer = 0;
-function setDiveSteer(x){
-  if(!killed) {
+function setDepth(x){
+  if(!disabled) {
+    socket.emit('depth', x)
+    screen.log('depth',x)
+  }
+}
+
+function setDiveTrim(x){
+  if(!disabled) {
     socket.emit('dive/steer', x)
-    document.getElementById("divesteerstatus").innerHTML = x;
-    curDiveSteer = x;
-    if(diveSteerTimeout!==false)
-      clearTimeout(diveSteerTimeout);
-    diveSteerTimeout = setTimeout(()=>setDiveSteer(curDiveSteer),250)
+    screen.log('dive/steer',x)
   }
 }
 
-const delta = 0.05;
-
-let curDive = 0;
-let stopDive = function(){curDive = 0;setDive(curDive);};
-let downDive = function(){curDive -= delta;setDive(curDive);};
-let upDive = function(){curDive += delta;setDive(curDive);};
-
-let stopDiveSteer = function(){curDiveSteer = 0;setDiveSteer(curDiveSteer);};
-let leftDiveSteer = function(){curDiveSteer += delta;setDiveSteer(curDiveSteer);};
-let rightDiveSteer = function(){curDiveSteer -= delta;setDiveSteer(curDiveSteer);};
-
-let curSteer = 0;
-let stopSteer = function(){curSteer = 0;setSteering(curSteer);};
-let leftSteer = function(){curSteer -= delta;setSteering(curSteer);};
-let rightSteer = function(){curSteer += delta;setSteering(curSteer);};
-
-let curHeading = 0;
-let stopHeading = function(){curHeading = 0;stopSteer();};
-let leftHeading = function(){curHeading -= delta;setHeading(curHeading);};
-let rightHeading = function(){curHeading += delta;setHeading(curHeading);};
-
-let curThrottle = 0;
-let stopThrottle = function(){curThrottle = 0;setThrottle(curThrottle);};
-let downThrottle = function(){curThrottle -= delta;setThrottle(curThrottle);};
-let upThrottle = function(){curThrottle += delta;setThrottle(curThrottle);};
-
-let mode = "single";
-let leftAxis = 0;
-let rightAxis = 0;
-
-// const gamepad = navigator.getGamepads()
-
-let gamepadIndex = -1;
-
-screen.log('app started')
-window.addEventListener("gamepadconnected", function(e) {
-  screen.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
-    e.gamepad.index, e.gamepad.id,
-    e.gamepad.buttons.length, e.gamepad.axes.length);
-  gamepadIndex = e.gamepad.index
-});
-
-var timer = Rx.Observable.timer(200, 10);
-
-const axis = index => () => navigator.getGamepads()[gamepadIndex].axes[index]
-
-const button = index => () => navigator.getGamepads()[gamepadIndex].buttons[index].pressed
-
-const deadZone = (lower, upper) => x => x < lower ? x : x > upper ? x : 0;
-
-const gamepad = timer.filter(() => gamepadIndex != -1)
-
-const filteredAxis = index => gamepad.map(axis(index)).map(deadZone(-0.1, 0.1)).distinctUntilChanged().throttleTime(10)
-
-const filteredButtons = index => gamepad.map(button(index)).distinctUntilChanged()
-
-filteredButtons(6).subscribe(pressed => {
-  if(pressed)
-  {
-    screen.log("mode: single")
-    mode="single"
+function setPitch(x){
+  if(!disabled) {
+    socket.emit('dive/steer', x)
+    screen.log('dive/steer',x)
   }
-})
-
-filteredButtons(5).subscribe(pressed => {
-  if(pressed)
-  {
-    screen.log("mode: dual")
-    mode="dual"
-  }
-})
-
-filteredButtons(7).subscribe(pressed => {
-  if(pressed)
-  {
-    screen.log("mode: tank")
-    mode="tank"
-  }
-})
-
-filteredButtons(4).subscribe(pressed => {
-  if(pressed)
-  {
-    screen.log("mode: single")
-    mode="single"
-  }
-})
-
-filteredAxis(0).subscribe(axis => {
-  screen.log("axis", 0, axis)
-  if(mode=="tank")
-  {}
-  else if(mode=="dual")
-  {}
-  else {//Single Joystick
-    if(!killed){
-    socket.emit('steering', axis * 90 + 90)
-    }
-  }
-})
-
-filteredAxis(1).subscribe(axis => {
-  screen.log("axis", 1, axis)
-  if(mode=="tank")
-  {
-    leftAxis = axis+1;
-    setTank(leftAxis, rightAxis)
-  }
-  else { //Single Joystick
-    if(!killed){
-      socket.emit('throttle', -axis * 90 + 90)
-    }
-  }
-})
-
-filteredAxis(2).subscribe(axis => {
-  screen.log("axis", 2, axis)
-  if(mode=="tank")
-  {}
-  else if(mode=="dual")
-  {
-    if(!killed){
-      socket.emit('steering', axis * 90 + 90)
-    }
-  }
-  else//Single Joystick
-  {}
-})
-
-filteredAxis(3).subscribe(axis => {
-  screen.log("axis", 3, axis)
-  if(mode=="tank")
-  {
-    rightAxis = axis+1
-    setTank(leftAxis,rightAxis)
-  }
-  else if(mode=="dual")
-  {}
-  else {//Single Joystick
-    if(!killed){
-      socket.emit('dive', axis * 90 + 90)
-    }
-  }
-
-})
+}

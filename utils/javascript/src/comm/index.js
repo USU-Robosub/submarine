@@ -15,6 +15,9 @@ const comm = {
       })
       .catch(reject)
     })
+  },
+  tools: {
+    ...require('./tools')
   }
 }
 

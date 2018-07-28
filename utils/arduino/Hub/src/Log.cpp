@@ -8,7 +8,7 @@ void setEmitterForLogging(Emitter* emitter, int32_t handler){
   logHandler = handler;
 }
 
-void writeToLog(const char* message, int32_t* data, unsigned int length, unsigned int level){
+void writeToLog(const char* message, unsigned int length, int level, int32_t* data){
   if(logEmitter == nullptr) return;
   unsigned int messageLength = 0;
   while(message[messageLength++] != 0){}
@@ -40,4 +40,20 @@ void writeToLog(const char* message, int32_t* data, unsigned int length, unsigne
   // send message
   logEmitter->emit(logHandler, logData, totalLength);
   delete logData;
+}
+
+void GOOD(const char* message, unsigned int length, int32_t* data){
+  writeToLog(message, length, -1, data);
+}
+
+void INFO(const char* message, unsigned int length, int32_t* data){
+  writeToLog(message, length, 0, data);
+}
+
+void WARN(const char* message, unsigned int length, int32_t* data){
+  writeToLog(message, length, 1, data);
+}
+
+void ERROR(const char* message, unsigned int length, int32_t* data){
+  writeToLog(message, length, 2, data);
 }

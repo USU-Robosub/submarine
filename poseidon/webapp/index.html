@@ -12,6 +12,7 @@
     <script src="/rsapp/rx.js"></script>
     <script src="/rsapp/three.js"></script>
     <script src="/rsapp/STLLoader.js"></script>
+    <script src="/rsapp/riot-compiler.min.js"></script>
   </head>
 
   <body>
@@ -24,7 +25,7 @@
           
           -->
           <div class="tile">
-            <div class="tile is-parent is-vertical">
+            <div class="tile is-parent is-vertical is-7">
               <div class="tile is-child" style="flex-grow:0;">
                 <h1 class="title">Submarine Control Terminal</h1>
                 <h2 class="subtitle">Utah State Robosub Team</h3>
@@ -32,7 +33,7 @@
               <div class="tile is-child box is-paddingless consolewrap" style="flex-grow: 1;" id="consolewrap">
                 <i class="fas fa-lock console-scrolllock" onclick="scrolllock=!scrolllock;document.getElementById('consolewrap').classList.toggle('scrolllock')"></i>
                 <i class="fas fa-unlock-alt console-scrolllock" onclick="scrolllock=!scrolllock;document.getElementById('consolewrap').classList.toggle('scrolllock')"></i>
-                <i class="fas fa-arrows-alt console-fullscreen" onclick="document.getElementById('consolewrap').classList.toggle('active')"></i>
+                <i class="fas fa-expand-arrows-alt console-fullscreen" onclick="document.getElementById('consolewrap').classList.toggle('active')"></i>
 <pre  class="is-margninless has-background-dark has-text-white console"  id="console">
 <span class="has-text-warn">Waiting for console...</span>
 </pre>
@@ -43,194 +44,65 @@
               </div>
             </div>
           </div>
-          <!-- 
-          
-          Throttle Row
-          
-          -->
-          <div class="tile">
-            <!-- 
-            
-            Throttle Power
-            
-            -->
-            <div class="tile is-parent">
-              <div class="tile is-child box">
-                <h3 class="title is-3">Throttle</h3>
-                <div class="columns">
-                  <div class="column is-3">
-                    <button class="button is-primary is-large" onclick="upThrottle();">
-                          <span class="icon is-small">
-                          <i class="fas fa-angle-double-up"></i>
-                        </span>
-                        </button><br>
-                    <button class="button is-danger is-large" onclick="stopThrottle();">
-                          <span class="icon is-small">
-                          <i class="fas fa-stop"></i>
-                        </span>
-                        </button><br>
-                    <button class="button is-primary is-large" onclick="downThrottle();">
-                          <span class="icon is-small">
-                          <i class="fas fa-angle-double-down"></i>
-                        </span>
-                        </button>
-                  </div>
-                  <div class="column">
-                    <h4 class="title is-4">Status</h4>
-                    <p id="thruststatus"></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- 
-            
-            Throttle Steer
-            
-            -->
-            <div class="tile is-parent">
-              <div class="tile is-child box">
-                <h3 class="title is-3">Steer</h3>
-                <div>
-                  <div>
-                    <button class="button is-primary is-large" onclick="leftSteer();">
-                            <span class="icon is-small">
-                            <i class="fas fa-angle-double-left"></i>
-                          </span>
-                          </button>
-                    <button class="button is-danger is-large" onclick="stopSteer();">
-                            <span class="icon is-small">
-                            <i class="fas fa-stop"></i>
-                          </span>
-                          </button>
-                    <button class="button is-primary is-large" onclick="rightSteer();">
-                            <span class="icon is-small">
-                            <i class="fas fa-angle-double-right"></i>
-                          </span>
-                          </button>
-                  </div>
-                  <div>
-                    <h4 class="title is-4">Status</h4>
-                    <p id="steerstatus"></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- 
-            
-            Throttle Heading
-            
-            -->
-            <div class="tile is-parent">
-              <div class="tile is-child box">
-                <h3 class="title is-3">Heading</h3>
-                <div>
-                  <div>
-                    <button class="button is-primary is-large" onclick="leftHeading();">
-                            <span class="icon is-small">
-                            <i class="fas fa-angle-double-left"></i>
-                          </span>
-                          </button>
-                    <button class="button is-danger is-large" onclick="stopHeading();">
-                            <span class="icon is-small">
-                            <i class="fas fa-stop"></i>
-                          </span>
-                          </button>
-                    <button class="button is-primary is-large" onclick="rightHeading();">
-                            <span class="icon is-small">
-                            <i class="fas fa-angle-double-right"></i>
-                          </span>
-                          </button>
-                  </div>
-                  <div>
-                    <h4 class="title is-4">Status</h4>
-                    <p id="headingstatus"></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- 
-              
-              DIVE ROW
-              
-              -->
-            <div class="tile">
-              <!-- 
-              
-              DIVE POWER
-              
-              -->
-              <div class="tile is-parent">
-                <div class="tile is-child box">
-                  <h3 class="title is-3">Dive</h3>
-                  <div class="columns">
-                    <div class="column is-3">
-                      <button class="button is-primary is-large" onclick="upDive();">
-                          <span class="icon is-small">
-                          <i class="fas fa-angle-double-up"></i>
-                        </span>
-                        </button><br>
-                      <button class="button is-danger is-large" onclick="stopDive();">
-                          <span class="icon is-small">
-                          <i class="fas fa-stop"></i>
-                        </span>
-                        </button><br>
-                      <button class="button is-primary is-large" onclick="downDive();">
-                          <span class="icon is-small">
-                          <i class="fas fa-angle-double-down"></i>
-                        </span>
-                        </button>
-                    </div>
-                    <div class="column">
-                      <h4 class="title is-4">Status</h4>
-                      <p id="divestatus"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- 
-              
-              DIVE STEER
-              
-              -->
-              <div class="tile is-parent">
-                <div class="tile is-child box">
-                  <h3 class="title is-3">Dive Steer</h3>
-                  <div>
-                    <div>
-                      <button class="button is-primary is-large" onclick="leftDiveSteer();">
-                            <span class="icon is-small">
-                            <i class="fas fa-angle-double-left"></i>
-                          </span>
-                          </button>
-                      <button class="button is-danger is-large" onclick="stopDiveSteer();">
-                            <span class="icon is-small">
-                            <i class="fas fa-stop"></i>
-                          </span>
-                          </button>
-                      <button class="button is-primary is-large" onclick="rightDiveSteer();">
-                            <span class="icon is-small">
-                            <i class="fas fa-angle-double-right"></i>
-                          </span>
-                          </button>
-                    </div>
-                    <div>
-                      <h4 class="title is-4">Status</h4>
-                      <p id="divesteerstatus"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        </div>
+        <controls></controls>
       </div>
     </section>
     <!--<img src="http://192.168.1.101:8082" class="shrinkToFit" width="500">-->
     <!--<img src="http://192.168.1.101:8083" class="shrinkToFit" width="500">-->
     <!--<img src="http://192.168.1.101:8084" class="shrinkToFit" width="500">-->
-    <script src="/rsapp/index.js"></script>
+    <script src="/index.js"></script>
+    <script src="/rsapp/joycontrols.js"></script>
     <script src="/rsapp/OrbitControls.js"></script>
     <script src="/rsapp/submodel.js"></script>
+    <!-- Riot Tags -->
+    <script src="/rsapp/tags/directioncontrol.tag" type="riot/tag"></script>
+    <script src="/rsapp/tags/controls.tag" type="riot/tag"></script>
+    <script>
+    /* global riot, setThrottle, setSteering, setHeading, setDive, setDepth, setDiveTrim, setPitch  */
+      riot.mount('controls', 
+      {
+        controls: [
+          [
+            {
+              title: "Thruster",
+              update: setThrottle,
+            },
+            {
+              title: "Steering",
+              update: setSteering,
+              horizontal: true,
+            },
+            {
+              title: "Heading",
+              update: setHeading,
+              horizontal: true,
+            },
+          ],
+          [
+            {
+              title: "Dive",
+              update: setDive,
+            },
+            // {
+            //   title: "Depth",
+            //   slider: true,
+            //   update: setDepth,
+            // },
+            {
+              title: "Dive Trim",
+              update: setDiveTrim,
+              horizontal: true,
+            },
+            // {
+            //   title: "Pitch",
+            //   update: setPitch,
+            //   horizontal: true,
+            // },
+          ],
+        ]
+      })
+    </script>
   </body>
 
 </html>

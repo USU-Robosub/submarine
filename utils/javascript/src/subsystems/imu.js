@@ -1,61 +1,51 @@
 const { Subsystem } = require('../scheduler')
-const { Observable } = require('rxjs')
-const { map, tap } = require('rxjs/operators')
+const { map, publish, refCount } = require('rxjs/operators')
+const { tools:{ listenToHub } } = require('../comm')
 
 const micro = 1000000
 
-const attachToHubEvent = (hub, event) => Observable.create(observer => {
-  const listener = hub.on(event, (hub, data) => {
-    observer.next(data)
-  })
-  return () => {
-    listener.remove()
-  }
-})
-
-module.exports = (hub, handlerName="imu") => Subsystem()
-  .named('imu')
-  .makeShared()
-  .raw({
-    angularVelocity: () => attachToHubEvent(hub, handlerName + '/data').pipe(
-      map(data => ({
-        x: parseFloat(data[0]) / micro,
-        y: parseFloat(data[1]) / micro,
-        z: parseFloat(data[2]) / micro
-      })),
-      // tap(data => console.log('angularVelocity:', data))
-    ),
-    linearAcceleration: () => attachToHubEvent(hub, handlerName + '/data').pipe(
-      map(data => ({
-        x: parseFloat(data[3]) / micro,
-        y: parseFloat(data[4]) / micro,
-        z: parseFloat(data[5]) / micro
-      }))
-    ),
-    magneticField: () => attachToHubEvent(hub, handlerName + '/data').pipe(
-      map(data => ({
-        // x: parseFloat(data[9]),
-        // y: parseFloat(data[10]),
-        // z: parseFloat(data[11])
-        x: parseFloat(data[9]),
-        y: parseFloat(data[10]),
-        z: parseFloat(data[11])
-      }))
-    ),
-    calibratedMagneticField: () => attachToHubEvent(hub, handlerName + '/data').pipe(
-      map(data => ({
-        // x: parseFloat(data[9]),
-        // y: parseFloat(data[10]),
-        // z: parseFloat(data[11])
-        x: parseFloat(data[6]),
-        y: parseFloat(data[7]),
-        z: parseFloat(data[8])
-      }))
-    ),
-    // pressure: () => attachToHubEvent(hub, handlerName + '/data').pipe(
-    //   map(data => parseFloat(data[9]))
-    // ),
-    // temperature: () => attachToHubEvent(hub, handlerName + '/data').pipe(
-    //   map(data => parseFloat(data[10]))
-    // ),
-  })
+module.exports = (hub, handlerName="imu") => {
+  const imuDataObservable = listenToHub(hub, handlerName + '/data')
+  return Subsystem()
+    .named('imu')
+    .makeShared()
+    .raw({
+      angularVelocity: () => imuDataObservable.pipe(
+        map(data => ({
+          x: parseFloat(data[0]) / micro,
+          y: parseFloat(data[1]) / micro,
+          z: parseFloat(data[2]) / micro
+        })),
+        publish(),
+        refCount()
+      ),
+      linearAcceleration: () => imuDataObservable.pipe(
+        map(data => ({
+          x: parseFloat(data[3]) / micro,
+          y: parseFloat(data[4]) / micro,
+          z: parseFloat(data[5]) / micro
+        })),
+        publish(),
+        refCount()
+      ),
+      magneticField: () => imuDataObservable.pipe(
+        map(data => ({
+          x: parseFloat(data[9]),
+          y: parseFloat(data[10]),
+          z: parseFloat(data[11])
+        })),
+        publish(),
+        refCount()
+      ),
+      // pressure: () => listenToHub(hub, handlerName + '/data').pipe(
+      //   map(data => parseFloat(data[9])),
+        // publish(),
+        // refCount()
+      // ),
+      // temperature: () => listenToHub(hub, handlerName + '/data').pipe(
+      //   map(data => parseFloat(data[10])),
+        // publish(),
+        // refCount()
+      // ),
+    })
+}

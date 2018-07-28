@@ -12,7 +12,9 @@ const createBridge = stream => {
   return {
     receive: () => {
       const messages = []
-      while(stream.hasData()){
+      let count = 0;
+      while(stream.hasData() && count < 100){
+        count++;
         switch(state){
           case MessageStates.CHECK:
             currentMessage.check = stream.poll()

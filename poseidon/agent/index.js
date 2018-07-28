@@ -20,7 +20,7 @@ app.get('/', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/ind
 app.get('/rsapp/socket.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/socketio/socket.io.min.js')))
 app.get('/rsapp/three.js', (req, res) => res.sendFile(path.resolve(__dirname + '/node_modules/three/build/three.min.js')))
 app.get('/rsapp/rx.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/rxjs/rx.min.js')))
-app.get('/rsapp/index.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../webapp/index.js')))
+app.get('/rsapp/riot-compiler.min.js', (req, res) => res.sendFile(path.resolve(__dirname + '/../../extern/riot/riot+compiler.min.js')))
 app.use(express.static(path.resolve(__dirname + '/../webapp')))
 
 init()
@@ -28,6 +28,25 @@ init()
 http.listen(settings.webApp.port,
   () => console.log('Web app listening on port', settings.webApp.port)
 )
+
+function echoToAll(data){
+  io.local.emit('echo/agent', data)
+}
+
+const browser = {
+  good(...data){
+    echoToAll(['-1', ...data])
+  },
+  info(...data){
+    echoToAll(['0', ...data])
+  },
+  warn(...data){
+    echoToAll(['1', ...data])
+  },
+  error(...data){
+    echoToAll(['2', ...data])
+  }
+}
 
 var hasSystemFailed = false;
 function init(){
@@ -57,6 +76,8 @@ function startAgent(hub){
     pose(hub),
     killswitch(hub)
   ])
+  
+  // setInterval(() => browser.log('Commands', scheduler.runningByName()), 2000)
   
   tankObj.defaultCommand(scheduler)
   
@@ -131,8 +152,14 @@ function connectToWebApp(scheduler, hub){
 
   // setup new clients
   io.on('connection', socket => {
+    browser.info('Client Connected')
+    
     hub.on('echo/arduino', (hub, data) => {
       socket.emit('echo/arduino', data)
+    })
+    
+    hub.on('echo/system', (hub, data) => {
+      socket.emit('echo/system', data)
     })
     
     hub.on('imu/data', (hub, data) => {
@@ -146,6 +173,23 @@ function connectToWebApp(scheduler, hub){
 
 function setupWebAppClient(scheduler, socket){
   console.log('A user connected')
+
+  scheduler.run(
+    Command()
+      .named('killswitch monit')
+      .require('killSwitch')
+      .action(system => {
+        return system.killSwitch.status().pipe(
+          map(status => {
+            if(status){
+              socket.emit('killswitch/on')
+            }else{
+              socket.emit('killswitch/off')
+            }
+          })  
+        )
+      })
+  )
 
   scheduler.run(remoteControl.dive(socket)).to.promise().then(() => {
     socket.emit('dive/lost')

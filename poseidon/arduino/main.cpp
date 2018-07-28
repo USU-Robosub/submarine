@@ -105,11 +105,17 @@ void loop() {
     // LOG("Millis, state ", testData, 2, state ? INFO : WARN);
     // LOG("Hello!", nullptr, 0, ERROR);
     
+    // int32_t goodTest[3] = {1, 2, 3};
+    // GOOD("Good test", 3, goodTest);
+    // WARN_ARGS("test", LENGTH(5), 10, 20, 30, 40, 50);
+    // GOOD("test", 0, 1, 2);
+    
     auto sample = magnetometer->measureMagneticField();
     magneticCalibration->addSample({sample.x, sample.y, sample.z});
     
-    if(lastModelMillis + 1000 * 60 < millis()){
-      LOG("Got calibration", nullptr, 0, INFO);
+    if(lastModelMillis + 1000 * 10 < millis()){
+      // INFO("Got calibration", nullptr, 0);
+      INFO("Got calibration");
       lastModelMillis = millis();
       Calibration::Magnetic::Model model = magneticCalibration->generateModel();
       int32_t data[6] = {

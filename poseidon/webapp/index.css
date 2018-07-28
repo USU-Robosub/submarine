@@ -4,6 +4,7 @@
     width: 100%;
     overflow-y: auto;
     overflow-x: auto;
+    border-radius: 7px;
 }
 .consolewrap {
     position: relative;
@@ -25,15 +26,7 @@
     z-index: 3;
     position: absolute;
     top: 10px;
-    right: 30px;
-}
-
-.consolewrap > .console-fullscreen {
-    color: gray;
-    z-index: 3;
-    position: absolute;
-    top: 10px;
-    right: 30px;
+    right: 20px;
 }
 
 .consolewrap.active > .console-fullscreen{
@@ -47,7 +40,7 @@
     z-index: 3;
     position: absolute;
     top: calc(10px + 1.5em);
-    right: 30px;
+    right: 20px;
 }
 
 .consolewrap > .console-scrolllock.fa-unlock-alt {
@@ -67,11 +60,14 @@
     top: calc(4vh + 10px + 1.5em);
     right: calc(4vh + 30px);
 }
+.consolewrap > i {
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
 
 .consolewrap > i:hover {
     color:lightgray;
-    font-size: 1.2em;
-    cursor: pointer;
+    transform: scale(1.2);
 }
 
 .consolewrap.active .console{
@@ -83,4 +79,37 @@
     width: auto !important;
     height: auto !important;
     max-height: 100%;
+}
+
+.log-line {
+    padding-right: 3rem;
+}
+
+directioncontrol button:not(:last-child) {
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.buttons.has-addons.is-vertical {
+    flex-direction: column;
+    display: inline-flex;
+    min-width: 2.25em;
+}
+
+
+.buttons.has-addons.is-vertical .button {
+    margin-bottom: 0;
+    /*width: 100%;*/
+    border-radius: initial;
+    margin: 0;
+}
+
+.buttons.has-addons.is-vertical .button:first-child {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.buttons.has-addons.is-vertical .button:last-child {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
 }
