@@ -60,12 +60,15 @@ const tank = socket => Command()
 
 const readPose = socket => Command()
   .named('remote control read pos')
-  .require('pose')
+  .require('pose','imu')
   .makeCancelable()
   .action(system => {
     return merge(
       system.pose.yaw().pipe(
         tap(angle => socket.emit('pose/yaw', angle))
+      ),
+      system.imu.pressure().pipe(
+        tap(pressure => socket.emit('imu/pressure', pressure))
       ),
       system.pose.yawVelocity().pipe(
         tap(angle => socket.emit('pose/yawVelocity', angle))

@@ -73,8 +73,8 @@
               title: "Thruster",
               update: (amount) => emit('tank/throttle', amount),
               range: {
-                maxRange: 1,
-                minRange: -1,
+                max: 1,
+                min: -1,
                 wrapAround: false
               }
             },
@@ -83,8 +83,8 @@
               update: (amount) => emit('tank/steering', amount),
               horizontal: true,
               range: {
-                maxRange: 1,
-                minRange: -1,
+                max: 1,
+                min: -1,
                 wrapAround: false
               }
             },
@@ -93,8 +93,8 @@
               update: (target) => emit('tank/heading', target),
               horizontal: true,
               range: {
-                maxRange: 3.10,
-                minRange: -3.10,
+                max: 3.10,
+                min: -3.10,
                 wrapAround: true
               }
             },
@@ -104,8 +104,8 @@
               title: "Dive",
               update: (amount) => emit('dive/power', amount),
               range: {
-                maxRange: 1,
-                minRange: -1,
+                max: 1,
+                min: -1,
                 wrapAround: false
               }
             },
@@ -114,10 +114,10 @@
               slider: true,
               update: (target) => emit('dive/depth', target),
               range: {
-                initial: 85784,
-                delta: -1,
-                maxRange: 85884,
-                minRange: 85684,
+                initial: 143270,
+                delta: -10,
+                max: 144000,
+                min: 142000,
                 wrapAround: false
               }
             },
@@ -126,8 +126,8 @@
               update: (amount) => emit('dive/trim', amount),
               horizontal: true,
               range: {
-                maxRange: 1,
-                minRange: -1,
+                max: 1,
+                min: -1,
                 wrapAround: false
               }
             },
@@ -136,8 +136,8 @@
               update: (target) => emit('dive/pitch', target),
               horizontal: true,
               range: {
-                maxRange: 3.10,
-                minRange: -3.10,
+                max: 3.10,
+                min: -3.10,
                 wrapAround: true
               }
             },

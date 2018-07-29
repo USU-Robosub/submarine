@@ -33,6 +33,7 @@ socket.on('tank/lost', () => {
 
 function emit(command, ...message) {
   socket.emit(command, ...message)
+  console.log(...message)
   screen.log(command, ...message)
 }
 

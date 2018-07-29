@@ -37,12 +37,12 @@ module.exports = (hub, handlerName="imu") => {
         publish(),
         refCount()
       ),
-      pressure: () => listenToHub(hub, handlerName + '/data').pipe(
+      pressure: () => imuDataObservable.pipe(
         map(data => parseFloat(data[9])),
         publish(),
         refCount()
       ),
-      temperature: () => listenToHub(hub, handlerName + '/data').pipe(
+      temperature: () => imuDataObservable.pipe(
         map(data => parseFloat(data[10])),
         publish(),
         refCount()

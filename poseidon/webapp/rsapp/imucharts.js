@@ -150,22 +150,15 @@ window.chartColors = {
 			data: {
 				labels: ['0'],
 				datasets: [{
-					label: 'Yaw',
+					label: 'Pressure',
 					backgroundColor: window.chartColors.red,
 					borderColor: window.chartColors.red,
 					data: [
 						//randomScalingFactor(),
 					],
 					fill: false,
-				}, {
-					label: 'Yaw Speed',
-					fill: false,
-					backgroundColor: window.chartColors.blue,
-					borderColor: window.chartColors.blue,
-					data: [
-						//randomScalingFactor(),
-					],
-				}]
+				},
+				]
 			},
 			options: {
 				responsive: true,
@@ -195,7 +188,11 @@ window.chartColors = {
 						display: true,
 						scaleLabel: {
 							display: true,
-							labelString: 'Value'
+							labelString: 'Value',
+						},
+						ticks: {
+							max: 143700,
+							min: 142500,
 						}
 					}]
 				}
@@ -276,19 +273,11 @@ function addData(yaw, yawSpeed){
 		dataset.data.shift()
 	}
     dataset.data.push(yaw);
-	dataset = window.myLine.data.datasets[1]
-	if(dataset.data.length > 80){
-		dataset.data.shift()
-	}
-    dataset.data.push(yawSpeed);
 	window.myLine.update();
 }
 /* global socket */
 let lastYaw = 0;
-socket.on('pose/yaw', (angle) => {
-	lastYaw = angle;
-})
 
-socket.on('pose/yawVelocity', (angle) => {
-	addData(lastYaw, angle)
+socket.on('imu/pressure', (angle) => {
+	addData(angle)
 })

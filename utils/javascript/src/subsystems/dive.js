@@ -26,21 +26,25 @@ module.exports = (hub, handlerName="dive") => {
           hub.emit(handlerName + '/steering', [amount])
         },
         depth: amount => {
-          depthEnable = !!amount
+          console.log("dive/depth", amount)
+          depthEnable = amount!==false
           depthTarget = amount?amount:0
+          console.log("dive/depth", depthEnable, depthTarget)
         },
         pitch: amount => {
-          pitchEnable = !!amount
+          pitchEnable = amount!==false
           pitchTarget = amount?amount:0
         },
-        setDepthPidGains: (p, i, d) => {
+        setDepthPidGains: ([p, i, d]) => {
           depthPidController = pid(p, i, d)
+          console.log("depth/pidGains", p, i, d)
         },
-        setPitchPidGains: (p, i, d) => {
+        setPitchPidGains: ([p, i, d]) => {
           pitchPidController = pid(p, i, d)
         }
       }),
     defaultCommand: scheduler => {
+      console.log("starting dive pid")
       scheduler.build(Command()
         .named('dive depth correction')
         .makeCancelable()
@@ -51,7 +55,10 @@ module.exports = (hub, handlerName="dive") => {
               timeInterval(),
               map(({ value: pressure, interval: deltaTime }) => {
                 if(depthEnable){
-                  hub.emit(handlerName + '/power', depthPidController.correctFor(pressure - depthTarget, deltaTime / 1000.0))
+                  
+                  let power = depthPidController.correctFor(pressure - depthTarget, deltaTime / 1000.0)
+                  console.log("dive/pid/power", power)
+                  hub.emit(handlerName + '/power', power)
                 }
               })
             ),
@@ -65,7 +72,9 @@ module.exports = (hub, handlerName="dive") => {
             )
           )
         })
-      )
+      ).then().run().to.promise().catch((e) => {
+        console.log(e)
+      })
     }
   }
 }

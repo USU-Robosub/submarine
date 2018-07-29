@@ -5,13 +5,11 @@ let rightAxis = 0;
 // const gamepad = navigator.getGamepads()
 
 let gamepadIndex = -1;
-
+/* global socket, Rx, navigator  */
 screen.log('app started')
 window.addEventListener("gamepadconnected", function(e) {
-  screen.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
-    e.gamepad.index, e.gamepad.id,
-    e.gamepad.buttons.length, e.gamepad.axes.length);
-  gamepadIndex = e.gamepad.index
+  screen.log("Gamepad connected at index "+e.gamepad.index+": "+e.gamepad.id+". "+e.gamepad.buttons.length+" buttons, "+e.gamepad.axes.length+" axes.");
+  gamepadIndex = 0
 });
 
 var timer = Rx.Observable.timer(200, 10);
@@ -67,8 +65,9 @@ filteredAxis(0).subscribe(axis => {
   else if(mode=="dual")
   {}
   else {//Single Joystick
-    if(!killed){
-    socket.emit('steering', axis * 90 + 90)
+    if(!false){
+      screen.log("tank/steering", axis)
+    socket.emit('tank/steering', axis)
     }
   }
 })
@@ -78,11 +77,14 @@ filteredAxis(1).subscribe(axis => {
   if(mode=="tank")
   {
     leftAxis = axis+1;
-    setTank(leftAxis, rightAxis)
+    screen.log("tank", leftAxis, rightAxis)
+    socket.emit('tank/left', leftAxis)
+    socket.emit('tank/right', rightAxis)
   }
   else { //Single Joystick
-    if(!killed){
-      socket.emit('throttle', -axis * 90 + 90)
+    if(!false){
+    screen.log("tank/throttle", -axis)
+      socket.emit('tank/throttle', -axis)
     }
   }
 })
@@ -93,8 +95,9 @@ filteredAxis(2).subscribe(axis => {
   {}
   else if(mode=="dual")
   {
-    if(!killed){
-      socket.emit('steering', axis * 90 + 90)
+    if(!false){
+       screen.log("tank/steering", axis)
+      socket.emit('tank/steering', axis)
     }
   }
   else//Single Joystick
@@ -106,13 +109,16 @@ filteredAxis(3).subscribe(axis => {
   if(mode=="tank")
   {
     rightAxis = axis+1
-    setTank(leftAxis,rightAxis)
+    screen.log("tank", leftAxis, rightAxis)
+    socket.emit('tank/left', leftAxis)
+    socket.emit('tank/right', rightAxis)
   }
   else if(mode=="dual")
   {}
   else {//Single Joystick
-    if(!killed){
-      socket.emit('dive', axis * 90 + 90)
+    if(!false){
+      screen.log("dive/power", axis)
+      socket.emit('dive/power', axis)
     }
   }
 

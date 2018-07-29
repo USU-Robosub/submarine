@@ -61,10 +61,10 @@
         this.d = opts.d || 0
 
         setGains() {
-            this.p = this.refs.pGain.value * 1 || 0
-            this.i = this.refs.iGain.value * 1 || 0
-            this.d = this.refs.dGain.value * 1 || 0
-            opts.update(this.p, this.i, this.d)
+            this.p = parseFloat(this.refs.pGain.value || 0)
+            this.i = parseFloat(this.refs.iGain.value || 0)
+            this.d = parseFloat(this.refs.dGain.value || 0)
+            opts.update(parseFloat(this.p), parseFloat(this.i), parseFloat(this.d))
         }
     </script>
 </pidcontrol>
