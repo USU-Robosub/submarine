@@ -1,5 +1,5 @@
 const { Command } = require('./index')
-const { finalize, first, skip, map, concatMap, take, mergeMap, toArray, delay } = require('rxjs/operators')
+const { finalize, first, skip, map, concatMap, take, mergeMap, toArray, delay, takeUntil, ignoreElements } = require('rxjs/operators')
 const { pipe, merge, concat, interval, range, of, Observable, timer, from } = require('rxjs')
 
 
@@ -49,6 +49,25 @@ const concurrent = (...commands) => {
   return command
 }
 
+const mirror = ({ main, worker }) => {
+  return Command()
+    .action((system, scheduler) => {
+      const mainInstance = scheduler.run(main).to.observable()
+      return merge(
+        mainInstance,
+        scheduler.run(worker).to.observable().pipe(
+          takeUntil(
+            concat(
+              mainInstance,
+              of(0) // emit value when main observable completes
+            )
+          ),
+          ignoreElements() // don't emit worker results
+        )
+      )
+    })
+}
+
 const frc = (action, { base=interval(20) }={}) => system => base.pipe(
   parallel(
     pipe(
@@ -87,6 +106,7 @@ const parallel = (...pipes) => source =>
 module.exports = {
   sequential,
   concurrent,
+  mirror,
   frc,
   once,
   delayThen,

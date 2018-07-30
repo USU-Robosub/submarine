@@ -2,8 +2,10 @@ const {
   comm,
   scheduler:{ Scheduler, Command },
   subsystems:{ dive, tank, imu, pose, killswitch },
-  commands:{ remoteControl }
+  commands:{ remoteControl, aiLauncher }
 } = require('./utils')
+
+const { ai } = require('./ai')
 
 const settings = require("./settings")
 
@@ -84,72 +86,22 @@ function startAgent(hub){
     killswitch(hub)
   ])
 
-  // setInterval(() => browser.log('Commands', scheduler.runningByName()), 2000)
-
+  // start subsystem internal commands to maintain state
   tankObj.defaultCommand(scheduler)
   diveObj.defaultCommand(scheduler)
 
-  scheduler.build(
-    Command()
-      .named('ai')
-      .require('killSwitch','dive','tank')
-      .makeCancelable()
-      .action(system => {
-        console.log('AI script ready')
-        const killswitchStatus = system.killSwitch.status()
-        const killSwitchOn = killswitchStatus.pipe(
-          tap(status => console.log('killswitch', status)),
-          filter(status => status == true)
-        )
-        const aiEnable = killSwitchOn.pipe(
-          buffer(killSwitchOn.pipe(
-            debounceTime(2000)
-          )),
-          map(list => list.length),
-          filter(x => x >= 2),
-          map(status => {
-            console.log('Enabled AI')
-            return true
-          })
-        )
-        const aiDisable = killswitchStatus.pipe(
-          filter(status => status == false),
-          tap(() =>
-            console.log('Disable AI'))
-        )
-        const aiControl = merge(aiEnable, aiDisable)
-        // ============== AI SCRIPT ============
-
-        let count = 0;
-        const ai = interval(10).pipe(
-          withLatestFrom(aiControl),
-          map(([index, enabled]) => {
-          if(enabled && count < 1000) {
-            system.dive.power(-0.7)
-            system.tank.throttle(0.5)
-            system.tank.steering(0.3)
-            system.dive.steering(0.1)
-            count++;
-          } else {
-            if(!enabled)
-              count = 0;
-            system.dive.power(0)
-            system.dive.steering(0)
-            system.tank.throttle(0)
-            system.tank.steering(0)
-          }
-          }))
-
-        // ============== AI SCRIPT ============
-        return ai
-      })
-  ).then().run().to.promise().then(() => {}).catch(e => {
-    console.error(e);
+  // allow ai to run
+  scheduler.build(aiLauncher(ai)).then().run().to.promise().catch(e => {
+    console.log(e)
+    browser.error(e);
   })
+  browser.info('Started AI launcher. "Double click" the kill switch to start AI script')
 
+  // allow webapp interactions
   connectToWebApp(scheduler, hub)
 
-  setInterval(hub.poll, settings.system.loopDelay) // start listening to system
+  // start listening to system
+  setInterval(hub.poll, settings.system.loopDelay)
 }
 
 function connectToWebApp(scheduler, hub){

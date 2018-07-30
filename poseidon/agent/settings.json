@@ -8,5 +8,17 @@
   },
   "webApp": {
     "port": 1234
+  },
+  "imu": {
+    "pressure": {
+      "volume_m3": 0.0101065579,
+      "seaLevelPressure_pa": 101352.9,
+      "predictedAirTemperature_k": 299.817,
+      "rConstant": 287.05,
+      "density_kg_m3": 1.177666644,
+      "mass_kg": 0.011902156,
+      "moles": 0.000344805,
+      "tempToPressure": 9.79327247
+    }
   }
 }

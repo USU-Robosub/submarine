@@ -49,7 +49,7 @@ function Command(){
       name: () => name,
     },
     require: (...args) => {
-      requiredSubsystems = mergeIntoOneArray(args)
+      requiredSubsystems = requiredSubsystems.concat(mergeIntoOneArray(args))
       return command
     },
     makeCancelable: () => {
@@ -68,7 +68,14 @@ function Command(){
   return command
 }
 
-function Scheduler(subsystems=[], {  }={}){
+const basicLog = {
+  good: (...args) => console.log('[Good]', ...args),
+  info: (...args) => console.log('[Info]', ...args),
+  warn: (...args) => console.error('[Warn]', ...args),
+  error: (...args) => console.error('[Error]', ...args)
+}
+
+function Scheduler(subsystems=[], { log }={ log:basicLog }){
   subsystems.forEach(assertSubsystem)
   const commands = []
   const instances = []
@@ -102,7 +109,7 @@ function Scheduler(subsystems=[], {  }={}){
       if(result.errors) return result
       const system = createSystemForCommand(command, subsystems)
       const { control, observable } = createControlForObservable(
-        command.internal.createObservable(system, scheduler),
+        command.internal.createObservable(system, scheduler, log),
         {onStart: () => {}, onStop: () => {
           instances.splice(instances.indexOf(instance), 1)
           restartDefaultCommands(instance.locks, scheduler, subsystems, command)
