@@ -44,8 +44,10 @@
         }
 
         change(multiplier) {
-          let delta = range.delta * multiplier;
+          let delta = range.delta * multiplier
           let curPower = this.curPower + delta
+          if(isNaN(curPower))
+            curPower = delta;
           if (curPower > range.max) {
             if( range.wrapAround ) {
               curPower = range.min

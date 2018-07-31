@@ -278,6 +278,6 @@ function addData(yaw, yawSpeed){
 /* global socket */
 let lastYaw = 0;
 
-socket.on('imu/pressure', (angle) => {
-	addData(angle)
-})
+// socket.on('imu/pressure', (angle) => {
+// 	addData(angle)
+// })
