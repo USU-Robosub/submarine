@@ -151,8 +151,18 @@ window.chartColors = {
 				labels: ['0'],
 				datasets: [{
 					label: 'Pressure',
+					yAxisID: 'P',
 					backgroundColor: window.chartColors.red,
 					borderColor: window.chartColors.red,
+					data: [
+						//randomScalingFactor(),
+					],
+					fill: false,
+				},{
+					label: 'Temperature',
+					yAxisID: 'T',
+					backgroundColor: window.chartColors.blue,
+					borderColor: window.chartColors.blue,
 					data: [
 						//randomScalingFactor(),
 					],
@@ -185,15 +195,19 @@ window.chartColors = {
 						}
 					}],
 					yAxes: [{
+						id: 'P',
 						display: true,
 						scaleLabel: {
 							display: true,
-							labelString: 'Value',
+							labelString: 'Pressure',
+						}
+					},{
+						id: 'T',
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Temperature',
 						},
-						// ticks: {
-						// 	max: 143700,
-						// 	min: 142500,
-						// }
 					}]
 				}
 			}
@@ -202,6 +216,16 @@ window.chartColors = {
 		window.onload = function() {
 			var ctx = document.getElementById('chartcanvas').getContext('2d');
 			window.myLine = new Chart(ctx, config);
+
+			socket.on('imu/pressure', (pressure) => {
+				addData(pressure, lastTemp)
+			})
+			
+			
+			socket.on('imu/temperature', (temp) => {
+				lastTemp = temp / 10
+			})
+
 		};
 
 		// document.getElementById('randomizeData').addEventListener('click', function() {
@@ -264,7 +288,7 @@ window.chartColors = {
 		// });
 		
 let count = 0
-function addData(yaw, yawSpeed){
+function addData(pressure, temp){
 	if(window.myLine.data.labels.length <= 80){
 		window.myLine.data.labels.push(count++)
 	}
@@ -272,12 +296,13 @@ function addData(yaw, yawSpeed){
 	if(dataset.data.length > 80){
 		dataset.data.shift()
 	}
-    dataset.data.push(yaw);
+    dataset.data.push(pressure);
+	dataset = window.myLine.data.datasets[1]
+	if(dataset.data.length > 80){
+		dataset.data.shift()
+	}
+    dataset.data.push(temp);
 	window.myLine.update();
 }
 /* global socket */
-let lastYaw = 0;
-
-// socket.on('imu/pressure', (angle) => {
-// 	addData(angle)
-// })
+let lastTemp =20;

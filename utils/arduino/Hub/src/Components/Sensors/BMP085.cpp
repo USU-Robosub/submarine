@@ -161,7 +161,7 @@ void Components::Sensors::BMP085::bmp085Calibration()
 }
 
 // Read 1 byte from the BMP085 at 'address'
-int8_t Components::Sensors::BMP085::bmp085Read(uint8_t address)
+uint8_t Components::Sensors::BMP085::bmp085Read(uint8_t address)
 {
   int8_t data;
   
@@ -179,7 +179,7 @@ int8_t Components::Sensors::BMP085::bmp085Read(uint8_t address)
 // Read 2 bytes from the BMP085
 // First byte will be from 'address'
 // Second byte will be from 'address'+1
-int16_t Components::Sensors::BMP085::bmp085ReadInt(uint8_t address)
+uint16_t Components::Sensors::BMP085::bmp085ReadInt(uint8_t address)
 {
   uint8_t msb, lsb;
   

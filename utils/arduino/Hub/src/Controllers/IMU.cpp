@@ -42,7 +42,6 @@ void Controllers::IMU::update(){
       auto magnet = this->magnetometer->measureMagneticField();
       auto pressure = this->piezometer->measurePressure();
       auto temp = this->thermometer->measureTemperature();
-
       int32_t data[11] = {
         gyro.x, gyro.y, gyro.z,
         accel.x, accel.y, accel.z,

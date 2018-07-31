@@ -24,8 +24,8 @@ private:
   int64_t bmp085ReadUT();
   int64_t bmp085ReadUP();
   void bmp085Calibration();
-  int8_t bmp085Read(unsigned char address);
-  int16_t bmp085ReadInt(unsigned char address);
+  uint8_t bmp085Read(unsigned char address);
+  uint16_t bmp085ReadInt(unsigned char address);
   
   unsigned long lastSampleTime;
   unsigned long minSampleTimeDelta;
