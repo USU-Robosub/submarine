@@ -1,13 +1,14 @@
-const { Subsystem } = require('../scheduler')
-const { map, publish, refCount, tap } = require('rxjs/operators')
+const { Subsystem, Command } = require('../scheduler')
+const { map, publish, refCount, tap, take } = require('rxjs/operators')
+const { zip } = require('rxjs')
 const { tools:{ listenToHub } } = require('../comm')
 
 const micro = 1000000
 
 module.exports = (hub, handlerName="imu") => {
   const imuDataObservable = listenToHub(hub, handlerName + '/data')
-  const basePressure = 0
-  const baseTemp = 0
+  let basePressure = 1
+  let baseTemp = 1
   return {
     subsystem: Subsystem()
       .named('imu')
@@ -51,14 +52,14 @@ module.exports = (hub, handlerName="imu") => {
           refCount()
         ),
         setPressureConfig: (pressureOffset, tempOffset) => {
-          basePressure += pressureOffset
+          basePressure = pressureOffset
           baseTemp = tempOffset
         },
         pressure: () => imuDataObservable.pipe(
           map(data => {
             const raw = parseFloat(data[9])
             const temp = parseFloat(data[10])
-            const corrected = raw - ((basePressure * temp) / baseTemp)
+            const corrected = raw - ((basePressure * ((temp / 10) + 273.15)) / baseTemp)
             return corrected
           }),
           publish(),
@@ -70,16 +71,17 @@ module.exports = (hub, handlerName="imu") => {
       .require('imu')
       .action(system => {
         return zip(
-          system.imu.pressure.pipe(
+          system.imu.rawPressure().pipe(
             take(1)
           ),
-          system.imu.temperature.pipe(
+          system.imu.temperature().pipe(
             take(1)
           )
         ).pipe(
-          map([ pressure, temperature ] => {
-            system.imu.setPressureConfig(pressure, temperature)
+          map(([ pressure, temperature ]) => {
+            system.imu.setPressureConfig(pressure, (temperature / 10) + 273.15)
           })
         )
       })
+  }
 }

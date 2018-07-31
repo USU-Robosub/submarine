@@ -1,5 +1,5 @@
 const { Command } = require('../scheduler')
-const { map } = require('rxjs/operators')
+const { map, filter } = require('rxjs/operators')
 const { Subject, pipe } = require('rxjs')
 const { parallel } = require('../scheduler/tools')
 

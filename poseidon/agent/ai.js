@@ -1,7 +1,6 @@
-const { Command } = require('../scheduler')
+const { scheduler:{ Command,  tools: { parallel, frc, mirror, concurrent, sequential } } } = require('./utils')
 const { map } = require('rxjs/operators')
 const { Subject, pipe } = require('rxjs')
-const { parallel, frc, mirror, concurrent, sequential } = require('../scheduler/tools')
 
 const ai = Command()
   .named('AI')
@@ -10,7 +9,7 @@ const ai = Command()
       worker: Command()
         .named('AI maintain depth')
         .require('dive')
-        .action(system => system.dive.power(-0.5)) // TODO change to pid
+        .action(system => system.dive.power(-0.5)), // TODO change to pid
       main: Command()
         .named('AI go through gate')
         .require('tank')

@@ -77,11 +77,12 @@ function startAgent(hub){
 
   let tankObj = tank(hub);
   let diveObj = dive(hub);
+  let imuObj = imu(hub)
 
   const scheduler = Scheduler([
     diveObj.subsystem,
     tankObj.subsystem,
-    imu(hub),
+    imuObj.subsystem,
     pose(hub),
     killswitch(hub)
   ])
@@ -89,6 +90,8 @@ function startAgent(hub){
   // start subsystem internal commands to maintain state
   tankObj.defaultCommand(scheduler)
   diveObj.defaultCommand(scheduler)
+  // scheduler.build(imuObj.setPressureConfigToCurrent).then().run().to.promise().catch(e => console.log('error', e))
+  scheduler.remember(imuObj.setPressureConfigToCurrent)
 
   // allow ai to run
   scheduler.build(aiLauncher(ai)).then().run().to.promise().catch(e => {
@@ -120,6 +123,10 @@ function connectToWebApp(scheduler, hub){
 
     hub.on('echo/system', (hub, data) => {
       socket.emit('echo/system', data)
+    })
+    
+    socket.on('imu/setPressureZero', () => {
+      scheduler.run('set pressure to current')
     })
 
     hub.on('imu/data', (hub, data) => {
