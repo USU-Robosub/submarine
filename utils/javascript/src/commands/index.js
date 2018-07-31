@@ -1,3 +1,4 @@
 module.exports = {
-  remoteControl: require('./remoteControl')
+  remoteControl: require('./remoteControl'),
+  aiLauncher: require('./aiLauncher')
 }
