@@ -70,6 +70,9 @@ const readPose = socket => Command()
       system.imu.pressure().pipe(
         tap(pressure => socket.emit('imu/pressure', pressure))
       ),
+      system.imu.temperature().pipe(
+        tap(temperature => socket.emit('imu/temperature', temperature))
+      ),
       system.pose.yawVelocity().pipe(
         tap(angle => socket.emit('pose/yawVelocity', angle))
       ),

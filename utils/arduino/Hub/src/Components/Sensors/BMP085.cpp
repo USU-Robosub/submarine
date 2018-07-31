@@ -1,4 +1,5 @@
 #include <Components/Sensors/BMP085.hpp>
+#include <Log.hpp>
 
 #define BMP085_ADDRESS 0x77  // I2C address of BMP085
 
@@ -19,13 +20,17 @@ Pascal Components::Sensors::BMP085::measurePressure(){
 
 Millicelcius Components::Sensors::BMP085::measureTemperature(){
   this->measure();
-  return this->_temp * 100;
+  return this->_temp;
 }
 
 void Components::Sensors::BMP085::measure(){
   unsigned long now = millis();
+  
   if(this->lastSampleTime + this->minSampleTimeDelta < now){
     this->lastSampleTime = now;
+    
+    // this->_temp = this->bmp085ReadUT();
+    // this->_pressure = this->bmp085ReadUP();
     
     this->_temp = this->bmp085GetTemperature(this->bmp085ReadUT());
     this->_pressure = this->bmp085GetPressure(this->bmp085ReadUP());
@@ -34,12 +39,12 @@ void Components::Sensors::BMP085::measure(){
 
 // Calculate temperature given ut.
 // Value returned will be in units of 0.1 deg C
-short Components::Sensors::BMP085::bmp085GetTemperature(unsigned int ut)
+int64_t Components::Sensors::BMP085::bmp085GetTemperature(int64_t ut)
 {
-  long x1, x2;
+  int64_t x1, x2;
   
-  x1 = (((long)ut - (long)ac6)*(long)ac5) >> 15;
-  x2 = ((long)mc << 11)/(x1 + md);
+  x1 = (((int64_t)ut - (int64_t)ac6)*(int64_t)ac5) >> 15;
+  x2 = ((int64_t)mc << 11)/(x1 + md);
   b5 = x1 + x2;
 
   return ((b5 + 8)>>4);  
@@ -49,25 +54,25 @@ short Components::Sensors::BMP085::bmp085GetTemperature(unsigned int ut)
 // calibration values must be known
 // b5 is also required so bmp085GetTemperature(...) must be called first.
 // Value returned will be pressure in units of Pa.
-long Components::Sensors::BMP085::bmp085GetPressure(unsigned long up)
+int64_t Components::Sensors::BMP085::bmp085GetPressure(int64_t up)
 {
-  long x1, x2, x3, b3, b6, p;
-  unsigned long b4, b7;
+  int64_t x1, x2, x3, b3, b6, p;
+  uint64_t b4, b7;
   
   b6 = b5 - 4000;
   // Calculate B3
   x1 = (b2 * (b6 * b6)>>12)>>11;
   x2 = (ac2 * b6)>>11;
   x3 = x1 + x2;
-  b3 = (((((long)ac1)*4 + x3)<<OSS) + 2)>>2;
+  b3 = (((((int64_t)ac1)*4 + x3)<<OSS) + 2)>>2;
   
   // Calculate B4
   x1 = (ac3 * b6)>>13;
   x2 = (b1 * ((b6 * b6)>>12))>>16;
   x3 = ((x1 + x2) + 2)>>2;
-  b4 = (ac4 * (unsigned long)(x3 + 32768))>>15;
+  b4 = (ac4 * (uint64_t)(x3 + 32768))>>15;
   
-  b7 = ((unsigned long)(up - b3) * (50000>>OSS));
+  b7 = ((uint64_t)(up - b3) * (50000>>OSS));
   if (b7 < 0x80000000)
     p = (b7<<1)/b4;
   else
@@ -81,9 +86,9 @@ long Components::Sensors::BMP085::bmp085GetPressure(unsigned long up)
   return p;
 }
 
-unsigned int Components::Sensors::BMP085::bmp085ReadUT()
+int64_t Components::Sensors::BMP085::bmp085ReadUT()
 {
-  unsigned int ut;
+  int64_t ut;
   
   // Write 0x2E into Register 0xF4
   // This requests a temperature reading
@@ -101,10 +106,10 @@ unsigned int Components::Sensors::BMP085::bmp085ReadUT()
 }
 
 // Read the uncompensated pressure value
-unsigned long Components::Sensors::BMP085::bmp085ReadUP()
+int64_t Components::Sensors::BMP085::bmp085ReadUP()
 {
-  unsigned char msb, lsb, xlsb;
-  unsigned long up = 0;
+  uint8_t msb, lsb, xlsb;
+  int64_t up = 0;
   
   // Write 0x34+(OSS<<6) into register 0xF4
   // Request a pressure reading w/ oversampling setting
@@ -129,7 +134,7 @@ unsigned long Components::Sensors::BMP085::bmp085ReadUP()
   lsb = Wire.read();
   xlsb = Wire.read();
   
-  up = (((unsigned long) msb << 16) | ((unsigned long) lsb << 8) | (unsigned long) xlsb) >> (8-OSS);
+  up = (((int64_t) msb << 16) | ((int64_t) lsb << 8) | (int64_t) xlsb) >> (8-OSS);
   
   return up;
 }
@@ -156,9 +161,9 @@ void Components::Sensors::BMP085::bmp085Calibration()
 }
 
 // Read 1 byte from the BMP085 at 'address'
-char Components::Sensors::BMP085::bmp085Read(unsigned char address)
+int8_t Components::Sensors::BMP085::bmp085Read(uint8_t address)
 {
-  unsigned char data;
+  int8_t data;
   
   Wire.beginTransmission(BMP085_ADDRESS);
   Wire.write(address);
@@ -174,9 +179,9 @@ char Components::Sensors::BMP085::bmp085Read(unsigned char address)
 // Read 2 bytes from the BMP085
 // First byte will be from 'address'
 // Second byte will be from 'address'+1
-int Components::Sensors::BMP085::bmp085ReadInt(unsigned char address)
+int16_t Components::Sensors::BMP085::bmp085ReadInt(uint8_t address)
 {
-  unsigned char msb, lsb;
+  uint8_t msb, lsb;
   
   Wire.beginTransmission(BMP085_ADDRESS);
   Wire.write(address);
@@ -188,5 +193,5 @@ int Components::Sensors::BMP085::bmp085ReadInt(unsigned char address)
   msb = Wire.read();
   lsb = Wire.read();
   
-  return (int) msb<<8 | lsb;
+  return (int16_t) msb<<8 | lsb;
 }

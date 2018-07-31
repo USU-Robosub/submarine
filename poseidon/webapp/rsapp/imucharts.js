@@ -190,10 +190,10 @@ window.chartColors = {
 							display: true,
 							labelString: 'Value',
 						},
-						ticks: {
-							max: 143700,
-							min: 142500,
-						}
+						// ticks: {
+						// 	max: 143700,
+						// 	min: 142500,
+						// }
 					}]
 				}
 			}
