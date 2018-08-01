@@ -9,6 +9,8 @@ module.exports = (hub, handlerName="imu") => {
   const imuDataObservable = listenToHub(hub, handlerName + '/data')
   let basePressure = 1
   let baseTemp = 1
+  let lastPressures = []
+  let lastTemp = []
   return {
     subsystem: Subsystem()
       .named('imu')
@@ -58,8 +60,18 @@ module.exports = (hub, handlerName="imu") => {
         pressure: () => imuDataObservable.pipe(
           map(data => {
             const raw = parseFloat(data[9])
+            if(lastPressures.length > 10){
+              lastPressures.shift()
+            }
+            lastPressures.push(raw)
+            const average = lastPressures.reduce((sum, item) => sum + item) / lastPressures.length
             const temp = parseFloat(data[10])
-            const corrected = raw - ((basePressure * ((temp / 10) + 273.15)) / baseTemp)
+            if(lastTemp.length > 10){
+              lastTemp.shift()
+            }
+            lastTemp.push(temp)
+            const averageTemp = lastTemp.reduce((sum, item) => sum + item) / lastTemp.length
+            const corrected = average - ((basePressure * ((averageTemp / 10) + 273.15)) / baseTemp)
             return corrected
           }),
           publish(),

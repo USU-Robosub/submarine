@@ -15,7 +15,9 @@ module.exports = (hub, handlerName="pose") => {
   
   let downNorthObservable = empty()
   
-  let lastYawVelocity = 0;
+  let lastYawVelocity = [];
+  
+  let lastYaw = [];
   
   return Subsystem()
     .named('pose')
@@ -36,7 +38,13 @@ module.exports = (hub, handlerName="pose") => {
       yaw: () => {
         return downNorthObservable.pipe(
           map(([ down, north ]) => {
-            return geometry.findAngleInPlane(down, north, [1, 0, 0])
+            let newYaw = geometry.findAngleInPlane(down, north, [1, 0, 0])
+            if(lastYaw.length > 10){
+              lastYaw.shift()
+            }
+            lastYaw.push(newYaw)
+            const averageYaw = lastYaw.reduce((sum, item) => sum + item) / lastYaw.length
+            return averageYaw
           })
         )
       },
@@ -45,10 +53,15 @@ module.exports = (hub, handlerName="pose") => {
           pairwise(),
           timeInterval(),
           map(({ value: [[ lastDown, lastNorth ], [ down, north ]], interval: deltaTime }) => {
-            const lastYaw = geometry.findAngleInPlane(lastDown, lastNorth, [1, 0, 0])
+            const oldYaw = geometry.findAngleInPlane(lastDown, lastNorth, [1, 0, 0])
             const yaw = geometry.findAngleInPlane(down, north, [1, 0, 0])
-            lastYawVelocity = ((yaw - lastYaw) / (deltaTime * 0.001))*0.4 + lastYawVelocity*0.6
-            return lastYawVelocity
+            let newYawVelocity = ((yaw - oldYaw) / (deltaTime * 0.001))
+            if(lastYawVelocity.length > 10){
+              lastYawVelocity.shift()
+            }
+            lastYawVelocity.push(newYawVelocity)
+            const averageYawVelocity = lastYawVelocity.reduce((sum, item) => sum + item) / lastYawVelocity.length
+            return averageYawVelocity
           }),
         )
       },

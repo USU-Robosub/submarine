@@ -85,7 +85,7 @@ function startAgent(hub){
     imuObj.subsystem,
     pose(hub),
     killswitch(hub)
-  ])
+  ])//, {log: browser})
 
   // start subsystem internal commands to maintain state
   tankObj.defaultCommand(scheduler)
@@ -94,7 +94,7 @@ function startAgent(hub){
   scheduler.remember(imuObj.setPressureConfigToCurrent)
 
   // allow ai to run
-  scheduler.build(aiLauncher(ai)).then().run().to.promise().catch(e => {
+  scheduler.build(aiLauncher(ai, imuObj.setPressureConfigToCurrent)).then().run().to.promise().catch(e => {
     console.log(e)
     browser.error(e);
   })

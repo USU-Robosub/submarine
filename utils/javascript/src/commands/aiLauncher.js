@@ -1,13 +1,13 @@
 const { Command } = require('../scheduler')
 const { map, filter } = require('rxjs/operators')
 const { Subject, pipe } = require('rxjs')
-const { parallel } = require('../scheduler/tools')
+const { parallel, sequential } = require('../scheduler/tools')
 
-const aiLauncher = aiCommand => Command()
+const aiLauncher = (aiCommand, preRunCommand) => Command()
   .named('AI launcher')
   .require('killSwitch')
   .action((system, scheduler, log) => {
-    const activeInstance = null
+    let activeInstance = null
     return system.killSwitch.status().pipe(
       parallel(
         pipe(
@@ -17,8 +17,8 @@ const aiLauncher = aiCommand => Command()
               log.warn('Detected kill switch activation. AI script already running. Taking no action')
               return // return without doing anything
             }
-            log.good('Detected kill switch activation. Starting AI script', instance.errors)
-            activeInstance = scheduler.build(aiCommand)
+            log.good('Detected kill switch activation. Starting AI script')
+            activeInstance = scheduler.build(sequential(preRunCommand, aiCommand))
               .then(() => log.info('AI script ended')) // pre binds the promise for the error handler
               .run()
             if(activeInstance.errors){
@@ -34,7 +34,7 @@ const aiLauncher = aiCommand => Command()
         pipe(
           filter(status => status == false),
           map(() => {
-            if(activeInstance != null){
+            if(activeInstance == null){
               log.warn('Detected kill switch deactivation. AI script not running. Taking no action')
               return // return without doing anything
             }

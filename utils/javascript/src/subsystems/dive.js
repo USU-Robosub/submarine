@@ -57,7 +57,7 @@ module.exports = (hub, handlerName="dive") => {
                 if(depthEnable){
                   
                   let power = depthPidController.correctFor(pressure - depthTarget, deltaTime / 1000.0)
-                  console.log("dive/pid/power", power)
+                  //console.log("dive/pid/power", power)
                   hub.emit(handlerName + '/power', power)
                 }
               })

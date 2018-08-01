@@ -13,12 +13,10 @@ function angleBetween(a, b){
 module.exports = (hub, handlerName="tank") => {
 
   let headingCorrectionEnabled = false
-  const P = 5;
-  const T = 4/0.2;
-  let headingPidController = pid(0.6*P, 2*P/T, P*T/8)
+  let headingPidController = pid(0.3,0.05,0.05)
   let headingTarget = 0
 
-  let headingVelocityPidController = pid(1, 0, 0)
+  let headingVelocityPidController = pid(0.1, 0, 0)
 
   return { subsystem: Subsystem()
     .named('tank')
@@ -41,12 +39,12 @@ module.exports = (hub, handlerName="tank") => {
       setHeadingPidGains: (p, i, d) => {
         headingPidController = pid(p, i, d)
       },
-      setHeadinVelocitygVelocityPidGains: (p, i, d) => {
-        headingPidController = pid(p, i, d)
+      setHeadinVelocitygPidGains: (p, i, d) => {
+        headingVelocityPidController = pid(p, i, d)
       },
       heading: angle => {
-        headingCorrectionEnabled = !!angle
-        headingTarget = angle?angle:0
+        headingCorrectionEnabled = angle!==false
+        headingTarget = angle!==false?angle:0
       },
     }),
     defaultCommand: (scheduler => {
@@ -54,7 +52,7 @@ module.exports = (hub, handlerName="tank") => {
         .named('tank heading correction')
         .makeCancelable()
         .require('pose')
-        .action(system => {
+        .action((system, scheduler, log) => {
           return system.pose.yaw().pipe(
             withLatestFrom(system.pose.yawVelocity()),
             timeInterval(),
@@ -62,8 +60,9 @@ module.exports = (hub, handlerName="tank") => {
               if(headingCorrectionEnabled){
                 let headingCorrection = headingPidController.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0)
 
-                let headingVelocityCorrection = headingPidController.correctFor(angleBetween(angleVelocity, headingCorrection), deltaTime / 1000.0)
-                hub.emit(handlerName + '/steering', headingVelocityCorrection)
+                let headingVelocityCorrection = -headingVelocityPidController.correctFor(angleBetween(headingCorrection, angleVelocity), deltaTime / 1000.0)
+                console.log("Heading Correction", angle*180/Math.PI, angleVelocity*180/Math.PI, headingCorrection*180/Math.PI, headingVelocityCorrection)
+                hub.emit(handlerName + '/steering',[headingVelocityCorrection])
               }
             })
           )

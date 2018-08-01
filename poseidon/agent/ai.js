@@ -1,23 +1,72 @@
 const { scheduler:{ Command,  tools: { parallel, frc, mirror, concurrent, sequential } } } = require('./utils')
-const { map } = require('rxjs/operators')
-const { Subject, pipe } = require('rxjs')
+const { map, delay } = require('rxjs/operators')
+const { timer, Subject, pipe, empty, of } = require('rxjs')
 
-const ai = Command()
-  .named('AI')
-  .action((system, _, log) =>
-    mirror({
-      worker: Command()
-        .named('AI maintain depth')
+// const ai = Command()
+//   .named('AI')
+//   .action((system, _, log) =>
+//     mirror({
+//       worker: Command()
+//         .named('AI maintain depth')
+//         .require('dive')
+//         .action(system => {
+//           system.dive.depth(130)
+//           return empty()
+//         }), // TODO change to pid
+//       main: Command()
+//         .named('AI go through gate')
+//         .require('tank')
+//         .action(system => {
+//           system.tank.heading(0.8) // TODO change to actual heading angle
+//         })
+//     })
+//   )
+  
+const waitSeconds = time => Command()
+  .named('AI wait for time')
+  .action(system => {
+    return timer(time * 1000)
+  })
+  
+const ai = 
+    sequential(
+      Command()
+        .named('AI set depth')
         .require('dive')
-        .action(system => system.dive.power(-0.5)), // TODO change to pid
-      main: Command()
-        .named('AI go through gate')
+        .action(system => {
+          system.dive.depth(130)
+          console.log('Set depth')
+          return empty()
+        }),
+      waitSeconds(1),
+      Command()
+        .named('AI turn to heading')
+        .require('tank')
+        .action(system => {
+          system.tank.heading(0.8)
+          console.log('Set turn')
+          return empty()
+        }),
+      waitSeconds(5),
+      Command()
+        .named('AI go forward')
         .require('tank')
         .action(system => {
           system.tank.throttle(0.5)
-          system.tank.heading(0) // TODO change to actual heading angle
-        })
-    })
+          console.log('Set forward')
+          return empty()
+        }),
+      waitSeconds(20),
+      Command()
+        .named('AI stop')
+        .require('tank', 'dive')
+        .action(system => {
+          system.tank.throttle(0)
+          system.tank.steering(0)
+          system.dive.power(0)
+          console.log('Set off')
+          return empty()
+        }),
   )
 
 module.exports = {

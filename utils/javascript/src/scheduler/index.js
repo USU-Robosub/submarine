@@ -45,7 +45,7 @@ function Command(){
       isCommand: true,
       requiredSubsystems: () => requiredSubsystems,
       cancelable: () => cancelable,
-      createObservable: (system, scheduler) => createObservable(system, scheduler),
+      createObservable: (system, scheduler, log) => createObservable(system, scheduler, log),
       name: () => name,
     },
     require: (...args) => {
