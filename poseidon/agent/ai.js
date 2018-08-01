@@ -1,5 +1,5 @@
 const { scheduler:{ Command,  tools: { parallel, frc, mirror, concurrent, sequential } } } = require('./utils')
-const { map, delay } = require('rxjs/operators')
+const { map, delay, take, tap } = require('rxjs/operators')
 const { timer, Subject, pipe, empty, of } = require('rxjs')
 
 // const ai = Command()
@@ -137,8 +137,19 @@ const testAi = sequential(
     }),
 )
 
+let targetYaw = 0
 
 const gateAi = sequential(
+  Command()
+    .require('pose')
+    .action(system => {
+      return system.pose.yaw().pipe(
+        take(1),
+        tap(angle => {
+          targetYaw = angle
+        })
+      )
+    }),
   Command()
     .require('power')
     .action(system => {
@@ -157,8 +168,9 @@ const gateAi = sequential(
   Command()
     .require('dive','tank')
     .action((system) => {
-      system.dive.depth(100)
-      system.tank.heading(-1.5)
+      system.dive.depth(200)
+      console.log('target', targetYaw)
+      system.tank.heading(targetYaw) // -1.5
       return empty()
     }),
   waitSeconds(2),
@@ -168,7 +180,7 @@ const gateAi = sequential(
       system.tank.throttle(0.3)
       return empty()
     }),
-  waitSeconds(15),
+  waitSeconds(45),
   Command()
     .require('dive','tank')
     .action(system => {
@@ -179,8 +191,52 @@ const gateAi = sequential(
     }),
 )
 
+const yawAi = sequential(
+  Command()
+    .require('power')
+    .action(system => {
+      system.power.enable()
+      return empty()
+    }),
+  waitSeconds(2),
+  Command()
+    .require('dive')
+    .action((system, scheduler) => {
+      scheduler.run('set pressure to current')
+      system.dive.power(-0.1)
+      return empty()
+    }),
+  Command()
+    .require('pose')
+    .action(system => {
+      return system.pose.yaw().pipe(
+        take(1),
+        tap(angle => {
+          targetYaw = -angle
+        })
+      )
+    }),
+  waitSeconds(2),
+  Command()
+    .require('dive','tank')
+    .action((system) => {
+      system.dive.depth(70)
+      console.log('target', targetYaw)
+      system.tank.heading(targetYaw) // -1.5
+      return empty()
+    }),
+  waitSeconds(45),
+  Command()
+    .require('dive','tank')
+    .action(system => {
+      system.dive.power(0)
+      system.tank.steering(0)
+      system.tank.throttle(0)
+      return empty()
+    }),
+)
 module.exports = {
-  ai: gateAi
+  ai: yawAi
 }
 
 /*

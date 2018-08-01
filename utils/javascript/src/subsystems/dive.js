@@ -3,6 +3,14 @@ const { merge } = require('rxjs')
 const { map, timeInterval } = require('rxjs/operators')
 const pid = require('../PID/pid')
 
+function absMod(x, n){
+  return x - Math.floor(x/n) * n
+}
+
+function angleBetween(a, b){
+  return absMod((a - b) + Math.PI, Math.PI * 2) - Math.PI
+}
+
 module.exports = (hub, handlerName="dive") => {
 
   let depthEnable = false
@@ -10,7 +18,7 @@ module.exports = (hub, handlerName="dive") => {
   let depthTarget = 0
 
   let pitchEnable = false
-  let pitchPidController = pid(1, 0, 0)
+  let pitchPidController = pid(0.5, 0, 0)
   let pitchTarget = 0
 
   return {
@@ -41,6 +49,7 @@ module.exports = (hub, handlerName="dive") => {
         },
         setPitchPidGains: ([p, i, d]) => {
           pitchPidController = pid(p, i, d)
+          console.log("pitch/pidGains", p, i, d)
         }
       }),
     defaultCommand: scheduler => {
@@ -67,7 +76,9 @@ module.exports = (hub, handlerName="dive") => {
               timeInterval(),
               map(({ value: pitch, interval: deltaTime }) => {
                 if(pitchEnable){
-                  hub.emit(handlerName + '/trim', pitchPidController.correctFor(pitch - pitchTarget, deltaTime / 1000.0))
+                  let power =  pitchPidController.correctFor(angleBetween(pitch, pitchTarget), deltaTime / 1000.0)
+                  console.log("Pitch PID", pitch, pitchTarget, angleBetween(pitch,pitchTarget), power)
+                  hub.emit(handlerName + '/steering',power)
                 }
               })
             )
