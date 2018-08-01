@@ -57,8 +57,9 @@ module.exports = (hub, handlerName="dive") => {
                 if(depthEnable){
                   
                   let power = depthPidController.correctFor(pressure - depthTarget, deltaTime / 1000.0)
+                  let offsetPower = power - 0.1172413 // TODO this is for the submarine right now (makes it always push down to hold depth)
                   //console.log("dive/pid/power", power)
-                  hub.emit(handlerName + '/power', power)
+                  hub.emit(handlerName + '/power', offsetPower)
                 }
               })
             ),

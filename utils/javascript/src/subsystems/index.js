@@ -3,5 +3,6 @@ module.exports = {
   tank: require('./tank'),
   imu: require('./imu'),
   pose: require('./pose'),
-  killswitch: require('./killswitch')
+  killswitch: require('./killswitch'),
+  power: require('./power')
 }

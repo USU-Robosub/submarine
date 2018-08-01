@@ -21,6 +21,10 @@
 #define TANK_PORT_NUM 3
 #define TANK_PORT_NAME "tank"
 
+// power Subsystem
+#define POWER_PORT_NUM 5
+#define POWER_PORT_NAME "power"
+
 // global
 #define LOOP_DELAY 1
 

@@ -1,7 +1,7 @@
 const {
   comm,
   scheduler:{ Scheduler, Command },
-  subsystems:{ dive, tank, imu, pose, killswitch },
+  subsystems:{ dive, tank, imu, power, pose, killswitch },
   commands:{ remoteControl, aiLauncher }
 } = require('./utils')
 
@@ -84,6 +84,7 @@ function startAgent(hub){
     tankObj.subsystem,
     imuObj.subsystem,
     pose(hub),
+    power(hub),
     killswitch(hub)
   ])//, {log: browser})
 
@@ -171,6 +172,11 @@ function setupWebAppClient(scheduler, socket){
   scheduler.run(remoteControl.readPose(socket)).to.promise().then(() => {
     socket.emit('pose/lost')
     console.log('Pose remote control stopped for user')
+  })
+
+  scheduler.run(remoteControl.power(socket)).to.promise().then(() => {
+    socket.emit('power/lost')
+    console.log('Power remote control stopped for user')
   })
 
   socket.on('disconnect', function(){

@@ -16,6 +16,7 @@
 #include <Controllers/Dive.hpp>
 #include <Controllers/Tank.hpp>
 #include <Controllers/IMU.hpp>
+#include <Controllers/Power.hpp>
 #include <tools.hpp>
 #include <Log.hpp>
 
@@ -63,6 +64,8 @@ void createControllers(){
   controllers[HUB_TANK_PORT] = new Controllers::Tank(thrusters.left, thrusters.right);
 
   controllers[HUB_IMU_PORT] = new Controllers::IMU(IMU_SMAPLE_RATE, IMU_HANDLER, magnetometer, gyroAndAccel, gyroAndAccel, pressureAndTemp, pressureAndTemp);
+
+  controllers[HUB_POWER_PORT] = new Controllers::Power(KILL_SWITCH_CONTROL_PIN);
 }
 
 void setupControllers(){
@@ -85,6 +88,9 @@ void setup()
   setupControllers();
 
   pinMode(13, OUTPUT);
+  
+  pinMode(KILL_SWITCH_CONTROL_PIN, OUTPUT);
+  digitalWrite(KILL_SWITCH_CONTROL_PIN, HIGH);
   
   magneticCalibration = new Calibration::Magnetic();
 }
@@ -118,8 +124,7 @@ void loop() {
     magneticCalibration->addSample({sample.x, sample.y, sample.z});
     
     if(lastModelMillis + 1000 * 10 < millis()){
-      // INFO("Got calibration", nullptr, 0);
-      INFO("Got calibration");
+      INFO("BEEP");
       lastModelMillis = millis();
       Calibration::Magnetic::Model model = magneticCalibration->generateModel();
       int32_t data[6] = {

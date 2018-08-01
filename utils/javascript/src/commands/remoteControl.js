@@ -58,6 +58,22 @@ const tank = socket => Command()
     )
   ))
 
+const power = socket => Command()
+  .named('remote control power')
+  .require('power')
+  .makeCancelable()
+  .action(system => merge(
+    fromEvent(socket, 'power/status').pipe(
+      map(enabled => system.power.status(enabled == 1))
+    ),
+    fromEvent(socket, 'power/enable').pipe(
+      map(() => system.power.enable())
+    ),
+    fromEvent(socket, 'power/disable').pipe(
+      map(() => system.power.disable())
+    ),
+  ))
+  
 const readPose = socket => Command()
   .named('remote control read pos')
   .require('pose','imu')
@@ -106,5 +122,6 @@ const readPose = socket => Command()
 module.exports = {
   dive,
   tank,
-  readPose
+  readPose,
+  power
 }

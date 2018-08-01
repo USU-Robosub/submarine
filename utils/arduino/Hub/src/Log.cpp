@@ -57,3 +57,7 @@ void WARN(const char* message, unsigned int length, int32_t* data){
 void ERROR(const char* message, unsigned int length, int32_t* data){
   writeToLog(message, length, 2, data);
 }
+
+void VERBOSE(const char* message, unsigned int length, int32_t* data){
+  writeToLog(message, length, 3, data);
+}

@@ -41,53 +41,60 @@ let scrolllock = false;
 let lines = 0;
 function logConsole(source, message) {
   let level = message.shift();
-  let icon, color;
-  switch(level) {
-    case "-1":
-      icon = 'fa-check-circle ';
-      color = 'success';
-      break;
-    case "1":
-      icon = 'fa-exclamation-triangle';
-      color = 'warning';
-      break;
-    case "2":
-      icon = 'fa-times-circle';
-      color = 'danger';
-      break;
-    default:
-      icon = 'fa-info';
-      color = 'info';
-      break;
-  }
-  let time  = new Date();
-  let timeString = time.toLocaleTimeString();
-
-  let newline =  "<span class='log-line'><span class='icon is-small has-text-"+color+"' title='"+timeString+"'><i class='fas "+icon+"'></i></span><span class='source has-text-"+color+"'>["+source+"]</span><span class='log-content'> "+message.join(" ")+"</span></span>\r\n";
-  let terminal = document.getElementById("console").innerHTML
-  if(lines == 0) {
-     terminal = "";
-  }
-  if(lines>1000) {
-    terminal = terminal.substring(terminal.indexOf("\n") + 1)
-    if(scrolllock) {
-      let scrollHeight = document.getElementById("console").getElementsByTagName("span")[0].offsetHeight;
-      let newScroll = document.getElementById("console").scrollTop - scrollHeight;
-      if(newScroll < 0)
-        newScroll = 0;
-      document.getElementById("console").scrollTop = newScroll;
+  if(level <= 2) {
+    let icon, color;
+    switch(level) {
+      case "-1":
+        icon = 'fa-check-circle ';
+        color = 'success';
+        break;
+      case "0":
+        icon = 'fa-info';
+        color = 'info';
+        break;
+      case "1":
+        icon = 'fa-exclamation-triangle';
+        color = 'warning';
+        break;
+      case "2":
+        icon = 'fa-times-circle';
+        color = 'danger';
+        break;
+      default:
+        icon = 'fa-info';
+        color = 'info';
+        break;
     }
-    document.getElementById("console").innerHTML = terminal;
+    let time  = new Date();
+    let timeString = time.toLocaleTimeString();
+  
+    let newline =  "<span class='log-line'><span class='icon is-small has-text-"+color+"' title='"+timeString+"'><i class='fas "+icon+"'></i></span><span class='source has-text-"+color+"'>["+source+"]</span><span class='log-content'> "+message.join(" ")+"</span></span>\r\n";
+    let terminal = document.getElementById("console")
+    if(lines == 0) {
+       while (terminal.hasChildNodes()) {
+            terminal.removeChild(terminal.lastChild);
+        }
+    }
+    if(lines>1000) {
+      terminal.removeChild(terminal.getElementsByTagName("span")[0]);
+      if(scrolllock) {
+        let scrollHeight = terminal.getElementsByTagName("span")[0].offsetHeight;
+        let newScroll = terminal.scrollTop - scrollHeight;
+        if(newScroll < 0)
+          newScroll = 0;
+        terminal.scrollTop = newScroll;
+      }
+      terminal.insertAdjacentHTML('beforeend', newline);
+    }
+    else
+    {
+      lines++;
+    }
+    terminal.innerHTML+=newline;
+    if(!scrolllock)
+      terminal.scrollTop = terminal.scrollHeight;
   }
-  else
-  {
-    lines++;
-  }
-  document.getElementById("console").innerHTML+=newline;
-  if(!scrolllock)
-    document.getElementById("console").scrollTop = document.getElementById("console").scrollHeight;
-
-  console.log("%c["+source+"] "+message.join(" "), "color: "+(level=="0"?'darkgreen':level=="1"?'#a79100':'darkred'));
+  console.log("%c["+source+"] "+message.join(" "), "color: "+(level=="0"?'darkgreen':level=="1"?'#a79100':(level=="2"?'darkred':'darkblue')));
 }
 
 
@@ -104,6 +111,9 @@ let screen = {
   },
   error : (...args) => {
     logConsole("Local",["2",args.join(" ")]);
+  },
+  verbose : (...args) => {
+    logConsole("Local",["3",args.join(" ")]);
   },
 }
 
@@ -125,7 +135,7 @@ socket.on('pose/all', ([ yaw, pitch, roll ]) => {
 })
 
 socket.on('pose/yaw', (angle) => {
-  console.log('angle', angle * (180 / Math.PI))
+  //console.log('angle', angle * (180 / Math.PI))
   // setYawDirection(Math.cos(angle), 0, Math.sin(angle))
 })
 

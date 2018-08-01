@@ -40,4 +40,12 @@ void ERROR(const char* message, Ts... data){
   writeToLog(message, sizeof...(data), 2, dataArray);
 }
 
+void VERBOSE(const char* message, unsigned int length, int32_t* data);
+
+template <typename... Ts>
+void VERBOSE(const char* message, Ts... data){
+  int32_t dataArray[] = { data... };
+  writeToLog(message, sizeof...(data), 3, dataArray);
+}
+
 #endif

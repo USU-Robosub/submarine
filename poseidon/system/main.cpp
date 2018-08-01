@@ -7,6 +7,7 @@
 #include <Comm/tools.hpp>
 #include <Subsystem/Dive.hpp>
 #include <Subsystem/Tank.hpp>
+#include <Subsystem/Power.hpp>
 #include <Comm/tools.hpp>
 #include <Log.hpp>
 #include <sstream>
@@ -29,6 +30,7 @@ Comm::TCP::FullStack* agent;
 // subsystems
 Subsystem::Dive* dive;
 Subsystem::Tank* tank;
+Subsystem::Power* power;
 
 Vision::Livestream* vision3;
 
@@ -138,6 +140,7 @@ void createSubsystems(){
 
   dive = new Subsystem::Dive(arduino->hub(), DIVE_PORT_NUM, agent->hub(), DIVE_PORT_NAME);
   tank = new Subsystem::Tank(arduino->hub(), TANK_PORT_NUM, agent->hub(), TANK_PORT_NAME);
+  power = new Subsystem::Power(arduino->hub(), POWER_PORT_NUM, agent->hub(), POWER_PORT_NAME);
   std::cout << "Created subsystems" << std::endl;
 }
 

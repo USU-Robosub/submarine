@@ -68,9 +68,77 @@ const ai =
           return empty()
         }),
   )
+  
+const waitCount = 2
+  
+const testAi = sequential(
+  Command()
+    .require('power')
+    .action(system => {
+      system.power.enable()
+      return empty()
+    }),
+  waitSeconds(2),
+  Command()
+    .require('dive')
+    .action(system => {
+      system.dive.power(0.01)
+      return empty()
+    }),
+  waitSeconds(waitCount),
+  Command()
+    .require('dive')
+    .action(system => {
+      system.dive.power(0)
+      return empty()
+    }),
+  waitSeconds(waitCount),
+  Command()
+    .require('dive')
+    .action(system => {
+      system.dive.power(-0.01)
+      return empty()
+    }),
+  waitSeconds(waitCount),
+  Command()
+    .require('dive')
+    .action(system => {
+      system.dive.power(0)
+      return empty()
+    }),
+  waitSeconds(waitCount),
+  Command()
+    .require('tank')
+    .action(system => {
+      system.tank.throttle(0.01)
+      return empty()
+    }),
+  waitSeconds(waitCount),
+  Command()
+    .require('tank')
+    .action(system => {
+      system.tank.throttle(0)
+      return empty()
+    }),
+  waitSeconds(waitCount),
+  Command()
+    .require('tank')
+    .action(system => {
+      system.tank.throttle(-0.01)
+      return empty()
+    }),
+  waitSeconds(waitCount),
+  Command()
+    .require('tank', 'power')
+    .action(system => {
+      system.tank.throttle(0)
+      system.power.disable()
+      return empty()
+    }),
+)
 
 module.exports = {
-  ai
+  ai: testAi
 }
 
 /*
