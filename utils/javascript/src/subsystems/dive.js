@@ -6,7 +6,7 @@ const pid = require('../PID/pid')
 module.exports = (hub, handlerName="dive") => {
 
   let depthEnable = false
-  let depthPidController = pid(1, 0, 0)
+  let depthPidController = pid(0.002, 0.001, 0.0011)
   let depthTarget = 0
 
   let pitchEnable = false

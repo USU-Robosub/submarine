@@ -61,7 +61,6 @@ module.exports = (hub, handlerName="tank") => {
                 let headingCorrection = headingPidController.correctFor(angleBetween(angle, headingTarget), deltaTime / 1000.0)
 
                 let headingVelocityCorrection = -headingVelocityPidController.correctFor(angleBetween(headingCorrection, angleVelocity), deltaTime / 1000.0)
-                console.log("Heading Correction", angle*180/Math.PI, angleVelocity*180/Math.PI, headingCorrection*180/Math.PI, headingVelocityCorrection)
                 hub.emit(handlerName + '/steering',[headingVelocityCorrection])
               }
             })

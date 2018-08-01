@@ -137,8 +137,50 @@ const testAi = sequential(
     }),
 )
 
+
+const gateAi = sequential(
+  Command()
+    .require('power')
+    .action(system => {
+      system.power.enable()
+      return empty()
+    }),
+  waitSeconds(2),
+  Command()
+    .require('dive')
+    .action((system, scheduler) => {
+      scheduler.run('set pressure to current')
+      system.dive.power(-0.1)
+      return empty()
+    }),
+  waitSeconds(2),
+  Command()
+    .require('dive','tank')
+    .action((system) => {
+      system.dive.depth(100)
+      system.tank.heading(-1.5)
+      return empty()
+    }),
+  waitSeconds(2),
+  Command()
+    .require('tank')
+    .action((system) => {
+      system.tank.throttle(0.3)
+      return empty()
+    }),
+  waitSeconds(15),
+  Command()
+    .require('dive','tank')
+    .action(system => {
+      system.dive.power(0)
+      system.tank.steering(0)
+      system.tank.throttle(0)
+      return empty()
+    }),
+)
+
 module.exports = {
-  ai: testAi
+  ai: gateAi
 }
 
 /*
