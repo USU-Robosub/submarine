@@ -77,7 +77,7 @@ module.exports = (hub, handlerName="dive") => {
               map(({ value: pitch, interval: deltaTime }) => {
                 if(pitchEnable){
                   let power =  pitchPidController.correctFor(angleBetween(pitch, pitchTarget), deltaTime / 1000.0)
-                  console.log("Pitch PID", pitch, pitchTarget, angleBetween(pitch,pitchTarget), power)
+                  //console.log("Pitch PID", pitch, pitchTarget, angleBetween(pitch,pitchTarget), power)
                   hub.emit(handlerName + '/steering',power)
                 }
               })
