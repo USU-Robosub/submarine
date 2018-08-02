@@ -6,6 +6,8 @@ Hub::Hub(Controller** controllers, int numControllers, int maxReadsPerPoll)
 , state(MessageState::CHECK)
 , currentMessage()
 , dataLeft(0)
+, messageStart(0)
+, trashCount(0)
 , maxReadsPerPoll(maxReadsPerPoll)
 {
   Serial.begin(115200);//115200
@@ -20,14 +22,30 @@ void Hub::serveEvent(){
 void Hub::poll()
 {
   int count = 0;
+  if(this->state != MessageState::CHECK && this->messageStart < (millis() - 500)) {
+    this->state = MessageState::CHECK;
+  }
   while(Serial && Serial.available() >= 4 && count < this->maxReadsPerPoll){
     ++count;
     switch(this->state){
       case MessageState::CHECK:
         this->currentMessage.check = this->readInt();
-        if(this->currentMessage.check == 0){
+        if((this->currentMessage.check & 0xFF) == 0xA5) {
           this->state = MessageState::NAME;
+        } else if(((this->currentMessage.check >> 8) & 0xFF) == 0xA5) {
+          this->state = MessageState::NAME;
+          this->trashCount = 1;
+        } else if(((this->currentMessage.check >> 16) & 0xFF) == 0xA5) {
+          this->state = MessageState::NAME;
+          this->trashCount = 2;
+        } else if(((this->currentMessage.check >> 24) & 0xFF) == 0xA5) {
+          this->state = MessageState::NAME;
+          this->trashCount = 3;
         }
+        break;
+      case MessageState::ALIGN:
+        this->trash();
+        this->state = MessageState::NAME;
         break;
       case MessageState::NAME:
         this->currentMessage.name = this->readInt();
@@ -60,9 +78,6 @@ void Hub::poll()
         }
         break;
       }
-      case MessageState::ALIGNING:
-        //Not sure what should be done here but it is complaining that it is not implemented
-        break;
     }
   }
 }
@@ -93,6 +108,13 @@ void Hub::writeInt(int32_t value)
 
 int32_t Hub::read(){
   return Serial.read();
+}
+
+void Hub::trash() {
+  for(int i=0;i<trashCount;i++){
+    this->read();
+  }
+  trashCount = 0;
 }
 
 void Hub::freeze(){

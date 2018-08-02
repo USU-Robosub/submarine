@@ -8,7 +8,7 @@ Comm::Serial::Bridge::Bridge(Comm::Stream<int>* stream, unsigned int maxReads)
     maxReads(maxReads){ }
 
 void Comm::Serial::Bridge::send(std::vector<int> data){
-  this->stream->push(0);
+  this->stream->push(0xA5);
   this->stream->push(data.back());
   this->stream->push(data.size() - 1);
   for(unsigned int i = 0; i < data.size() - 1; ++i){

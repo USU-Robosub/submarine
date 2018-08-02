@@ -9,7 +9,7 @@
 #include <Arduino.h>
 
 enum class MessageState {
-  CHECK, NAME, LENGTH, DATA, ALIGNING
+  CHECK, ALIGN, NAME, LENGTH, DATA
 };
 
 struct Message {
@@ -30,12 +30,15 @@ class Hub : public Emitter, public Freezable {
     void serveEvent();
     int32_t read();
     int32_t readInt();
+    void trash();
     void writeInt(int32_t value);
     Controller** _controllers;
     int _numControllers;
     MessageState state;
     Message currentMessage;
     int32_t dataLeft;
+    unsigned long messageStart;
+    uint32_t trashCount;
     int maxReadsPerPoll;
 };
 
