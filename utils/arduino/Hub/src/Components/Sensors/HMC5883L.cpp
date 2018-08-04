@@ -12,8 +12,8 @@ Components::Sensors::HMC5883L::HMC5883L(unsigned long minSampleTimeDelta)
     z(0){
   //Put the HMC5883 IC into the correct operating mode
   Wire.beginTransmission(CHIP_ADDRESS); //open communication with HMC5883
-  Wire.send(0x02); //select mode register
-  Wire.send(0x00); //continuous measurement mode
+  Wire.write(0x02); //select mode register
+  Wire.write(0x00); //continuous measurement mode
   Wire.endTransmission();
 }
 
@@ -29,7 +29,7 @@ void Components::Sensors::HMC5883L::measure(){
 
     //Tell the HMC5883L where to begin reading data
     Wire.beginTransmission(CHIP_ADDRESS);
-    Wire.send(0x03); //select register 3, X MSB register
+    Wire.write(0x03); //select register 3, X MSB register
     Wire.endTransmission();
 
    //Read data from each axis, 2 registers per axis
@@ -38,12 +38,12 @@ void Components::Sensors::HMC5883L::measure(){
       int16_t tmpX = 0;
       int16_t tmpY = 0;
       int16_t tmpZ = 0;
-      tmpX = Wire.receive()<<8; //X msb
-      tmpX |= Wire.receive(); //X lsb
-      tmpZ = Wire.receive()<<8; //Z msb
-      tmpZ |= Wire.receive(); //Z lsb
-      tmpY = Wire.receive()<<8; //Y msb
-      tmpY |= Wire.receive(); //Y lsb
+      tmpX = Wire.read()<<8; //X msb
+      tmpX |= Wire.read(); //X lsb
+      tmpZ = Wire.read()<<8; //Z msb
+      tmpZ |= Wire.read(); //Z lsb
+      tmpY = Wire.read()<<8; //Y msb
+      tmpY |= Wire.read(); //Y lsb
       this->x = tmpX;
       this->y = tmpY;
       this->z = tmpZ;

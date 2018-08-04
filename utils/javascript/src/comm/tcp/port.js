@@ -7,6 +7,8 @@ const createClientPort = (address, port) => {
     let wasConnected = false;
     client.on('error', error => {
       reject(error)
+      //console.log('Failed to connect to port, Low level reconnecting...')
+      //client.connect(port, address)
     })
     client.on('connect', () => {
       wasConnected = true
@@ -18,8 +20,11 @@ const createClientPort = (address, port) => {
     })
     client.on('close', (...args) => {
       if(wasConnected){
-        console.log('Port closed. To stop undefined behavior app will now force close.')
-        process.kill(process.pid, "SIGINT") // send kill signal to process
+        //console.log('Port closed. To stop undefined behavior app will now force close.')
+        //process.kill(process.pid, "SIGINT") // send kill signal to process
+
+        //console.log('Port closed. Low level reconnecting...')
+        client.connect(port, address)
       }
     })
     client.on('data', data => {

@@ -44,6 +44,7 @@ module.exports = (hub, handlerName="pose") => {
             }
             lastYaw.push(newYaw)
             const averageYaw = lastYaw.reduce((sum, item) => sum + item) / lastYaw.length
+            console.log('Heading', averageYaw)
             return averageYaw
           })
         )

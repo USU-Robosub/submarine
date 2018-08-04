@@ -3,7 +3,7 @@
 
 // arduino
 #define ARDUINO_BAUD B115200
-#define ARDUINO_PORT "1.2"
+#define ARDUINO_PORT "1.5"
 #define ARDUINO_PORT_EMULATED "/tmp/virtualcom1"
 
 // agent

@@ -5,7 +5,7 @@
 
 void setEmitterForLogging(Emitter* emitter, int32_t handler);
 
-void writeToLog(const char* message, unsigned int length, int level, int32_t* data);
+void writeToLog(const char* message, uint32_t length, int32_t level, int32_t* data);
 
 
 void GOOD(const char* message, unsigned int length, int32_t* data);

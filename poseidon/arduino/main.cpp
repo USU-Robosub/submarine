@@ -87,10 +87,12 @@ void setup()
   connectToSerial();
   setupControllers();
 
-  pinMode(13, OUTPUT);
+  pinMode(8 /*13*/, OUTPUT);
   
   pinMode(KILL_SWITCH_CONTROL_PIN, OUTPUT);
   digitalWrite(KILL_SWITCH_CONTROL_PIN, HIGH);
+
+  INFO("Hello World", 0, 1, 2, 3, 4);
   
   magneticCalibration = new Calibration::Magnetic();
 }
@@ -136,7 +138,7 @@ void loop() {
     }
     lastMillis = millis();
     state = !state;
-    digitalWrite(13, state);
+    digitalWrite(8/*13*/, state);
   }
   
   static_cast<Controllers::IMU*>(controllers[HUB_IMU_PORT])->update();

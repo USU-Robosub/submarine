@@ -33,15 +33,16 @@ void Hub::poll()
         if((this->currentMessage.check & 0xFF) == 0xA5) {
           this->state = MessageState::NAME;
         } else if(((this->currentMessage.check >> 8) & 0xFF) == 0xA5) {
-          this->state = MessageState::NAME;
+          this->state = MessageState::ALIGN;
           this->trashCount = 1;
         } else if(((this->currentMessage.check >> 16) & 0xFF) == 0xA5) {
-          this->state = MessageState::NAME;
+          this->state = MessageState::ALIGN;
           this->trashCount = 2;
         } else if(((this->currentMessage.check >> 24) & 0xFF) == 0xA5) {
-          this->state = MessageState::NAME;
+          this->state = MessageState::ALIGN;
           this->trashCount = 3;
         }
+	this->messageStart = millis();
         break;
       case MessageState::ALIGN:
         this->trash();
@@ -91,6 +92,7 @@ void Hub::emit(int32_t name, int32_t* data, int32_t length)
   for(int32_t i = 0; i < length; ++i){
     writeInt(data[i]);
   }
+  Serial.flush();
 }
 
 int32_t Hub::readInt()

@@ -1,14 +1,13 @@
 #ifndef ARDUINO_SETTINGS
 #define ARDUINO_SETTINGS
 
-#define KILL_PIN 3
 #define ECHO_RETURN 42
 
 // motor pins
-#define FRONT_MOTOR_PIN 4
-#define BACK_MOTOR_PIN 6
-#define LEFT_MOTOR_PIN 3
-#define RIGHT_MOTOR_PIN 5
+#define FRONT_MOTOR_PIN 3 // 3
+#define BACK_MOTOR_PIN 5 // 4
+#define LEFT_MOTOR_PIN 6 // 5
+#define RIGHT_MOTOR_PIN 9 // 6
 
 // motor trims
 #define MOTOR_REVERSE_MAX -0.75
@@ -26,8 +25,8 @@
 #define IMU_HANDLER 10
 
 // kill switch
-#define KILL_SWITCH_CONTROL_PIN 16
-#define KILL_SWITCH_SENSE_PIN 17
+#define KILL_SWITCH_CONTROL_PIN 2 // 16
+#define KILL_SWITCH_SENSE_PIN 4 // 17
 #define KILL_SWITCH_HANLDER 101
 #define KILL_SWITCH_DEBOUNCE_WAIT MILLI_SECONDS(200)
 

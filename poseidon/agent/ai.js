@@ -168,7 +168,7 @@ const gateAi = sequential(
   Command()
     .require('dive','tank')
     .action((system) => {
-      system.dive.depth(200)
+      system.dive.depth(180)
       console.log('target', targetYaw)
       system.tank.heading(targetYaw) // -1.5
       return empty()
@@ -180,7 +180,28 @@ const gateAi = sequential(
       system.tank.throttle(0.3)
       return empty()
     }),
-  waitSeconds(45),
+  waitSeconds(35),
+  Command()
+    .require('tank')
+    .action((system) => {
+      system.tank.heading(targetYaw + 0.611)
+      return empty()
+    }),
+  waitSeconds(18),
+  Command()
+    .require('tank')
+    .action((system) => {
+      system.tank.heading(targetYaw + 0.541)
+      return empty()
+    }),
+  waitSeconds(13),
+  Command()
+    .require('tank')
+    .action((system) => {
+      system.tank.heading(targetYaw + 0.018)
+      return empty()
+    }),
+  waitSeconds(31),
   Command()
     .require('dive','tank')
     .action(system => {
@@ -236,7 +257,7 @@ const yawAi = sequential(
     }),
 )
 module.exports = {
-  ai: yawAi
+  ai: gateAi
 }
 
 /*

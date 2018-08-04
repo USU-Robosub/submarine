@@ -3,7 +3,7 @@
 #include <Comm/Serial/FullStack.hpp>
 #include <Comm/Serial/PortFinder.hpp>
 #include <Comm/TCP/FullStack.hpp>
-#include <Vision/Livestream.hpp>
+//#include <Vision/Livestream.hpp>
 #include <Comm/tools.hpp>
 #include <Subsystem/Dive.hpp>
 #include <Subsystem/Tank.hpp>
@@ -32,7 +32,7 @@ Subsystem::Dive* dive;
 Subsystem::Tank* tank;
 Subsystem::Power* power;
 
-Vision::Livestream* vision3;
+//Vision::Livestream* vision3;
 
 // event loop
 bool stopApp = false;
@@ -45,12 +45,12 @@ int main(){
 }
 
 void createHubs(){
-  std::cout << "Connecting to Vision" << std::endl;
+/*  std::cout << "Connecting to Vision" << std::endl;
   try{
     vision3 = new Vision::Livestream("1-1.3.3",8080,100);
   }catch(...){
     std::cerr << "Could not connect to camera." << std::endl;
-  }
+  }*/
   std::cout << "Connecting to arduino" << std::endl;
   try{
     std::cout << Comm::Serial::PortFinder::findByPath(ARDUINO_PORT) << std::endl;

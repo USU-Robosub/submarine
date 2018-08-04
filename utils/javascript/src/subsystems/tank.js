@@ -13,7 +13,7 @@ function angleBetween(a, b){
 module.exports = (hub, handlerName="tank") => {
 
   let headingCorrectionEnabled = false
-  let headingPidController = pid(0.3,0.06,0.04)
+  let headingPidController = pid(0.5,0.06,0.04)
   let headingTarget = 0
 
   let headingVelocityPidController = pid(0.12, 0, 0)

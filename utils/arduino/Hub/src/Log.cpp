@@ -8,13 +8,13 @@ void setEmitterForLogging(Emitter* emitter, int32_t handler){
   logHandler = handler;
 }
 
-void writeToLog(const char* message, unsigned int length, int level, int32_t* data){
+void writeToLog(const char* message, uint32_t length, int32_t level, int32_t* data){
   if(logEmitter == nullptr) return;
-  unsigned int messageLength = 0;
+  uint32_t messageLength = 0;
   while(message[messageLength++] != 0){}
   messageLength--; // don't count null
-  unsigned int compressedMessageLength = (messageLength + 3) / 4;
-  unsigned int totalLength = 5 + 1 + 2 + compressedMessageLength + length;
+  uint32_t compressedMessageLength = (messageLength + 3) / 4;
+  uint32_t totalLength = 5 + 1 + 2 + compressedMessageLength + length;
   int32_t* logData = new int32_t[totalLength];
   // add log header
   logData[0] = 0;
