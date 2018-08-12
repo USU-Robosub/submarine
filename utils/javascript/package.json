@@ -21,7 +21,8 @@
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
-    "jest": "^21.2.1"
+    "jest": "^21.2.1",
+    "jest-bdd": "^0.4.0"
   },
   "dependencies": {
     "mathjs": "^5.0.4",
